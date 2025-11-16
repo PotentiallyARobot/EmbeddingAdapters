@@ -4,7 +4,7 @@
     "source": "intfloat/e5-base-v2",
     "target": "text-embedding-3-small",
     "flavor": "generic",
-    "description": "Generic adapter from intfloat/e5-base-v2 → OpenAI text-embedding-3-small.",
+    "description": "Generic adapter from intfloat/e5-base-v2 to OpenAI text-embedding-3-small.",
     "version": "0.0.1",
     "tags": [],
     "mode": "local",
@@ -14,6 +14,25 @@
       "weights_file": "adapter_fp16.enc",
       "config_file": "adapter_config.json",
       "scoring_file": "adapter_quality_stats.npz"
+    },
+    "fallback": null,
+    "service": null
+  },
+  {
+    "slug": "emb_adapter_gemini-text-embedding-004_to_text-embedding-3-small_linear_v1",
+    "source": "gemini-text-embedding-004",
+    "target": "text-embedding-3-small",
+    "flavor": "generic",
+    "description": "Generic linear adapter from gemini-text-embedding-004 to OpenAI text-embedding-3-small.",
+    "version": "0.0.1",
+    "tags": [],
+    "mode": "local",
+    "primary": {
+      "type": "huggingface",
+      "repo_id": "TylerF/emb_adapter_gemini_text_embedding_004_768_to_openai_text_embedding_small_linear_v1",
+      "weights_file": "adapter_gemini_to_openai_linear_v1.pt",
+      "config_file": "adapter_config_gemini_to_openai_linear_v1.json",
+      "scoring_file": "adapter_quality_stats_gemini_to_openai_linear_v1.npz"
     },
     "fallback": null,
     "service": null

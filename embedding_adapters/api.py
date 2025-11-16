@@ -176,7 +176,8 @@ class EmbeddingAdapter:
         device: Optional[str] = None,
         *,
         load_source_encoder: bool = False,
-        huggingface_token: str = None
+        huggingface_token: str = None,
+        entry:AdapterEntry = None
     ) -> "EmbeddingAdapter":
         """Load an adapter from a local directory.
 
@@ -187,9 +188,9 @@ class EmbeddingAdapter:
         - [optional] adapter_quality_stats.npz
         """
         adapter_dir = Path(adapter_dir)
-        cfg_path = adapter_dir / "adapter_config.json"
-        weights_path = adapter_dir / "adapter.pt"
-        stats_path = adapter_dir / "adapter_quality_stats.npz"
+        cfg_path = adapter_dir / entry.primary.get("config_file")
+        weights_path = adapter_dir / entry.primary.get('weights_file')
+        stats_path = adapter_dir / entry.primary.get('scoring_file')
 
         if not cfg_path.exists():
             raise FileNotFoundError(f"Config not found: {cfg_path}")
@@ -333,7 +334,8 @@ class EmbeddingAdapter:
             adapter_dir,
             device=device,
             load_source_encoder=load_source_encoder,
-            huggingface_token=huggingface_token
+            huggingface_token=huggingface_token,
+            entry=entry
         )
 
     # --- Convenience constructors ---

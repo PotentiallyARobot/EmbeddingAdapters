@@ -29,7 +29,7 @@ adapter = EmbeddingAdapter.from_pair(
     target="text-embedding-3-small",
     device=device,
     load_source_encoder=True,
-    huggingface_token="*********REPLACE_ME**************"
+    huggingface_token="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"
 )
 
 # -------------------------------------------------------------------------
