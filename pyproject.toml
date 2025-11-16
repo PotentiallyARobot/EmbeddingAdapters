@@ -22,4 +22,12 @@ dependencies = [
 
 [project.urls]
 "Homepage" = "https://github.com/PotentiallyARobot/EmbeddingAdapters"
-"Source" = "https://github.com/PotentiallyARobot/EmbeddingAdapters"
+"Source"   = "https://github.com/PotentiallyARobot/EmbeddingAdapters"
+
+[tool.setuptools]
+# Top-level layout: package code is directly under the repo root
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["embedding_adapters*"]
