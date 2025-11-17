@@ -56,12 +56,11 @@ Real problems this helps with:
 - **Fast experimentation**  
   You want to try different source models against a fixed target space / index without rebuilding the entire system every time. Adapters give you a low-friction way to do that.
 
-In short: **EmbeddingAdapters turns cross-model compatibility into a first-class, reusable primitive**, rather than an ad-hoc alignment script hidden inside a platform or one-off migration project.
-
+In short: **EmbeddingAdapters turns cross-model compatibility into a first-class, reusable primitive**, rather than an ad-hoc alignment script hidden inside a platform or one-off migration projectps!
 
 ---
 ## Why wait >200ms for an embedding?!
-When serving users with familiar or standard questions, waiting ~200ms for a cloud-based embedding model can be unnecessary overhead. By using a local model (or caching strategies) and an adapter layer, you can answer common queries quickly while still aligning with the canonical embedding space. This improves responsiveness and user experience without compromising the integrity of your system. Don't waste time in unnecessary network hop
+When serving users with familiar or standard questions, waiting ~200ms for a cloud-based embedding model can be unnecessary overhead. By using a local model (or caching strategies) and an adapter layer, you can answer common queries quickly while still aligning with the canonical embedding space. This improves responsiveness and user experience without compromising the integrity of your system - Don't waste time in unnecessary network hops!
 
 #Intelligent routing for difficult queries
 When the system recognizes a query as unfamiliar, complex, or requiring higher fidelity, embedding-adapters can help route the request to a stronger or more specialized provider. You maintain a consistent target space while flexibly selecting the best model for this 
