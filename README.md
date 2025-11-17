@@ -13,7 +13,7 @@ It’s particularly useful when you want:
 
 - 💸 **Cheaper embeddings**: Use fantastic open-source models locally, then map your vectors into richer cloud-native spaces.
 - 🚀 **Faster local inference**: Skip network latency by embedding on-device.
-- 🚀 **Have historical embeddings**: Don't want to re-embed all your old source texts to a new model? Use the new model on your queries with an embedding adapter to your older model.
+- 🚀 **Have historical embeddings**: Don't want to re-embed all your old source texts to a new model? No worries, use the new model on your queries.
 - 🌉 **Cross-model compatibility**: Use embeddings from one ecosystem (e.g. Hugging Face/Google Gemini) in another (e.g. OpenAI APIs).
 - 🧩 **Composable adapters**: Stack multiple embedding spaces together for things like hybrid retrieval or intelligent routing.
 
