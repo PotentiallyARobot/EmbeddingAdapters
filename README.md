@@ -1,6 +1,6 @@
 # EmbeddingAdapters 🧠 → 🧠  
-Make embedding spaces interoperable with simple, drop-in adapters.
-
+Make embedding spaces interoperable with simple, drop-in adapters.  
+**Bridge embedding spaces. Use adapters, not hacks.**
 ---
 
 ## What is EmbeddingAdapters?
