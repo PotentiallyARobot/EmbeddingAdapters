@@ -60,7 +60,7 @@ In short: **EmbeddingAdapters turns cross-model compatibility into a first-class
 
 
 ---
-## Why wait >200ms for an embedding?
+## Why wait >200ms for an embedding?!
 When serving users with familiar or standard questions, waiting ~200ms for a cloud-based embedding model can be unnecessary overhead. By using a local model (or caching strategies) and an adapter layer, you can answer common queries quickly while still aligning with the canonical embedding space. This improves responsiveness and user experience without compromising the integrity of your system.
 
 Intelligent routing for difficult queries
