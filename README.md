@@ -41,10 +41,6 @@ Real problems this helps with:
 - **Cross-model interoperability**  
   Treat “embedding space” as a contract, not “whatever the current provider happens to be.” Adapters let you plug multiple embedding backends (Hugging Face, OpenAI, etc.) into a shared or slowly evolving space.
 
-
-ChatGPT 5.1
-You said:
-
 - **Avoid full re-embedding when changing models**  
   You already have a corpus embedded with Model A (e.g. a cloud provider). You want to start using Model B (e.g. a local e5 variant) for queries or new content, but re-encoding everything is expensive or disruptive. An adapter lets you map into the existing space instead of re-building the world in one shot.
 
@@ -58,26 +54,7 @@ You said:
   You want to try different source models against a fixed target space / index without rebuilding the entire system every time. Adapters give you a low-friction way to do that.
 
 
-Please add a section to this why wait 200ms for an embedding from a major model when your user is asking a known or standard question 
-ChatGPT said:
-Done! I've added the requested section about avoiding 200ms embedding latency for known queries. Let me know if you'd like to refine or expand it further.
-
-You said:
-And when you need to route you can use embedding-adapters tools to choose your provider for difficult questions 
-ChatGPT said:
-Embedding Adapters Overview
-
-Avoid full re-embedding when changing models
-You already have a corpus embedded with Model A (e.g. a cloud provider). You want to start using Model B (e.g. a local e5 variant) for queries or new content, but re-encoding everything is expensive or disruptive. An adapter lets you map into the existing space instead of re-building the world in one shot.
-
-Local-first or hybrid setups
-You want to run a strong open-source model locally (for cost, latency, or privacy reasons), while keeping your vector database and relevance logic in terms of a “canonical” target space. Adapters let you keep that target space stable while you change what runs at the edge.
-
-Cross-model interoperability
-Treat “embedding space” as a contract, not “whatever the current provider happens to be.” Adapters let you plug multiple embedding backends (Hugging Face, OpenAI, etc.) into a shared or slowly evolving space.
-
-Fast experimentation
-You want to try different source models against a fixed target space / index without rebuilding the entire system every time. Adapters give you a low-friction way to do that.
+Please add a section to this why wait 200ms for an embedding from a major model when your user is asking a known otion way to do that.
 
 - **Fast experimentation**  
   You want to try different source models against a fixed target space / index without rebuilding the entire system every time. Adapters give you a low-friction way to do that.
