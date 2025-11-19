@@ -19,22 +19,43 @@
     "service": null
   },
   {
-    "slug": "emb_adapter_gemini-text-embedding-004_to_text-embedding-3-small_linear_v1",
-    "source": "gemini-text-embedding-004",
+    "slug": "emb_adapter_all-MiniLM-L6-v2_to_openai_text_embedding_3_medium",
+    "source": "MiniLM-L6-v2",
     "target": "text-embedding-3-small",
     "flavor": "generic",
-    "description": "Generic linear adapter from gemini-text-embedding-004 to OpenAI text-embedding-3-small.",
+    "description": "Generic multi-layer adapter from all-MiniLM-L6-v2 to OpenAI text-embedding-3-small.",
     "version": "0.0.1",
     "tags": [],
     "mode": "local",
     "primary": {
       "type": "huggingface",
-      "repo_id": "TylerF/emb_adapter_gemini_text_embedding_004_768_to_openai_text_embedding_small_linear_v1",
-      "weights_file": "adapter_gemini_to_openai_linear_v1.pt",
-      "config_file": "adapter_config_gemini_to_openai_linear_v1.json",
-      "scoring_file": "adapter_quality_stats_gemini_to_openai_linear_v1.npz"
+      "repo_id": "TylerF/emb_adapter_all-MiniLM-L6-v2_to_openai_text_embedding_3_medium",
+      "weights_file": "adapter_minilm_to_openai_text-embedding-3-small_medium_v1.pt",
+      "config_file": "adapter_config_minilm_to_openai_text-embedding-3-small_medium_v1.json",
+      "scoring_file": "adapter_quality_stats_minilm_to_openai_text-embedding-3-small_medium_v1.npz"
+    },
+    "fallback": null,
+    "service": null
+  },
+  {
+    "slug": "emb_adapter_all-MiniLM-L6-v2_to_gemini_text_embedding_004_small_v1",
+    "source": "MiniLM-L6-v2",
+    "target": "gemini-text-embedding-004",
+    "flavor": "generic",
+    "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
+    "version": "0.0.1",
+    "tags": [],
+    "mode": "local",
+    "primary": {
+      "type": "huggingface",
+      "repo_id": "TylerF/emb_adapter_all-MiniLM-L6-v2_to_gemini_text_embedding_004_small_v1",
+      "weights_file": "adapter_minilm_to_gemini_text-embedding-004_small_v1.pt",
+      "config_file": "adapter_config_minilm_to_gemini_text-embedding-004_small_v1.json",
+      "scoring_file": "adapter_quality_stats_minilm_to_gemini_text-embedding-004_small_v1.npz"
     },
     "fallback": null,
     "service": null
   }
 ]
+
+
