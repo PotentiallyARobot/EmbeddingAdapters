@@ -332,4 +332,5 @@ If you:
 
 …please open an issue or pull request. Critical, thoughtful feedback is welcome — it helps make the library more useful for everyone.
 
-"There is always a way"
+## Final thoughts
+There is always a way.
