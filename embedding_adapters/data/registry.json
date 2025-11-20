@@ -20,7 +20,7 @@
   },
   {
     "slug": "emb_adapter_all-MiniLM-L6-v2_to_openai_text_embedding_3_medium",
-    "source": "MiniLM-L6-v2",
+    "source": "intfloat/MiniLM-L6-v2",
     "target": "text-embedding-3-small",
     "flavor": "generic",
     "description": "Generic multi-layer adapter from all-MiniLM-L6-v2 to OpenAI text-embedding-3-small.",
@@ -39,7 +39,7 @@
   },
   {
     "slug": "emb_adapter_all-MiniLM-L6-v2_to_gemini_text_embedding_004_small_v1",
-    "source": "MiniLM-L6-v2",
+    "source": "intfloat/MiniLM-L6-v2",
     "target": "gemini-text-embedding-004",
     "flavor": "generic",
     "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
