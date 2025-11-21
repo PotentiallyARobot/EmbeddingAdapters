@@ -29,7 +29,7 @@ adapter = EmbeddingAdapter.from_pair(
     target="text-embedding-3-small",
     device=device,
     load_source_encoder=True,
-    huggingface_token="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"
+    huggingface_token=os.environ['HUGGING_FACE_TOKEN']
 )
 
 # -------------------------------------------------------------------------

@@ -74,7 +74,7 @@ adapter = EmbeddingAdapter.from_pair(
     target="text-embedding-3-small",
     flavor="generic",
     device='cpu',
-    huggingface_token="*****REPLACE*****"
+    huggingface_token=os.environ['HUGGING_FACE_TOKEN']
 )
 
 print(f"Adapter in_dim: {adapter.in_dim}, out_dim: {adapter.out_dim}")

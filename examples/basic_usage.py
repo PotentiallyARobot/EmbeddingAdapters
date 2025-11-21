@@ -16,11 +16,11 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 adapter = EmbeddingAdapter.from_pair(
     source="intfloat/e5-base-v2",
-    target="text-embedding-3-small",
-    flavor="generic",
+    target="openai/text_embedding_3_small",
+    flavor="linear",
     device=device,
     load_source_encoder=True,
-    huggingface_token="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"
+    huggingface_token=os.environ['HUGGING_FACE_TOKEN']
 )
 import time
 

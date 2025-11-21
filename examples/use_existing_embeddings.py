@@ -12,7 +12,7 @@ adapter = EmbeddingAdapter.from_pair(
     target="text-embedding-3-small",
     flavor="generic",
     device=device,
-    huggingface_token="*********REPLACE_ME**************"
+    huggingface_token=os.environ['HUGGING_FACE_TOKEN']
 )
 
 # Example: pretend this came from a Gemini-like API

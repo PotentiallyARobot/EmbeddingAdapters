@@ -232,12 +232,7 @@ class EmbeddingAdapter:
         )
 
         # ----- Load weights -----
-        try:
-            # Newer PyTorch: explicitly allow full unpickling for our own checkpoints
-            state = torch.load(weights_path, map_location=device, weights_only=False)
-        except TypeError:
-            # Older PyTorch that doesn't know about weights_only
-            state = torch.load(weights_path, map_location=device)
+        state = torch.load(weights_path, map_location=device)
 
         # Handle AveragedModel / EMA-style checkpoints where parameters
         # are under "module." and there may be an "n_averaged" key.
