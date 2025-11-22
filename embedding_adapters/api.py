@@ -232,7 +232,8 @@ class EmbeddingAdapter:
         )
 
         # ----- Load weights -----
-        state = torch.load(weights_path, map_location=device)
+        #state = torch.load(weights_path, map_location=device)
+        state = torch.load(weights_path, map_location=device, weights_only=True)
 
         # Handle AveragedModel / EMA-style checkpoints where parameters
         # are under "module." and there may be an "n_averaged" key.
@@ -376,7 +377,10 @@ class EmbeddingAdapter:
         self.model.eval()
 
         if isinstance(x, np.ndarray):
-            arr = torch.from_numpy(x.astype("float32", copy=False))
+            try:
+                arr = torch.from_numpy(x.astype("float32", copy=False))
+            except Exception as e:
+                print(e)
         elif torch.is_tensor(x):
             arr = x
             if arr.dtype != torch.float32:
