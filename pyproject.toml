@@ -14,7 +14,7 @@ authors = [
 ]
 dependencies = [
     "torch==2.1.0",
-    "numpy>=2.0.2",
+    "numpy==1.26.4",
     "cryptography>=43,<44",
     "huggingface_hub>=0.24,<0.30",
     "transformers>=4.31.0,<5.0.0",
