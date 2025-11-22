@@ -1,7 +1,10 @@
+import os
 import sys
+from dotenv import load_dotenv
 from pathlib import Path
 project_root = Path(__file__).resolve().parents[1]
 sys.path.append(str(project_root))
+load_dotenv()
 
 import numpy as np
 import torch
@@ -12,7 +15,7 @@ adapter = EmbeddingAdapter.from_pair(
     target="text-embedding-3-small",
     flavor="generic",
     device=device,
-    huggingface_token=os.environ['HUGGING_FACE_TOKEN']
+    huggingface_token=os.environ['HUGGINGFACE_TOKEN']
 )
 
 # Example: pretend this came from a Gemini-like API

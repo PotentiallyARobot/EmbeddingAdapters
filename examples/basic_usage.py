@@ -1,16 +1,17 @@
+import os
 import sys
+from dotenv import load_dotenv
 from pathlib import Path
-
-# Add project root relative to this file
-project_root = Path(__file__).resolve().parents[1]  # parent of the folder containing this script
+project_root = Path(__file__).resolve().parents[1]
 sys.path.append(str(project_root))
+load_dotenv()
 
 import torch
 from embedding_adapters import EmbeddingAdapter, list_adapters
 
 print("Available adapters:")
 for a in list_adapters():
-    print(" -", a["slug"], "from", a["source"], "to", a["target"])
+    print(a["source"], " -> ", a["target"])
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -20,7 +21,7 @@ adapter = EmbeddingAdapter.from_pair(
     flavor="linear",
     device=device,
     load_source_encoder=True,
-    huggingface_token=os.environ['HUGGING_FACE_TOKEN']
+    huggingface_token=os.environ['HUGGINGFACE_TOKEN']
 )
 import time
 

@@ -1,7 +1,11 @@
 import os
 import sys
-import time
+from dotenv import load_dotenv
 from pathlib import Path
+project_root = Path(__file__).resolve().parents[1]
+sys.path.append(str(project_root))
+load_dotenv()
+import time
 
 import numpy as np
 import torch
@@ -12,9 +16,6 @@ os.system(f'"{sys.executable}" -m pip install -q google-genai')
 from google import genai
 from google.genai.types import EmbedContentConfig
 
-# --- 2) Make sure we can import your embedding_adapters package ---
-project_root = Path(__file__).resolve().parents[1]
-sys.path.append(str(project_root))
 
 from embedding_adapters import EmbeddingAdapter, list_adapters
 
@@ -74,7 +75,7 @@ adapter = EmbeddingAdapter.from_pair(
     target="text-embedding-3-small",
     flavor="generic",
     device='cpu',
-    huggingface_token=os.environ['HUGGING_FACE_TOKEN']
+    huggingface_token=os.environ['HUGGINGFACE_TOKEN']
 )
 
 print(f"Adapter in_dim: {adapter.in_dim}, out_dim: {adapter.out_dim}")

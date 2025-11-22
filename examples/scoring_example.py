@@ -1,20 +1,15 @@
-"""
-Example: using the adapter quality scores
-
-Save this as, e.g., examples/quality_usage.py
-and run it after installing / editable-installing your package.
-"""
-
+import os
 import sys
+from dotenv import load_dotenv
 from pathlib import Path
-
-import numpy as np
-import torch
-
-# Point Python at the project root
 project_root = Path(__file__).resolve().parents[1]
 sys.path.append(str(project_root))
-
+load_dotenv()
+# SCORING EXAMPLE
+import sys
+from pathlib import Path
+import numpy as np
+import torch
 from embedding_adapters import EmbeddingAdapter
 from embedding_adapters.quality import interpret_quality
 
@@ -26,10 +21,11 @@ print(f"Using device: {device}")
 
 adapter = EmbeddingAdapter.from_pair(
     source="intfloat/e5-base-v2",
-    target="text-embedding-3-small",
+    target="openai/text_embedding_3_small",
+    flavor="linear",
     device=device,
     load_source_encoder=True,
-    huggingface_token=os.environ['HUGGING_FACE_TOKEN']
+    huggingface_token=os.environ['HUGGINGFACE_TOKEN']
 )
 
 # -------------------------------------------------------------------------

@@ -1,8 +1,10 @@
 import os
-os.environ["HUGGINGFACE_TOKEN"] = "***********"
-os.environ["GEMINI_API_KEY"] = "***********"
-os.environ["OPENAI_API_KEY"] = "***********"
-
+import sys
+from dotenv import load_dotenv
+from pathlib import Path
+project_root = Path(__file__).resolve().parents[1]
+sys.path.append(str(project_root))
+load_dotenv()
 # OPENAI TO GEMINI
 import openai
 import os

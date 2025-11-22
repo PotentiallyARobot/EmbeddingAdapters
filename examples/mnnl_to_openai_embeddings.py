@@ -1,7 +1,15 @@
 import os
 import sys
-import time
+from dotenv import load_dotenv
 from pathlib import Path
+project_root = Path(__file__).resolve().parents[1]
+sys.path.append(str(project_root))
+load_dotenv()
+import os
+import sys
+import time
+import os
+import sys)
 import numpy as np
 import torch
 
@@ -19,8 +27,8 @@ adapter = EmbeddingAdapter.from_registry(
     source="sentence-transformers/all-MiniLM-L6-v2",
     target="gemini/text-embedding-004",
     flavor="generic",
-    device="cpu",
-    huggingface_token=os.environ['HUGGING_FACE_TOKEN']
+    device="gpu",
+    huggingface_token=os.environ['HUGGINGFACE_TOKEN']
 )
 
 texts = [
