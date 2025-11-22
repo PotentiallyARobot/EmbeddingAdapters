@@ -12,8 +12,8 @@ from embedding_adapters import EmbeddingAdapter, list_adapters
 device = "cuda" if torch.cuda.is_available() else "cpu"
 adapter = EmbeddingAdapter.from_pair(
     source="intfloat/e5-base-v2",
-    target="text-embedding-3-small",
-    flavor="generic",
+    target="openai/text_embedding_3_small",
+    flavor="linear",
     device=device,
     huggingface_token=os.environ['HUGGINGFACE_TOKEN']
 )
