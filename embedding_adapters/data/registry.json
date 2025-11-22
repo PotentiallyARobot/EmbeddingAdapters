@@ -136,6 +136,7 @@
     "slug": "emb_adapter_openai_text_embedding_3_small_to_gemini_text_embedding_004_linear_v1",
     "source": "openai/text-embedding-3-small",
     "target": "gemini/text-embedding-004",
+    "in_dim": "1536",
     "flavor": "generic",
     "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
     "version": "0.0.1",
