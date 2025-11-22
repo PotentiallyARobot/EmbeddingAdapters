@@ -58,7 +58,7 @@
   },
   {
     "slug": "emb_adapter_gemini-text-embedding-004_to_text-embedding-3-small_linear_v1",
-    "source": "gemini/gemini-text-embedding-004",
+    "source": "gemini/text-embedding-004",
     "target": "openai/text-embedding-3-small",
     "flavor": "generic",
     "description": "Generic linear adapter from gemini-text-embedding-004 to OpenAI text-embedding-3-small.",
