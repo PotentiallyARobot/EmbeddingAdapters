@@ -124,7 +124,7 @@ Some adapters and source models may require a Hugging Face token:
 
 Example: embed with `sentence-transformers/all-MiniLM-L6-v2` locally and map into an OpenAI embedding space (for example, `text-embedding-3-small`).
 ```bash
-pip install sentence-transformers embedding-adapters
+pip install sentence-transformers embedding-adapters torch numpy
 ```
 ```python
 import torch
