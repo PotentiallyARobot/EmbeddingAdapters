@@ -319,20 +319,6 @@ The guiding principle is to stay **small, explicit, and composable**. Adapters s
 
 ---
 
-## License and weights
-
-- Library code: **MIT**  
-- Adapter weights: **proprietary encrypted files** (e.g. `adapter_fp16.enc`)
-
-In short:
-
-- You can freely use and inspect the Python code.  
-- You may *not* decrypt and redistribute the underlying adapter weights in unencrypted form.
-
-See `license.txt` for full details.
-
----
-
 ## Feedback and contributions
 
 If you:
