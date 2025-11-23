@@ -1,10 +1,11 @@
 # EmbeddingAdapters 🧠 → 🧠  
-<p align="center">
-  <img src="embeddingadapters.png" alt="EmbeddingAdapters logo" width="200">
-</p>
+
 Make embedding spaces interoperable with simple, drop-in adapters.  
 **Bridge embedding spaces. Use adapters, not hacks.**
 ---
+<p align="center">
+  <img src="embeddingadapters.png" alt="EmbeddingAdapters logo" width="200">
+</p>
 
 ## What is EmbeddingAdapters?
 
