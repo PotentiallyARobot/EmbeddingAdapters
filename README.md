@@ -1,5 +1,5 @@
-<p align="center">
-  <img src="embeddingadapters.png" alt="EmbeddingAdapters logo" width="400">
+<p align="left">
+  <img src="embeddingadapters.png" alt="EmbeddingAdapters logo" width="200">
 </p>
 
 # EmbeddingAdapters 🧠 → 🧠  
