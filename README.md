@@ -2,10 +2,7 @@
 
 <p align="left">
   <small><em>Make embedding spaces interoperable with simple, drop-in adapters.</em><br>
-  <em>Bridge embedding spaces. Use adapters, not hacks.</em></small>
 </p>
----
-
 ## What is EmbeddingAdapters?
 
 `embedding-adapters` is a lightweight Python library and model collection that lets you **map embeddings from one model’s space into another’s**.
