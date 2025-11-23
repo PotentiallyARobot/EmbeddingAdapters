@@ -123,40 +123,50 @@ Some adapters and source models may require a Hugging Face token:
 ## Basic usage: map local embeddings into a target space
 
 Example: embed with `intfloat/e5-base-v2` locally and map into an OpenAI-like embedding space (for example, `text-embedding-3-small`).
-
+```bash
+pip install sentence-transformers embedding-adapters
+```
 ```python
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from embedding_adapters import EmbeddingAdapter
 
 # 1) Compute source embeddings with a local / open-source model
-src_model = SentenceTransformer("intfloat/e5-base-v2")
+src_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+device = "cuda" if torch.cuda.is_available() else "cpu"
+# 2) Load a pre-trained adapter from the registry
+adapter = EmbeddingAdapter.from_registry(
+    source="sentence-transformers/all-MiniLM-L6-v2",
+    target="gemini/text-embedding-004",
+    flavor="generic",
+    device=device,
+    huggingface_token=os.environ['HUGGINGFACE_TOKEN']
+)
 
 texts = [
     "NASA announces discovery of Earth-like exoplanet.",
-    "Local team wins the championship after dramatic overtime.",
+    "Can you help me find my keys?"
 ]
 
+# 3) Run embeddings through the source model ---
+start = time.time()
+# Use the base model to encode the text
 src_embs = src_model.encode(
     texts,
     convert_to_numpy=True,
     normalize_embeddings=True,  # important: matches adapter training setup
 )
-
-# 2) Load a pre-trained adapter from the registry
-adapter = EmbeddingAdapter.from_registry(
-    source="intfloat/e5-base-v2",
-    target="text-embedding-3-small",
-    flavor="generic",
-    device="cpu",
-)
-
-# 3) Map into the target embedding space
-tgt_embs = adapter(src_embs)
-print(tgt_embs.shape)  # e.g. (2, 1536)
+# send the base model encodings to the adapter
+translated_embs = adapter.encode_embeddings(src_embs)  # (N, out_dim)
+elapsed_ms = (time.time() - start) * 1000.0
+print(f"[Device: {device}]")
+print(f"Elapsed time for {len(texts)} embeddings in batch: {elapsed_ms:.2f} ms")
+print(f"Average per embedding: {(elapsed_ms / len(texts)):.2f} ms")
+print("Translated embeddings shape:", translated_embs.shape)
+print("First 8 dims of first translated emb:", translated_embs[0][:8])
 ```
 
-The resulting `tgt_embs` live in the **target embedding space** (same dimensionality, compatible geometry), so you can:
+The resulting `translated_embs` live in the **target embedding space** (same dimensionality, compatible geometry), so you can:
 
 - Use them with an existing index built from real target embeddings, or  
 - Mix adapter-derived and native target embeddings in the same vector store (after validating on your workload).
