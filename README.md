@@ -1,7 +1,9 @@
 # EmbeddingAdapters <img src="embeddingadapters.png" alt="EmbeddingAdapters logo" width="100" /> 
 
-*Make embedding spaces interoperable with simple, drop-in adapters.*
-*Bridge embedding spaces. Use adapters, not hacks.*
+<p align="center">
+  <small><em>Make embedding spaces interoperable with simple, drop-in adapters.</em><br>
+  <em>Bridge embedding spaces. Use adapters, not hacks.</em></small>
+</p>
 ---
 
 ## What is EmbeddingAdapters?
