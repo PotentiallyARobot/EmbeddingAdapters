@@ -6,6 +6,9 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
+import time
 
 from huggingface_hub import snapshot_download
 
@@ -22,13 +25,21 @@ PROJECT_ROOT = PACKAGE_ROOT.parent
 # Registry location: embedding_adapters/data/registry.json
 DEFAULT_REGISTRY_PATH = PACKAGE_ROOT / "data" / "registry.json"
 
+# Public raw URL for your registry.json
+DEFAULT_REMOTE_REGISTRY_URL = os.getenv(
+    "EMBEDDING_ADAPTERS_REMOTE_REGISTRY_URL",
+    "https://raw.githubusercontent.com/PotentiallyARobot/embedding-adapters-registry/main/registry.json",
+)
+
 # Cache root for downloaded adapters:
-# By default: <project_root>/models
-# Can be overridden with EMBEDDING_ADAPTERS_CACHE env var if desired.
+# By default: <project_root>/data
 _CACHE_ROOT = Path(
     os.getenv("EMBEDDING_ADAPTERS_CACHE", PROJECT_ROOT / "models")
 ).expanduser().resolve()
 
+# Simple cache dir for the downloaded registry
+_REGISTRY_CACHE_DIR = _CACHE_ROOT / "registry_cache"
+_REGISTRY_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 # ----------------------------
 # Dataclasses
@@ -57,43 +68,141 @@ class AdapterEntry:
 # ----------------------------
 # Registry loading
 # ----------------------------
+def _fetch_remote_registry(url: str) -> Optional[Path]:
+    """
+    Try to download registry.json from the given URL (public GitHub in your case)
+    and cache it locally.
+
+    Returns:
+        Path to the cached file on success, or None on any failure.
+    """
+    if not url:
+        return None
+
+    headers = {
+        "User-Agent": "embedding-adapters/1.0",
+        "Accept": "application/json",
+    }
+
+    req = Request(url, headers=headers)
+
+    try:
+        print(f"[embedding_adapters] Fetching remote registry from {url}")
+        with urlopen(req, timeout=10) as resp:
+            if resp.status != 200:
+                print(
+                    f"[embedding_adapters] Remote registry fetch failed with "
+                    f"status {resp.status} from {url}"
+                )
+                return None
+            data = resp.read()
+    except (HTTPError, URLError) as e:
+        print(
+            f"[embedding_adapters] Warning: could not fetch remote registry from "
+            f"{url}: {e}"
+        )
+        return None
+
+    cache_path = _REGISTRY_CACHE_DIR / "registry.json"
+    try:
+        with open(cache_path, "wb") as f:
+            f.write(data)
+    except OSError as e:
+        print(
+            f"[embedding_adapters] Warning: failed to write cached registry: {e}"
+        )
+        return None
+
+    print(
+        f"[embedding_adapters] Successfully loaded remote registry and cached at {cache_path}"
+    )
+    return cache_path
 
 def load_registry(path: Optional[str | os.PathLike] = None) -> List[AdapterEntry]:
     """Load registry.json and return a list of AdapterEntry.
 
-    Registry shape (example):
+    Resolution order:
 
-    [
-      {
-        "slug": "...",
-        "source": "intfloat/e5-base-v2",
-        "target": "text-embedding-3-small",
-        "flavor": "generic",
-        "description": "...",
-        "version": "0.0.1",
-        "tags": [],
-        "mode": "local",
-        "primary": {
-          "type": "huggingface",
-          "repo_id": "TylerF/emb_adapter_e5-base-v2_to_text-embedding-3-small-v_0_1_fp16",
-          "weights_file": "adapter.pt",
-          "config_file": "adapter_config.json",
-          "scoring_file": "adapter_quality_stats.npz"
-        },
-        "fallback": null,
-        "service": null
-      }
-    ]
+      1. If `path` is provided → use exactly that (no remote logic).
+      2. Else if EMBEDDING_ADAPTERS_REGISTRY is set → use that local path.
+      3. Else:
+           - If EMBEDDING_ADAPTERS_DISABLE_REMOTE=1:
+               → use bundled local registry only.
+           - Else:
+               → Prefer in order:
+                    a) Fresh remote download (if not OFFLINE)
+                    b) Cached remote registry.remote.json (if it exists)
+                    c) Bundled local embedding_adapters/data/registry.json
     """
-    if path is None:
+    # 1) Explicit path from caller
+    if path is not None:
+        registry_path = Path(path)
+    else:
+        # 2) ENV override for a local registry file
         env_path = os.getenv("EMBEDDING_ADAPTERS_REGISTRY")
-        path = env_path if env_path else DEFAULT_REGISTRY_PATH
+        if env_path:
+            registry_path = Path(env_path)
+        else:
+            # 3) Remote / cached / bundled logic
+            disable_remote = os.getenv("EMBEDDING_ADAPTERS_DISABLE_REMOTE") == "1"
+            offline = os.getenv("EMBEDDING_ADAPTERS_OFFLINE") == "1"
 
-    path = Path(path)
-    if not path.exists():
-        raise FileNotFoundError(f"Registry file not found: {path}")
+            if disable_remote:
+                # Ignore remote URL and cached remote entirely
+                print(
+                    "[embedding_adapters] Remote registry disabled via "
+                    "EMBEDDING_ADAPTERS_DISABLE_REMOTE=1; using bundled local registry."
+                )
+                registry_path = DEFAULT_REGISTRY_PATH
+            else:
+                remote_path: Optional[Path] = None
 
-    with open(path, "r", encoding="utf-8") as f:
+                # Only try to download if we're not offline and we have a URL
+                if not offline and DEFAULT_REMOTE_REGISTRY_URL:
+                    remote_path = _fetch_remote_registry(DEFAULT_REMOTE_REGISTRY_URL)
+
+                if remote_path is not None:
+                    # Fresh remote downloaded this run
+                    registry_path = remote_path
+                else:
+                    # Either offline, or fetch failed.
+                    # → Prefer cached remote over bundled local.
+                    if REMOTE_REGISTRY_PATH.exists():
+                        if offline:
+                            print(
+                                "[embedding_adapters] Offline mode enabled "
+                                "(EMBEDDING_ADAPTERS_OFFLINE=1); using cached remote "
+                                f"registry at {REMOTE_REGISTRY_PATH}."
+                            )
+                        else:
+                            print(
+                                "[embedding_adapters] Warning: using cached remote "
+                                f"registry at {REMOTE_REGISTRY_PATH} because fetching "
+                                f"remote registry from {DEFAULT_REMOTE_REGISTRY_URL} failed."
+                            )
+                        registry_path = REMOTE_REGISTRY_PATH
+                    else:
+                        # No cached remote; fall back to bundled local
+                        if DEFAULT_REMOTE_REGISTRY_URL and not offline:
+                            print(
+                                "[embedding_adapters] Warning: using bundled local "
+                                f"registry at {DEFAULT_REGISTRY_PATH} because fetching "
+                                f"remote registry from {DEFAULT_REMOTE_REGISTRY_URL} failed "
+                                "and no cached remote registry is available."
+                            )
+                        elif offline:
+                            print(
+                                "[embedding_adapters] Offline mode enabled but no "
+                                f"cached remote registry at {REMOTE_REGISTRY_PATH}; "
+                                f"using bundled local registry at {DEFAULT_REGISTRY_PATH}."
+                            )
+                        registry_path = DEFAULT_REGISTRY_PATH
+
+    registry_path = registry_path.expanduser().resolve()
+    if not registry_path.exists():
+        raise FileNotFoundError(f"Registry file not found: {registry_path}")
+
+    with open(registry_path, "r", encoding="utf-8") as f:
         raw = json.load(f)
 
     if not isinstance(raw, list):
@@ -123,6 +232,7 @@ def load_registry(path: Optional[str | os.PathLike] = None) -> List[AdapterEntry
     return entries
 
 
+
 def list_adapter_entries() -> List[dict]:
     """User-facing view of registry (used by list_adapters())."""
     entries = load_registry()
@@ -149,10 +259,46 @@ def find_adapter(
     target: str,
     flavor: str = "generic",
     registry_path: Optional[str | os.PathLike] = None,
+    slug: Optional[str] = None,
 ) -> AdapterEntry:
-    """Find a single adapter matching (source, target, flavor)."""
+    """Find a single adapter.
+
+    Priority:
+      - If `slug` is provided, return the entry with that slug (if found).
+      - Otherwise, match on (source, target, flavor) as before.
+    """
     entries = load_registry(registry_path)
 
+    # --- 1. Prefer slug lookup if provided ---
+    if slug is not None:
+        slug_matches: List[AdapterEntry] = [e for e in entries if e.slug == slug]
+
+        if not slug_matches:
+            raise LookupError(f"No adapter found with slug={slug!r}")
+
+        if len(slug_matches) > 1:
+            print(
+                f"[embedding_adapters] Warning: multiple adapters share slug={slug!r}; "
+                f"using first match with source={slug_matches[0].source!r}, "
+                f"target={slug_matches[0].target!r}, flavor={slug_matches[0].flavor!r}"
+            )
+
+        entry = slug_matches[0]
+
+        # Optional sanity checks (non-fatal, just warn if user also passed source/target/flavor)
+        if entry.source != source or entry.target != target or (
+            flavor is not None and entry.flavor != flavor
+        ):
+            print(
+                "[embedding_adapters] Warning: slug lookup returned an entry whose "
+                f"(source={entry.source!r}, target={entry.target!r}, flavor={entry.flavor!r}) "
+                f"does not exactly match requested "
+                f"(source={source!r}, target={target!r}, flavor={flavor!r})."
+            )
+
+        return entry
+
+    # --- 2. Original behavior: match by (source, target, flavor) ---
     matches: List[AdapterEntry] = []
     for e in entries:
         if e.source != source:
@@ -297,3 +443,52 @@ def ensure_local_adapter_files(entry: AdapterEntry, hf_token:str) -> Path:
     _ = target_dir / stats_name  # noqa: F841
 
     return target_dir
+
+# Cache location for remote registry (under your existing models cache)
+REGISTRY_CACHE_DIR = _CACHE_ROOT / "registry"
+REGISTRY_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _download_registry_from_hf(
+    repo_id: str,
+    filename: str = "registry.json",
+    *,
+    repo_type: str = "dataset",         # or "model", configurable
+    revision: Optional[str] = None,     # e.g. "main"
+    token: Optional[str] = None,        # HF token if needed
+) -> Path:
+    """
+    Download a registry.json file from a Hugging Face repo and return the
+    local Path to it. Uses huggingface_hub.snapshot_download so that updates
+    on the repo are reflected locally over time.
+
+    Typical usage:
+        _download_registry_from_hf("your-user/your-registry-repo")
+    """
+    # Put each repo in its own subdir
+    safe_repo_name = repo_id.replace("/", "__")
+    target_dir = REGISTRY_CACHE_DIR / safe_repo_name
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    print(
+        f"[embedding_adapters] Downloading registry from HF repo='{repo_id}', "
+        f"filename='{filename}', repo_type='{repo_type}', revision='{revision or 'latest'}'"
+    )
+
+    local_repo_dir = snapshot_download(
+        repo_id=repo_id,
+        repo_type=repo_type,
+        revision=revision,
+        local_dir=str(target_dir),
+        local_dir_use_symlinks=False,
+        token=token,
+    )
+
+    registry_path = Path(local_repo_dir) / filename
+    if not registry_path.exists():
+        raise FileNotFoundError(
+            f"Downloaded HF repo '{repo_id}' but did not find '{filename}' in it. "
+            f"Looked under: {registry_path}"
+        )
+
+    return registry_path

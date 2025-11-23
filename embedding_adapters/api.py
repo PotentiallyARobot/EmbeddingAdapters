@@ -308,7 +308,8 @@ class EmbeddingAdapter:
         device: Optional[str] = None,
         *,
         load_source_encoder: bool = False,
-        huggingface_token: str =None
+        huggingface_token: str =None,
+        slug: Optional[str] = None
     ) -> "EmbeddingAdapter":
         """Load an adapter by (source, target, flavor) from the registry.
 
@@ -317,7 +318,7 @@ class EmbeddingAdapter:
 
         In the future, 'remote' / 'service' modes can be added here.
         """
-        entry = find_adapter(source, target, flavor=flavor)
+        entry = find_adapter(source, target, flavor=flavor, slug=slug)
 
         if entry.mode != "local":
             raise NotImplementedError(

@@ -9,6 +9,9 @@ load_dotenv()
 import torch
 from embedding_adapters import EmbeddingAdapter, list_adapters
 
+#IF YOU WOULD LIKE YOU CAN DISABLE THE REGISTRY FROM LOADING THE REMOTE BY RUNNING THIS FIRST
+#os.environ['EMBEDDING_ADAPTERS_DISABLE_REMOTE'] = '1'
+
 print("Available adapters:")
 for a in list_adapters():
     print(a["source"], " -> ", a["target"])

@@ -71,8 +71,8 @@ print("Gemini embeddings array shape:", source_emb_np.shape)  # (N, 768)
 #   source="intfloat/e5-base-v2", target="text-embedding-3-small", flavor="generic"
 print("Available adapters:", list_adapters())
 adapter = EmbeddingAdapter.from_pair(
-    source="gemini-text-embedding-004",
-    target="text-embedding-3-small",
+    source="gemini/text-embedding-004",
+    target="openai/text-embedding-3-small",
     flavor="generic",
     device='cpu',
     huggingface_token=os.environ['HUGGINGFACE_TOKEN']
