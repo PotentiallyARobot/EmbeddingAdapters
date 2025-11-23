@@ -328,6 +328,3 @@ If you:
 - Have ideas for better evaluation or diagnostics
 
 …please open an issue or pull request. Critical, thoughtful feedback is welcome — it helps make the library more useful for everyone.
-
-## Final thoughts
-There is always a way.
