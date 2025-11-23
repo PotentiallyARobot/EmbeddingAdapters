@@ -122,7 +122,7 @@ Some adapters and source models may require a Hugging Face token:
 
 ## Basic usage: map local embeddings into a target space
 
-Example: embed with `intfloat/e5-base-v2` locally and map into an OpenAI-like embedding space (for example, `text-embedding-3-small`).
+Example: embed with `sentence-transformers/all-MiniLM-L6-v2` locally and map into an OpenAI embedding space (for example, `text-embedding-3-small`).
 ```bash
 pip install sentence-transformers embedding-adapters
 ```
@@ -139,7 +139,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 # 2) Load a pre-trained adapter from the registry
 adapter = EmbeddingAdapter.from_registry(
     source="sentence-transformers/all-MiniLM-L6-v2",
-    target="gemini/text-embedding-004",
+    target="openai/text-embedding-3-small",
     flavor="generic",
     device=device,
     huggingface_token=os.environ['HUGGINGFACE_TOKEN']
@@ -159,7 +159,7 @@ src_embs = src_model.encode(
     normalize_embeddings=True,  # important: matches adapter training setup
 )
 
-# 5) Send the base model encodings to the adapter
+# 5) Send the base model encodings to the adapter and generate the translated embs
 translated_embs = adapter.encode_embeddings(src_embs)  # (N, out_dim)
 elapsed_ms = (time.time() - start) * 1000.0
 
