@@ -1,21 +1,82 @@
-MIT License
-
+NonCommercial Contribution-Back License (NCCBL) v1.0
 Copyright (c) 2025 Tyler Friddle
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This Software is licensed under the terms below. The copyright holder may release future versions of the Software under different license terms. Copies of the Software obtained under this version of the License remain governed by these terms unless expressly re-licensed by the copyright holder.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Permission is hereby granted, free of charge, to any individual or organization to use, view, modify, and share this Software, provided all conditions of this License are fully met.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+1. Attribution
+All copies, uses, or distributions of this Software, modified or unmodified, must prominently display:
+"Created by Tyler Friddle"
+and a link to the original project repository.
+
+2. Non-Commercial Use Only
+This Software may not be used for any commercial purpose without express written permission from the copyright holder.
+
+"Commercial purpose" includes, but is not limited to:
+- use by or within a for-profit company or organization,
+- use in any product, service, or system that is sold, licensed, monetized, revenue-generating, or provided in exchange for compensation,
+- use in infrastructure or applications operated by a commercial entity,
+- redistribution as part of a commercial offering or package.
+
+For commercial licensing inquiries, contact the copyright holder.
+
+3. Contribution-Back Requirement
+Any modifications, improvements, bug fixes, extensions, or derivative works must be submitted back to the original project as a public contribution (for example, via pull request) before they may be used, shared, or distributed.
+
+You may not:
+- maintain private forks without offering contributions upstream,
+- distribute modified versions without having first submitted the modifications to the original project,
+- publish or distribute a separate competing version of this Software.
+
+Contributors retain copyright to their own contributions.
+However, by submitting a contribution, the contributor grants the copyright holder
+a perpetual, irrevocable, worldwide, royalty-free right to use, modify, relicense, commercialize, and distribute the contribution as part of the Software.
+
+4. No Relicensing, No Sublicensing
+Except for the copyright holder:
+You may not:
+- relicense the Software under any other license,
+- sublicense the Software,
+- merge or incorporate the Software into any other project whose primary license differs from this one,
+- distribute it as part of a larger software bundle under a different license.
+
+Only the copyright holder may relicense or dual-license this Software.
+
+5. Distribution Rules
+You may distribute:
+- the unmodified Software, or
+- a modified version only after you have submitted your modifications upstream and they have been made publicly available by the original project.
+
+You may not distribute:
+- private modified versions,
+- competing forks,
+- rebranded versions,
+- versions intended to replace or supersede the original project.
+
+All distributed versions must remain openly and publicly tied to the original project.
+
+6. No Warranty
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+7. Termination
+Any violation of this License immediately and permanently terminates all rights granted herein.
+Upon termination, you must cease all use, distribution, modification, and possession of the Software.
+
+8. Retained Rights of the Copyright Holder
+The copyright holder reserves the exclusive right to:
+- grant commercial licenses,
+- change or relicense the Software in the future, including releasing future versions under different license terms,
+- enforce or interpret this License,
+- determine acceptable and unacceptable uses of the Software,
+- incorporate or reject contributions.
+
+9. Definitions
+"Software" refers to the code, documentation, assets, and all associated files provided under this License.
+"Contribution" refers to any code, documentation, or material intentionally submitted for inclusion in the Software.
+"Original project repository" refers to the official source designated by the copyright holder and any sources linked herein.
+"Competing version" refers to any project intended to replace, replicate, or supersede this Software.
+
+10. Acceptance
+By using, copying, modifying, or distributing the Software, you agree to all terms of this License in full.
