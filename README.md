@@ -247,17 +247,77 @@ The `embedding_adapters.quality` module provides utilities to estimate when a gi
 Example:
 
 ```python
+import numpy as np
+import torch
+from embedding_adapters import EmbeddingAdapter
 from embedding_adapters.quality import interpret_quality
 
-texts = ["Where can I get a burger?", "asdfasdfasdfasdf"]
+# -------------------------------------------------------------------------
+# 1) Load adapter (with quality stats) and source encoder
+# -------------------------------------------------------------------------
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"Using device: {device}")
 
-src_embs = src_model.encode(
-    texts,
-    convert_to_numpy=True,
-    normalize_embeddings=True,
+adapter = EmbeddingAdapter.from_pair(
+    source="intfloat/e5-base-v2",
+    target="openai/text_embedding_3_small",
+    flavor="linear",
+    device=device,
+    load_source_encoder=True,
+    huggingface_token=os.environ['HUGGINGFACE_TOKEN']
 )
 
+# -------------------------------------------------------------------------
+# 2) Example texts to score
+# -------------------------------------------------------------------------
+texts = [
+    "Where can I get a cheeseburger near my house",
+    "disney world fireworks are amazing",
+    "how to fix a docker networking issue on windows",
+    "asdfasdfasdfasdfasdfasdfasdfasdfasdfasdf",
+]
+
+# Get *source-space* embeddings (e5-base-v2) from the adapter
+src_embs = adapter.encode(
+    texts,
+    as_numpy=True,
+    normalize=True,
+    return_source=True,
+)
+
+# -------------------------------------------------------------------------
+# 3) Get quality scores (numeric)
+# -------------------------------------------------------------------------
 scores = adapter.score_source(src_embs)
+
+# scores is a dict of numpy arrays with shape (N,)
+maha = scores["mahalanobis"]
+knn = scores["knn_distance"]
+conf_maha = scores["conf_maha"]
+conf_knn = scores["conf_knn"]
+conf = scores["confidence"]
+
+print("=== Raw numeric scores (source space) ===")
+for i, t in enumerate(texts):
+    print(f"Example {i+1}: {t!r}")
+    print(f"  mahalanobis   : {maha[i]:.4f}")
+    print(f"  kNN distance  : {knn[i]:.4f}")
+    print(f"  conf_maha     : {conf_maha[i]:.3f}")
+    print(f"  conf_knn      : {conf_knn[i]:.3f}")
+    print(f"  confidence    : {conf[i]:.3f}")
+    print()
+
+# Batch-level numeric summary
+print("Batch confidence stats:")
+print(f"  mean: {float(conf.mean()):.3f}")
+print(f"  min : {float(conf.min()):.3f}")
+print(f"  max : {float(conf.max()):.3f}")
+print()
+
+# -------------------------------------------------------------------------
+# 4) Human-readable interpretation
+# -------------------------------------------------------------------------
+print("=== English interpretation ===")
 print(interpret_quality(texts, scores, space_label="source"))
 ```
 
