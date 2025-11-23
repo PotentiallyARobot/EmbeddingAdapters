@@ -286,38 +286,9 @@ src_embs = adapter.encode(
 )
 
 # -------------------------------------------------------------------------
-# 3) Get quality scores (numeric)
+# 3) Get Quality Scores and Human-readable interpretation
 # -------------------------------------------------------------------------
 scores = adapter.score_source(src_embs)
-
-# scores is a dict of numpy arrays with shape (N,)
-maha = scores["mahalanobis"]
-knn = scores["knn_distance"]
-conf_maha = scores["conf_maha"]
-conf_knn = scores["conf_knn"]
-conf = scores["confidence"]
-
-print("=== Raw numeric scores (source space) ===")
-for i, t in enumerate(texts):
-    print(f"Example {i+1}: {t!r}")
-    print(f"  mahalanobis   : {maha[i]:.4f}")
-    print(f"  kNN distance  : {knn[i]:.4f}")
-    print(f"  conf_maha     : {conf_maha[i]:.3f}")
-    print(f"  conf_knn      : {conf_knn[i]:.3f}")
-    print(f"  confidence    : {conf[i]:.3f}")
-    print()
-
-# Batch-level numeric summary
-print("Batch confidence stats:")
-print(f"  mean: {float(conf.mean()):.3f}")
-print(f"  min : {float(conf.min()):.3f}")
-print(f"  max : {float(conf.max()):.3f}")
-print()
-
-# -------------------------------------------------------------------------
-# 4) Human-readable interpretation
-# -------------------------------------------------------------------------
-print("=== English interpretation ===")
 print(interpret_quality(texts, scores, space_label="source"))
 ```
 
