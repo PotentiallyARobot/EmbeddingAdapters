@@ -4,7 +4,7 @@ Make embedding spaces interoperable with simple, drop-in adapters.
 **Bridge embedding spaces. Use adapters, not hacks.**
 ---
 <p align="center">
-  <img src="embeddingadapters.png" alt="EmbeddingAdapters logo" width="300">
+  <img src="embeddingadapters.png" alt="EmbeddingAdapters logo" width="400">
 </p>
 
 ## What is EmbeddingAdapters?
