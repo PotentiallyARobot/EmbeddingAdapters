@@ -43,9 +43,6 @@ Real problems this helps with:
 - **Avoid full re-embedding when changing models**  
   You already have a corpus embedded with Model A (e.g. a cloud provider). You want to start using Model B (e.g. a local e5 variant) for queries or new content, but re-encoding everything is expensive or disruptive. An adapter lets you map into the existing space instead of re-building the world in one shot.
 
-- **Local-first or hybrid setups**  
-  You want to run a strong open-source model locally (for cost, latency, or privacy reasons), while keeping your vector database and relevance logic in terms of a “canonical” target space. Adapters let you keep that target space stable while you change what runs at the edge.
-
 - **Cross-model interoperability**  
   Treat “embedding space” as a contract, not “whatever the current provider happens to be.” Adapters let you plug multiple embedding backends (Hugging Face, OpenAI, etc.) into a shared or slowly evolving space.
 
