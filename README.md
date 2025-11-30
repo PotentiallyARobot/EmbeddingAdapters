@@ -40,12 +40,6 @@ Real problems this helps with:
 - **Cross-model interoperability**  
   Treat “embedding space” as a contract, not “whatever the current provider happens to be.” Adapters let you plug multiple embedding backends (Hugging Face, OpenAI, etc.) into a shared or slowly evolving space.
 
-- **Avoid full re-embedding when changing models**  
-  You already have a corpus embedded with Model A (e.g. a cloud provider). You want to start using Model B (e.g. a local e5 variant) for queries or new content, but re-encoding everything is expensive or disruptive. An adapter lets you map into the existing space instead of re-building the world in one shot.
-
-- **Cross-model interoperability**  
-  Treat “embedding space” as a contract, not “whatever the current provider happens to be.” Adapters let you plug multiple embedding backends (Hugging Face, OpenAI, etc.) into a shared or slowly evolving space.
-
 - **Fast experimentation**  
   You want to try different source models against a fixed target space / index without rebuilding the entire system every time. Adapters give you a low-friction way to do that.
 
