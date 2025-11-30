@@ -8,18 +8,23 @@ version = "0.0.1"
 description = "Universal embedding-space translation. Neural adapters that map one model's embeddings to another."
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
+license = { text = "NCCBL" }
 authors = [
     { name = "Tyler Friddle" }
 ]
+
 dependencies = [
-    "torch==2.1.0",
-    "numpy==1.26.4",
+    "torch>=2.1,<3.0",
+    "numpy>=1.26.4,<2.0.0",
     "cryptography>=43,<44",
-    "huggingface_hub>=0.24,<0.30",
+    "huggingface_hub>=0.24,<2.0.0",
     "transformers>=4.31.0,<5.0.0",
-    "python-dotenv>=1.0.0"
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
 ]
+
+[project.scripts]
+embedding-adapters = "embedding_adapters.cli:main"
 
 [project.urls]
 "Homepage" = "https://github.com/PotentiallyARobot/EmbeddingAdapters"
