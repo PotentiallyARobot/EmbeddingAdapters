@@ -116,88 +116,94 @@ def _build_fernet(key_b64: str) -> Fernet:
             f"Invalid Fernet key: {e}. Expected a base64-encoded 32-byte key."
         ) from e
 
-
 def decrypt_if_needed(entry: AdapterEntry, device: str, hf_token: str):
     """
     For pro + encrypted adapters:
-      - ensure files are downloaded
-      - fetch a per-slug key from your Worker
-      - decrypt encrypted weights (e.g. adapter.enc → state_dict in memory)
-      - stash state_dict on the AdapterEntry (entry.primary["state_dict"])
+      - FIRST: call your Worker to check entitlement and get the Fernet key
+               (if this fails, we abort before downloading anything)
+      - THEN: ensure files are downloaded
+      - decrypt encrypted weights (e.g. adapter.enc → in-memory bytes)
+      - sanity-check with torch.load
+      - attach state_dict to entry.primary["state_dict"]
 
     For free / non-encrypted adapters:
       - just ensure files exist, return the directory.
 
     Returns:
-        Path to directory containing adapter_config.json and the encrypted
-        weights file; the decrypted weights live only in memory.
+        Path to directory containing adapter_config.json and an attached
+        in-memory state_dict for EmbeddingAdapter.from_local().
     """
-    target_dir = ensure_local_adapter_files(entry, hf_token)
-
     primary_type = (entry.primary or {}).get("type")
-    cfg_name = entry.primary.get("config_file", "adapter_config.json")
-    weights_name = entry.primary.get("weights_file", "adapter.pt")
-
-    cfg_path = target_dir / cfg_name
-
     tags = entry.tags or []
     is_pro = "pro" in tags
 
-    # --- Non-pro or non-encrypted adapters: just use as-is ---
-    if not is_pro or primary_type != "huggingface_encrypted":
-        return target_dir
+    # --- Non-pro OR non-encrypted: just download/use as-is ---
+    if (not is_pro) or primary_type != "huggingface_encrypted":
+        return ensure_local_adapter_files(entry, hf_token)
 
-    # --- Pro + encrypted path ---
-    enc_path = target_dir / weights_name  # e.g. adapter.enc
+    # --- Pro + encrypted: check entitlement BEFORE downloading ---
+    try:
+        key_b64 = _fetch_decrypt_key_for_slug(entry.slug)
+    except RuntimeError as e:
+        from ..auth import PAYMENT_URL
+
+        # At this point we have NOT downloaded anything from HF yet.
+        # Surface a clear message to the user.
+        raise RuntimeError(
+            f"Access denied: The adapter '{entry.slug}' is a PRO model and your API key "
+            "does not include entitlement for it.\n\n"
+            "👉 To purchase PRO access, visit:\n"
+            f"    {PAYMENT_URL}\n\n"
+            "After purchasing, run:\n"
+            "    embedding-adapters login\n"
+            "and enter your API key when prompted.\n\n"
+            "If you believe this is an error or need additional help, please contact:\n"
+            "    embeddingadapters@gmail.com\n"
+        ) from e
+
+    # If we got here, the API key is entitled and we have a Fernet key.
+    fernet = _build_fernet(key_b64)
+
+    # Now we are allowed to download the encrypted weights from HF.
+    target_dir = ensure_local_adapter_files(entry, hf_token)
+
+    primary = entry.primary or {}
+    enc_name = primary.get("weights_file", "adapter.enc")
+    enc_path = target_dir / enc_name
 
     if not enc_path.exists():
         raise FileNotFoundError(
-            f"Encrypted weights not found for '{entry.slug}': {enc_path}"
+            f"Encrypted weights not found for pro adapter '{entry.slug}': {enc_path}"
         )
-
-    # If we've already decrypted once in this process, reuse in-memory state_dict
-    if "state_dict" in entry.primary:
-        print(
-            f"[embedding_adapters] Using existing in-memory decrypted state_dict "
-            f"for '{entry.slug}'"
-        )
-        return target_dir
-
-    # Get per-slug key from your Worker
-    key_b64 = _fetch_decrypt_key_for_slug(entry.slug)
-    fernet = _build_fernet(key_b64)
 
     enc_bytes = enc_path.read_bytes()
+
     try:
         dec_bytes = fernet.decrypt(enc_bytes)
     except InvalidToken as e:
         raise RuntimeError(
             f"Failed to decrypt adapter weights for '{entry.slug}'. "
-            "Are you sure this API key is entitled to this adapter, "
-            "and the Worker has the correct key configured for this slug?"
+            "This usually means the Worker is using a different Fernet key "
+            "than the one used to encrypt the weights on Hugging Face."
         ) from e
 
-    # Load the checkpoint directly from in-memory bytes.
-    # NOTE: weights_only=False because this is your trusted checkpoint.
+    # Sanity check: make sure the decrypted bytes are a valid torch checkpoint
     try:
-        state = torch.load(
-            io.BytesIO(dec_bytes),
-            map_location=device,
-            weights_only=False,
-        )
+        state = torch.load(io.BytesIO(dec_bytes), map_location=device, weights_only=False)
     except Exception as e:
         raise RuntimeError(
             f"Decrypted bytes are not a valid torch checkpoint for '{entry.slug}'. "
-            f"Check that the encryption key used during upload matches the one "
+            "Check that the encryption key used during upload matches the one "
             f"configured in your Worker. Original error: {e}"
         ) from e
 
-    # Stash state_dict in memory on the entry; from_local() will use this.
+    # Attach the in-memory state_dict so EmbeddingAdapter.from_local can use it
+    if not isinstance(entry.primary, dict):
+        entry.primary = dict(entry.primary or {})
     entry.primary["state_dict"] = state
+
     print(
         f"[embedding_adapters] Loaded encrypted adapter for '{entry.slug}'"
     )
 
-    # We no longer patch adapter_config.json or write adapter.pt to disk.
-    # cfg_path is still used for metadata (in_dim, out_dim, etc.) by from_local().
     return target_dir
