@@ -13,7 +13,7 @@ CONFIG_PATH = CONFIG_DIR / "config.json"
 API_BASE = "https://embeddingadapters-api.embedding-adapters.workers.dev"
 
 # 🔗 Your Stripe Payment Link (test or live)
-PAYMENT_URL = "https://buy.stripe.com/test_eVq28s7Kk4i737G5U8eUU01"  # replace with live later
+PAYMENT_URL = "https://buy.stripe.com/bJe7sMggQ7uj37G96keUU00"  # REAL
 
 
 def _save_and_confirm_key(api_key: str) -> bool:
