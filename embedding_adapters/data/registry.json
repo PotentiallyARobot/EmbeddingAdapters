@@ -19,81 +19,83 @@
     "service": null
   },
   {
-  "slug": "emb_adapter_e5-base-v2-to-openai_text_embedding_3_large_v2",
-  "source": "intfloat/e5-base-v2",
-  "target": "openai/text-embedding-3-small",
-  "flavor": "large",
-  "description": "large adapter from intfloat/e5-base-v2 to openai/text-embedding-3-small",
-  "version": "0.0.1",
-  "tags": ["pro"],
-  "mode": "local",
-  "primary": {
-    "type": "huggingface_encrypted",
-    "repo_id": "TylerF/emb_adapter_e5-base-v2-to-openai_text_embedding_3_large_v2",
-    "weights_file": "adapter_e5-base-v2-to-openai_text_embedding_3_large_v2.enc",
-    "config_file": "adapter_config_e5-base-v2-to-openai_text_embedding_3_large_v2.json",
-    "scoring_file": "adapter_quality_stats_e5-base-v2-to-openai_text_embedding_3_large_v2.npz"
-  },
-  "fallback": null,
-  "service": null
-  },
-  {
-  "slug": "emb_adapter_minilm_L6_v2-to-e5-base-v2_large_v1",
-  "source": "sentence-transformers/all-MiniLM-L6-v2",
-  "target": "intfloat/e5-base-v2",
-  "flavor": "large",
-  "description": "large adapter from sentence-transformers/all-MiniLM-L6-v2 to intfloat/e5-base-v2",
-  "version": "0.0.1",
-  "tags": [],
-  "mode": "local",
-  "primary": {
-    "type": "huggingface",
-    "repo_id": "TylerF/emb_adapter_minilm_L6_v2-to-e5-base-v2_large_v1",
-    "weights_file": "adapter_minilm_L6_v2-to-e5-base-v2_large_v1.pt",
-    "config_file": "adapter_config_minilm_L6_v2-to-e5-base-v2_large_v1.json",
-    "scoring_file": "adapter_quality_stats_minilm_L6_v2-to-e5-base-v2_large_v1.npz"
-  },
-  "fallback": null,
-  "service": null
+    "slug": "emb_adapter_e5-base-v2-to-openai_text_embedding_3_large_v2",
+    "source": "intfloat/e5-base-v2",
+    "target": "openai/text-embedding-3-small",
+    "flavor": "large",
+    "description": "large adapter from intfloat/e5-base-v2 to openai/text-embedding-3-small",
+    "version": "0.0.1",
+    "tags": [
+      "pro"
+    ],
+    "mode": "local",
+    "primary": {
+      "type": "huggingface_encrypted",
+      "repo_id": "TylerF/emb_adapter_e5-base-v2-to-openai_text_embedding_3_large_v2",
+      "weights_file": "adapter_e5-base-v2-to-openai_text_embedding_3_large_v2.enc",
+      "config_file": "adapter_config_e5-base-v2-to-openai_text_embedding_3_large_v2.json",
+      "scoring_file": "adapter_quality_stats_e5-base-v2-to-openai_text_embedding_3_large_v2.npz"
+    },
+    "fallback": null,
+    "service": null
   },
   {
-  "slug": "emb_adapter_minilm_to_openai_text-embedding-3-vlarge_v1",
-  "source": "sentence-transformers/all-MiniLM-L6-v2",
-  "target": "openai/text-embedding-3-small",
-  "flavor": "vlarge",
-  "description": "vlarge adapter from sentence-transformers/all-MiniLM-L6-v2 to openai/text-embedding-3-small",
-  "version": "0.0.1",
-  "tags": [],
-  "mode": "local",
-  "primary": {
-    "type": "huggingface",
-    "repo_id": "TylerF/emb_adapter_minilm_to_openai_text-embedding-3-vlarge_v1",
-    "weights_file": "adapter_minilm_to_openai_text-embedding-3-vlarge_v1.pt",
-    "config_file": "adapter_config_minilm_to_openai_text-embedding-3-vlarge_v1.json",
-    "scoring_file": "adapter_quality_stats_minilm_to_openai_text-embedding-3-vlarge_v1.npz"
+    "slug": "emb_adapter_minilm_L6_v2-to-e5-base-v2_large_v1",
+    "source": "sentence-transformers/all-MiniLM-L6-v2",
+    "target": "intfloat/e5-base-v2",
+    "flavor": "large",
+    "description": "large adapter from sentence-transformers/all-MiniLM-L6-v2 to intfloat/e5-base-v2",
+    "version": "0.0.1",
+    "tags": [],
+    "mode": "local",
+    "primary": {
+      "type": "huggingface",
+      "repo_id": "TylerF/emb_adapter_minilm_L6_v2-to-e5-base-v2_large_v1",
+      "weights_file": "adapter_minilm_L6_v2-to-e5-base-v2_large_v1.pt",
+      "config_file": "adapter_config_minilm_L6_v2-to-e5-base-v2_large_v1.json",
+      "scoring_file": "adapter_quality_stats_minilm_L6_v2-to-e5-base-v2_large_v1.npz"
+    },
+    "fallback": null,
+    "service": null
   },
-  "fallback": null,
-  "service": null
-},
   {
-  "slug": "emb_adapter_minilm_to_openai_text-embedding-3-large_v1",
-  "source": "sentence-transformers/all-MiniLM-L6-v2",
-  "target": "openai/text-embedding-3-small",
-  "flavor": "large",
-  "description": "medium adapter from sentence-transformers/all-MiniLM-L6-v2 to openai/text-embedding-3-small",
-  "version": "0.0.1",
-  "tags": [],
-  "mode": "local",
-  "primary": {
-    "type": "huggingface",
-    "repo_id": "TylerF/emb_adapter_minilm_to_openai_text-embedding-3-large_v1",
-    "weights_file": "adapter_minilm_to_openai_text-embedding-3-large_v1.pt",
-    "config_file": "adapter_config_minilm_to_openai_text-embedding-3-large_v1.json",
-    "scoring_file": "adapter_quality_stats_minilm_to_openai_text-embedding-3-large_v1.npz"
+    "slug": "emb_adapter_minilm_to_openai_text-embedding-3-vlarge_v1",
+    "source": "sentence-transformers/all-MiniLM-L6-v2",
+    "target": "openai/text-embedding-3-small",
+    "flavor": "vlarge",
+    "description": "vlarge adapter from sentence-transformers/all-MiniLM-L6-v2 to openai/text-embedding-3-small",
+    "version": "0.0.1",
+    "tags": [],
+    "mode": "local",
+    "primary": {
+      "type": "huggingface",
+      "repo_id": "TylerF/emb_adapter_minilm_to_openai_text-embedding-3-vlarge_v1",
+      "weights_file": "adapter_minilm_to_openai_text-embedding-3-vlarge_v1.pt",
+      "config_file": "adapter_config_minilm_to_openai_text-embedding-3-vlarge_v1.json",
+      "scoring_file": "adapter_quality_stats_minilm_to_openai_text-embedding-3-vlarge_v1.npz"
+    },
+    "fallback": null,
+    "service": null
   },
-  "fallback": null,
-  "service": null
-},
+  {
+    "slug": "emb_adapter_minilm_to_openai_text-embedding-3-large_v1",
+    "source": "sentence-transformers/all-MiniLM-L6-v2",
+    "target": "openai/text-embedding-3-small",
+    "flavor": "large",
+    "description": "medium adapter from sentence-transformers/all-MiniLM-L6-v2 to openai/text-embedding-3-small",
+    "version": "0.0.1",
+    "tags": [],
+    "mode": "local",
+    "primary": {
+      "type": "huggingface",
+      "repo_id": "TylerF/emb_adapter_minilm_to_openai_text-embedding-3-large_v1",
+      "weights_file": "adapter_minilm_to_openai_text-embedding-3-large_v1.pt",
+      "config_file": "adapter_config_minilm_to_openai_text-embedding-3-large_v1.json",
+      "scoring_file": "adapter_quality_stats_minilm_to_openai_text-embedding-3-large_v1.npz"
+    },
+    "fallback": null,
+    "service": null
+  },
   {
     "slug": "emb_adapter_minilm_to_openai_text-embedding-3-medium_v1",
     "source": "sentence-transformers/all-MiniLM-L6-v2",
@@ -139,7 +141,9 @@
     "flavor": "generic",
     "description": "Generic adapter from intfloat/e5-base-v2 to OpenAI text-embedding-3-small.",
     "version": "0.0.1",
-    "tags": ["pro"],
+    "tags": [
+      "pro"
+    ],
     "mode": "local",
     "primary": {
       "type": "huggingface_encrypted",
@@ -158,7 +162,9 @@
     "flavor": "generic",
     "description": "Generic linear adapter from gemini-text-embedding-004 to OpenAI text-embedding-3-small.",
     "version": "0.0.1",
-    "tags": ["pro"],
+    "tags": [
+      "pro"
+    ],
     "mode": "local",
     "primary": {
       "type": "huggingface_encrypted",
@@ -196,12 +202,14 @@
     "flavor": "generic",
     "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
     "version": "0.0.1",
-    "tags": ["pro"],
+    "tags": [
+      "pro"
+    ],
     "mode": "local",
     "primary": {
-      "type": "huggingface",
+      "type": "huggingface_encrypted",
       "repo_id": "TylerF/emb_adapter_all-MiniLM-L6-v2_to_gemini_text_embedding_004_small_v1",
-      "weights_file": "adapter_minilm_to_gemini_text-embedding-004_small_v1.pt",
+      "weights_file": "adapter_minilm_to_gemini_text-embedding-004_small_v1.enc",
       "config_file": "adapter_config_minilm_to_gemini_text-embedding-004_small_v1.json",
       "scoring_file": "adapter_quality_stats_minilm_to_gemini_text-embedding-004_small_v1.npz"
     },
@@ -215,12 +223,14 @@
     "flavor": "generic",
     "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
     "version": "0.0.1",
-    "tags": ["pro"],
+    "tags": [
+      "pro"
+    ],
     "mode": "local",
     "primary": {
-      "type": "huggingface",
+      "type": "huggingface_encrypted",
       "repo_id": "TylerF/emb_adapter_e5-base-v2-to-gemini_text_embedding_004_linear_v1",
-      "weights_file": "adapter_e5-base-v2-to-gemini_text_embedding_004_linear_v1.pt",
+      "weights_file": "adapter_e5-base-v2-to-gemini_text_embedding_004_linear_v1.enc",
       "config_file": "adapter_config_e5-base-v2-to-gemini_text_embedding_004_linear_v1.json",
       "scoring_file": "adapter_quality_stats_e5-base-v2-to-gemini_text_embedding_004_linear_v1.npz"
     },
@@ -235,12 +245,14 @@
     "flavor": "generic",
     "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
     "version": "0.0.1",
-    "tags": ["pro"],
+    "tags": [
+      "pro"
+    ],
     "mode": "local",
     "primary": {
-      "type": "huggingface",
+      "type": "huggingface_encrypted",
       "repo_id": "TylerF/emb_adapter_openai_text_embedding_3_small_to_gemini_text_embedding_004_linear_v1",
-      "weights_file": "adapter_openai_to_gemini_text_embedding_004_linear_v1.pt",
+      "weights_file": "adapter_openai_to_gemini_text_embedding_004_linear_v1.enc",
       "config_file": "adapter_config_openai_to_gemini_text_embedding_004_linear_v1.json",
       "scoring_file": "adapter_quality_stats_openai_to_gemini_text_embedding_004_linear_v1.npz"
     },
@@ -254,12 +266,14 @@
     "flavor": "generic",
     "description": "Go from Google's gemini-text-embedding-004 to e5 base v2.",
     "version": "0.0.1",
-    "tags": ["pro"],
+    "tags": [
+      "pro"
+    ],
     "mode": "local",
     "primary": {
-      "type": "huggingface",
+      "type": "huggingface_encrypted",
       "repo_id": "TylerF/emb_adapter_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1",
-      "weights_file": "adapter_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1.pt",
+      "weights_file": "adapter_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1.enc",
       "config_file": "adapter_config_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1.json",
       "scoring_file": "adapter_quality_stats_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1.npz"
     },
