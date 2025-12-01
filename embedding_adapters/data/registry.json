@@ -139,7 +139,7 @@
     "flavor": "generic",
     "description": "Generic adapter from intfloat/e5-base-v2 to OpenAI text-embedding-3-small.",
     "version": "0.0.1",
-    "tags": [],
+    "tags": ["pro"],
     "mode": "local",
     "primary": {
       "type": "huggingface_encrypted",
@@ -196,7 +196,7 @@
     "flavor": "generic",
     "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
     "version": "0.0.1",
-    "tags": [],
+    "tags": ["pro"],
     "mode": "local",
     "primary": {
       "type": "huggingface",
@@ -215,7 +215,7 @@
     "flavor": "generic",
     "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
     "version": "0.0.1",
-    "tags": [],
+    "tags": ["pro"],
     "mode": "local",
     "primary": {
       "type": "huggingface",
@@ -235,7 +235,7 @@
     "flavor": "generic",
     "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
     "version": "0.0.1",
-    "tags": [],
+    "tags": ["pro"],
     "mode": "local",
     "primary": {
       "type": "huggingface",
@@ -254,7 +254,7 @@
     "flavor": "generic",
     "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
     "version": "0.0.1",
-    "tags": [],
+    "tags": ["pro"],
     "mode": "local",
     "primary": {
       "type": "huggingface",
