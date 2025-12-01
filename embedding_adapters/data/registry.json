@@ -252,13 +252,13 @@
     "source": "gemini/text-embedding-004",
     "target": "intfloat/e5-base-v2",
     "flavor": "generic",
-    "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
+    "description": "Go from Google's gemini-text-embedding-004 to e5 base v2.",
     "version": "0.0.1",
     "tags": ["pro"],
     "mode": "local",
     "primary": {
       "type": "huggingface",
-      "repo_id": "TylerF/emb_adapter_openai_text_embedding_3_small_to_gemini_text_embedding_004_linear_v1",
+      "repo_id": "TylerF/emb_adapter_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1",
       "weights_file": "adapter_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1.pt",
       "config_file": "adapter_config_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1.json",
       "scoring_file": "adapter_quality_stats_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1.npz"
