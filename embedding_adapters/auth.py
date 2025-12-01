@@ -5,15 +5,94 @@ from getpass import getpass
 
 import requests
 
+# Remote system config (will override defaults if available)
+SYSTEM_CONFIG_URL = (
+    "https://raw.githubusercontent.com/"
+    "PotentiallyARobot/embedding-adapters-registry/main/system_config.json"
+)
+
 # Where we store the config locally
 CONFIG_DIR = Path.home() / ".embedding_adapters"
 CONFIG_PATH = CONFIG_DIR / "config.json"
 
-# Base URL for your Worker API
+# Base URL for your Worker API (defaults, can be overridden by system_config.json)
 API_BASE = "https://embeddingadapters-api.embedding-adapters.workers.dev"
 
-# 🔗 Your Stripe Payment Link (test or live)
-PAYMENT_URL = "https://buy.stripe.com/bJe7sMggQ7uj37G96keUU00"  # REAL
+# 🔗 Your Stripe Payment Link (default, can be overridden)
+PAYMENT_URL = "https://buy.stripe.com/eVq28s7Kk4i737G5U8eUU01"  # REAL
+
+# Default support email (can be overridden)
+SUPPORT_EMAIL = "embeddingadapters@gmail.com"
+
+# Default login flow text block. Can be overridden by system_config.json.
+# You can also let the config file redefine this completely.
+DEFAULT_LOGIN_FLOW_TEXT = """
+To use the Embedding Adapters Developer API you need an API key.
+
+If you already have a key (from a previous purchase or from an email),
+paste it below when prompted.
+
+If you don’t have one yet:
+  1. Open this link in your browser:
+     {payment_url}
+  2. Complete checkout.
+  3. Your API key will be emailed to the email you used in the purchase.
+  4. Come back here and paste the key when it arrives.
+
+For support contact {support_email}
+"""
+
+# This will be used by login(). May be overridden by remote config.
+LOGIN_FLOW_TEXT = DEFAULT_LOGIN_FLOW_TEXT
+
+
+def _load_remote_system_config() -> None:
+    """
+    Try to pull down system_config.json from GitHub and override
+    API_BASE, PAYMENT_URL, SUPPORT_EMAIL, and LOGIN_FLOW_TEXT if present.
+
+    On any failure (network error, non-200, invalid JSON, missing keys),
+    we silently fall back to the existing defaults.
+    """
+    global API_BASE, PAYMENT_URL, SUPPORT_EMAIL, LOGIN_FLOW_TEXT
+
+    try:
+        resp = requests.get(SYSTEM_CONFIG_URL, timeout=5)
+    except Exception:
+        # Network or DNS error – keep defaults
+        return
+
+    if resp.status_code != 200:
+        # File missing or other HTTP error – keep defaults
+        return
+
+    try:
+        data = resp.json()
+    except Exception:
+        # Invalid JSON – keep defaults
+        return
+
+    # Override only if keys exist and are non-empty strings
+    api_base = data.get("API_BASE")
+    if isinstance(api_base, str) and api_base.strip():
+        API_BASE = api_base.strip()
+
+    payment_url = data.get("PAYMENT_URL")
+    if isinstance(payment_url, str) and payment_url.strip():
+        PAYMENT_URL = payment_url.strip()
+
+    support_email = data.get("SUPPORT_EMAIL")
+    if isinstance(support_email, str) and support_email.strip():
+        SUPPORT_EMAIL = support_email.strip()
+
+    login_flow_text = data.get("LOGIN_FLOW_TEXT")
+    if isinstance(login_flow_text, str) and login_flow_text.strip():
+        # Allow full override of the text block
+        LOGIN_FLOW_TEXT = login_flow_text
+
+
+# Apply any remote overrides at import time
+_load_remote_system_config()
 
 
 def _save_and_confirm_key(api_key: str) -> bool:
@@ -91,24 +170,24 @@ def login() -> None:
         else:
             print("Saved key is invalid or revoked. You’ll need to paste a new one.\n")
 
-    # 2) Explain the flow in a single, intuitive path
-    print("To use the Embedding Adapters Developer API you need an API key.\n")
-    print("If you already have a key (from a previous purchase or from an email),")
-    print("paste it below when prompted.\n")
-    print("If you don’t have one yet:")
-    print("  1. Open this link in your browser:")
-    print(f"     {PAYMENT_URL}")
-    print("  2. Complete checkout.")
-    print("  3. Your API key will be emailed to the email you used in the purchase.")
-    print("  4. Come back here and paste the key when it arrives.\n")
-    print("For support contact embeddingadapters@gmail.com\n")
+    # 2) Single block of explanatory text (possibly overridden by remote config)
+    # We allow the text to reference {payment_url} and {support_email}
+    print(
+        LOGIN_FLOW_TEXT.format(
+            payment_url=PAYMENT_URL,
+            support_email=SUPPORT_EMAIL,
+        )
+    )
 
     api_key = getpass(
         "Paste your Embedding Adapters API key (or leave blank to cancel): "
     ).strip()
 
     if not api_key:
-        print("No key entered. You can re-run `embedding-adapters login` after you receive your key.")
+        print(
+            "No key entered. You can re-run `embedding-adapters login` after you "
+            "receive your key."
+        )
         return
 
     _save_and_confirm_key(api_key)
