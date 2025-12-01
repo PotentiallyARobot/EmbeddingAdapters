@@ -232,8 +232,22 @@ class EmbeddingAdapter:
         )
 
         # ----- Load weights -----
-        #state = torch.load(weights_path, map_location=device)
-        state = torch.load(weights_path, map_location=device, weights_only=True)
+        # If decrypt_if_needed already decrypted into memory, reuse it.
+        if entry is not None and isinstance(entry.primary, dict) and "state_dict" in entry.primary:
+            state = entry.primary["state_dict"]
+            print(
+                f"[EmbeddingAdapter] Using in-memory state_dict for '{entry.slug}' "
+                "instead of loading from disk."
+            )
+        else:
+            # For PyTorch 2.6+, weights_only=True is stricter and can fail on older
+            # checkpoints. This checkpoint is trusted (your own model), so we allow
+            # full unpickling with weights_only=False.
+            state = torch.load(
+                weights_path,
+                map_location=device,
+                weights_only=False,
+            )
 
         # Handle AveragedModel / EMA-style checkpoints where parameters
         # are under "module." and there may be an "n_averaged" key.

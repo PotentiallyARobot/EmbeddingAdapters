@@ -122,15 +122,15 @@ def decrypt_if_needed(entry: AdapterEntry, device: str, hf_token: str):
     For pro + encrypted adapters:
       - ensure files are downloaded
       - fetch a per-slug key from your Worker
-      - decrypt encrypted weights (e.g. adapter.enc → adapter.pt)
-      - patch config to point to adapter.pt
+      - decrypt encrypted weights (e.g. adapter.enc → state_dict in memory)
+      - stash state_dict on the AdapterEntry (entry.primary["state_dict"])
 
     For free / non-encrypted adapters:
       - just ensure files exist, return the directory.
 
     Returns:
-        Path to directory containing adapter_config.json and adapter.pt
-        ready for EmbeddingAdapter.from_local().
+        Path to directory containing adapter_config.json and the encrypted
+        weights file; the decrypted weights live only in memory.
     """
     target_dir = ensure_local_adapter_files(entry, hf_token)
 
@@ -148,59 +148,57 @@ def decrypt_if_needed(entry: AdapterEntry, device: str, hf_token: str):
         return target_dir
 
     # --- Pro + encrypted path ---
-    enc_path = target_dir / weights_name          # e.g. adapter.enc
-    plain_pt_path = target_dir / "adapter.pt"     # final decrypted weights
+    enc_path = target_dir / weights_name  # e.g. adapter.enc
 
     if not enc_path.exists():
         raise FileNotFoundError(
             f"Encrypted weights not found for '{entry.slug}': {enc_path}"
         )
 
-    # If we already decrypted once, reuse
-    if plain_pt_path.exists():
-        print(f"[embedding_adapters] Using existing decrypted adapter at {plain_pt_path}")
-    else:
-        # Get per-slug key from your Worker
-        key_b64 = _fetch_decrypt_key_for_slug(entry.slug)
-        fernet = _build_fernet(key_b64)
+    # If we've already decrypted once in this process, reuse in-memory state_dict
+    if "state_dict" in entry.primary:
+        print(
+            f"[embedding_adapters] Using existing in-memory decrypted state_dict "
+            f"for '{entry.slug}'"
+        )
+        return target_dir
 
-        enc_bytes = enc_path.read_bytes()
-        try:
-            dec_bytes = fernet.decrypt(enc_bytes)
-        except InvalidToken as e:
-            raise RuntimeError(
-                f"Failed to decrypt adapter weights for '{entry.slug}'. "
-                "Are you sure this API key is entitled to this adapter, "
-                "and the Worker has the correct key configured for this slug?"
-            ) from e
+    # Get per-slug key from your Worker
+    key_b64 = _fetch_decrypt_key_for_slug(entry.slug)
+    fernet = _build_fernet(key_b64)
 
-        # Optional sanity check: confirm it's a valid torch checkpoint
-        try:
-            _ = torch.load(io.BytesIO(dec_bytes), map_location="cpu")
-        except Exception as e:
-            raise RuntimeError(
-                f"Decrypted bytes are not a valid torch checkpoint for '{entry.slug}'. "
-                f"Check that the encryption key used during upload matches the one "
-                f"configured in your Worker. Original error: {e}"
-            ) from e
+    enc_bytes = enc_path.read_bytes()
+    try:
+        dec_bytes = fernet.decrypt(enc_bytes)
+    except InvalidToken as e:
+        raise RuntimeError(
+            f"Failed to decrypt adapter weights for '{entry.slug}'. "
+            "Are you sure this API key is entitled to this adapter, "
+            "and the Worker has the correct key configured for this slug?"
+        ) from e
 
-        plain_pt_path.write_bytes(dec_bytes)
-        print(f"[embedding_adapters] Decrypted adapter for '{entry.slug}' to {plain_pt_path}")
+    # Load the checkpoint directly from in-memory bytes.
+    # NOTE: weights_only=False because this is your trusted checkpoint.
+    try:
+        state = torch.load(
+            io.BytesIO(dec_bytes),
+            map_location=device,
+            weights_only=False,
+        )
+    except Exception as e:
+        raise RuntimeError(
+            f"Decrypted bytes are not a valid torch checkpoint for '{entry.slug}'. "
+            f"Check that the encryption key used during upload matches the one "
+            f"configured in your Worker. Original error: {e}"
+        ) from e
 
-    # --- Patch adapter_config.json so from_local loads adapter.pt ---
-    if cfg_path.exists():
-        try:
-            cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
-        except Exception:
-            cfg = {}
+    # Stash state_dict in memory on the entry; from_local() will use this.
+    entry.primary["state_dict"] = state
+    print(
+        f"[embedding_adapters] Decrypted adapter for '{entry.slug}' into memory "
+        "(state_dict attached to entry.primary['state_dict'])"
+    )
 
-        if isinstance(cfg, dict):
-            if cfg.get("weights_file") != "adapter.pt":
-                cfg["weights_file"] = "adapter.pt"
-                cfg_path.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
-                print(
-                    f"[embedding_adapters] Updated {cfg_path.name} weights_file to 'adapter.pt' "
-                    f"for slug='{entry.slug}'"
-                )
-
+    # We no longer patch adapter_config.json or write adapter.pt to disk.
+    # cfg_path is still used for metadata (in_dim, out_dim, etc.) by from_local().
     return target_dir

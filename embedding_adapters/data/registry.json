@@ -25,14 +25,33 @@
   "flavor": "large",
   "description": "large adapter from intfloat/e5-base-v2 to openai/text-embedding-3-small",
   "version": "0.0.1",
+  "tags": ["pro"],
+  "mode": "local",
+  "primary": {
+    "type": "huggingface_encrypted",
+    "repo_id": "TylerF/emb_adapter_e5-base-v2-to-openai_text_embedding_3_large_v2",
+    "weights_file": "adapter_e5-base-v2-to-openai_text_embedding_3_large_v2.enc",
+    "config_file": "adapter_config_e5-base-v2-to-openai_text_embedding_3_large_v2.json",
+    "scoring_file": "adapter_quality_stats_e5-base-v2-to-openai_text_embedding_3_large_v2.npz"
+  },
+  "fallback": null,
+  "service": null
+  },
+  {
+  "slug": "emb_adapter_minilm_L6_v2-to-e5-base-v2_large_v1",
+  "source": "sentence-transformers/all-MiniLM-L6-v2",
+  "target": "intfloat/e5-base-v2",
+  "flavor": "large",
+  "description": "large adapter from sentence-transformers/all-MiniLM-L6-v2 to intfloat/e5-base-v2",
+  "version": "0.0.1",
   "tags": [],
   "mode": "local",
   "primary": {
     "type": "huggingface",
-    "repo_id": "TylerF/emb_adapter_e5-base-v2-to-openai_text_embedding_3_large_v2",
-    "weights_file": "adapter_e5-base-v2-to-openai_text_embedding_3_large_v2.pt",
-    "config_file": "adapter_config_e5-base-v2-to-openai_text_embedding_3_large_v2.json",
-    "scoring_file": "adapter_quality_stats_e5-base-v2-to-openai_text_embedding_3_large_v2.npz"
+    "repo_id": "TylerF/emb_adapter_minilm_L6_v2-to-e5-base-v2_large_v1",
+    "weights_file": "adapter_minilm_L6_v2-to-e5-base-v2_large_v1.pt",
+    "config_file": "adapter_config_minilm_L6_v2-to-e5-base-v2_large_v1.json",
+    "scoring_file": "adapter_quality_stats_minilm_L6_v2-to-e5-base-v2_large_v1.npz"
   },
   "fallback": null,
   "service": null
@@ -63,7 +82,7 @@
   "flavor": "large",
   "description": "medium adapter from sentence-transformers/all-MiniLM-L6-v2 to openai/text-embedding-3-small",
   "version": "0.0.1",
-  "tags": ['pro'],
+  "tags": [],
   "mode": "local",
   "primary": {
     "type": "huggingface",
@@ -139,12 +158,12 @@
     "flavor": "generic",
     "description": "Generic linear adapter from gemini-text-embedding-004 to OpenAI text-embedding-3-small.",
     "version": "0.0.1",
-    "tags": ['pro'],
+    "tags": ["pro"],
     "mode": "local",
     "primary": {
-      "type": "huggingface",
+      "type": "huggingface_encrypted",
       "repo_id": "TylerF/emb_adapter_gemini_text_embedding_004_768_to_openai_text_embedding_small_linear_v1",
-      "weights_file": "adapter_gemini_to_openai_linear_v1.pt",
+      "weights_file": "adapter_gemini_to_openai_linear_v1.enc",
       "config_file": "adapter_config_gemini_to_openai_linear_v1.json",
       "scoring_file": "adapter_quality_stats_gemini_to_openai_linear_v1.npz"
     },
