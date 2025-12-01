@@ -195,8 +195,7 @@ def decrypt_if_needed(entry: AdapterEntry, device: str, hf_token: str):
     # Stash state_dict in memory on the entry; from_local() will use this.
     entry.primary["state_dict"] = state
     print(
-        f"[embedding_adapters] Decrypted adapter for '{entry.slug}' into memory "
-        "(state_dict attached to entry.primary['state_dict'])"
+        f"[embedding_adapters] Loaded encrypted adapter for '{entry.slug}'"
     )
 
     # We no longer patch adapter_config.json or write adapter.pt to disk.
