@@ -149,7 +149,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 adapter = EmbeddingAdapter.from_registry(
     source="sentence-transformers/all-MiniLM-L6-v2",
     target="openai/text-embedding-3-small",
-    flavor="generic",
+    flavor="large",
     device=device,
     huggingface_token=os.environ['HUGGINGFACE_TOKEN']
 )
