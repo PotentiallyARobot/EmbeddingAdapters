@@ -5,7 +5,7 @@
     "target": "openai/text_embedding_3_small",
     "flavor": "small",
     "description": "Generic adapter from intfloat/e5-base-v2 to OpenAI openai_text_embedding_3 shallow",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [],
     "mode": "local",
     "primary": {
@@ -24,7 +24,7 @@
     "target": "openai/text-embedding-3-small",
     "flavor": "large",
     "description": "large adapter from intfloat/e5-base-v2 to openai/text-embedding-3-small",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [
       "pro"
     ],
@@ -45,7 +45,7 @@
     "target": "intfloat/e5-base-v2",
     "flavor": "large",
     "description": "large adapter from sentence-transformers/all-MiniLM-L6-v2 to intfloat/e5-base-v2",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [],
     "mode": "local",
     "primary": {
@@ -64,7 +64,7 @@
     "target": "openai/text-embedding-3-small",
     "flavor": "vlarge",
     "description": "vlarge adapter from sentence-transformers/all-MiniLM-L6-v2 to openai/text-embedding-3-small",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [],
     "mode": "local",
     "primary": {
@@ -83,7 +83,7 @@
     "target": "openai/text-embedding-3-small",
     "flavor": "large",
     "description": "medium adapter from sentence-transformers/all-MiniLM-L6-v2 to openai/text-embedding-3-small",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [],
     "mode": "local",
     "primary": {
@@ -102,7 +102,7 @@
     "target": "openai/text-embedding-3-small",
     "flavor": "medium",
     "description": "medium adapter from sentence-transformers/all-MiniLM-L6-v2 to openai/text-embedding-3-small",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [],
     "mode": "local",
     "primary": {
@@ -121,7 +121,7 @@
     "target": "openai/text_embedding_3_small",
     "flavor": "linear",
     "description": "Generic adapter from intfloat/e5-base-v2 to OpenAI openai_text_embedding_3 shallow",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [],
     "mode": "local",
     "primary": {
@@ -140,7 +140,7 @@
     "target": "openai/text-embedding-3-small",
     "flavor": "generic",
     "description": "Generic adapter from intfloat/e5-base-v2 to OpenAI text-embedding-3-small.",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [
       "pro"
     ],
@@ -161,7 +161,7 @@
     "target": "openai/text-embedding-3-small",
     "flavor": "generic",
     "description": "Generic linear adapter from gemini-text-embedding-004 to OpenAI text-embedding-3-small.",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [
       "pro"
     ],
@@ -182,7 +182,7 @@
     "target": "openai/text-embedding-3-small",
     "flavor": "generic",
     "description": "Generic multi-layer adapter from all-MiniLM-L6-v2 to OpenAI text-embedding-3-small.",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [],
     "mode": "local",
     "primary": {
@@ -201,7 +201,7 @@
     "target": "gemini/text-embedding-004",
     "flavor": "generic",
     "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [
       "pro"
     ],
@@ -222,7 +222,7 @@
     "target": "gemini/text-embedding-004",
     "flavor": "generic",
     "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [
       "pro"
     ],
@@ -244,7 +244,7 @@
     "in_dim": "1536",
     "flavor": "generic",
     "description": "Generic small multi layer from MiniLM-L6-v2 to Google's gemini-text-embedding-004.",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [
       "pro"
     ],
@@ -265,7 +265,7 @@
     "target": "intfloat/e5-base-v2",
     "flavor": "generic",
     "description": "Go from Google's gemini-text-embedding-004 to e5 base v2.",
-    "version": "0.0.1",
+    "version": ">=0.0.1",
     "tags": [
       "pro"
     ],

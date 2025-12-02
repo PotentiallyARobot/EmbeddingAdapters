@@ -11,7 +11,7 @@ from urllib.error import URLError, HTTPError
 import time
 
 from huggingface_hub import snapshot_download
-
+from .utils.version_helper import _get_current_package_version_str, _entry_supports_version
 # ----------------------------
 # Paths: package, registry, cache
 # ----------------------------
@@ -118,8 +118,9 @@ def _fetch_remote_registry(url: str) -> Optional[Path]:
     )
     return cache_path
 
+
 def load_registry(path: Optional[str | os.PathLike] = None) -> List[AdapterEntry]:
-    """Load registry.json and return a list of AdapterEntry.
+    """Load registry.json and return a list of AdapterEntry, filtered by package version.
 
     Resolution order:
 
@@ -133,22 +134,27 @@ def load_registry(path: Optional[str | os.PathLike] = None) -> List[AdapterEntry
                     a) Fresh remote download (if not OFFLINE)
                     b) Cached remote registry.remote.json (if it exists)
                     c) Bundled local embedding_adapters/data/registry.json
+
+    Version behavior:
+      - Each entry's "version" field is treated as a version spec string.
+      - Examples:
+          "0.0.1"                → only visible to package version 0.0.1
+          ">=0.2.0,<0.4.0"       → visible when 0.2.0 <= pkg_version < 0.4.0
+          "" or missing          → visible for all versions
     """
-    # 1) Explicit path from caller
+
+    # 1) Determine which registry file to load (your existing logic)
     if path is not None:
         registry_path = Path(path)
     else:
-        # 2) ENV override for a local registry file
         env_path = os.getenv("EMBEDDING_ADAPTERS_REGISTRY")
         if env_path:
             registry_path = Path(env_path)
         else:
-            # 3) Remote / cached / bundled logic
             disable_remote = os.getenv("EMBEDDING_ADAPTERS_DISABLE_REMOTE") == "1"
             offline = os.getenv("EMBEDDING_ADAPTERS_OFFLINE") == "1"
 
             if disable_remote:
-                # Ignore remote URL and cached remote entirely
                 print(
                     "[embedding_adapters] Remote registry disabled via "
                     "EMBEDDING_ADAPTERS_DISABLE_REMOTE=1; using bundled local registry."
@@ -157,16 +163,12 @@ def load_registry(path: Optional[str | os.PathLike] = None) -> List[AdapterEntry
             else:
                 remote_path: Optional[Path] = None
 
-                # Only try to download if we're not offline and we have a URL
                 if not offline and DEFAULT_REMOTE_REGISTRY_URL:
                     remote_path = _fetch_remote_registry(DEFAULT_REMOTE_REGISTRY_URL)
 
                 if remote_path is not None:
-                    # Fresh remote downloaded this run
                     registry_path = remote_path
                 else:
-                    # Either offline, or fetch failed.
-                    # → Prefer cached remote over bundled local.
                     if REMOTE_REGISTRY_PATH.exists():
                         if offline:
                             print(
@@ -182,7 +184,6 @@ def load_registry(path: Optional[str | os.PathLike] = None) -> List[AdapterEntry
                             )
                         registry_path = REMOTE_REGISTRY_PATH
                     else:
-                        # No cached remote; fall back to bundled local
                         if DEFAULT_REMOTE_REGISTRY_URL and not offline:
                             print(
                                 "[embedding_adapters] Warning: using bundled local "
@@ -208,8 +209,14 @@ def load_registry(path: Optional[str | os.PathLike] = None) -> List[AdapterEntry
     if not isinstance(raw, list):
         raise ValueError("Registry JSON must be a list of adapter entries.")
 
+    current_version_str = _get_current_package_version_str()
     entries: List[AdapterEntry] = []
+
     for obj in raw:
+        # Filter by version spec
+        if not _entry_supports_version(obj, current_version_str):
+            continue
+
         tags = obj.get("tags") or []
         if not isinstance(tags, list):
             tags = [str(tags)]
@@ -220,7 +227,7 @@ def load_registry(path: Optional[str | os.PathLike] = None) -> List[AdapterEntry
             target=obj["target"],
             flavor=obj.get("flavor", "generic"),
             description=obj.get("description", ""),
-            version=obj.get("version", "0.0.1"),
+            version=str(obj.get("version", "")) or ">=0.0.1",
             tags=[str(t) for t in tags],
             mode=obj.get("mode", "local"),
             primary=obj.get("primary", {}) or {},

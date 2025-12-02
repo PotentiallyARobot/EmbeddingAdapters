@@ -236,8 +236,7 @@ class EmbeddingAdapter:
         if entry is not None and isinstance(entry.primary, dict) and "state_dict" in entry.primary:
             state = entry.primary["state_dict"]
             print(
-                f"[EmbeddingAdapter] Using in-memory state_dict for '{entry.slug}' "
-                "instead of loading from disk."
+                f"[EmbeddingAdapter] Loaded state_dict for '{entry.slug}'."
             )
         else:
             # For PyTorch 2.6+, weights_only=True is stricter and can fail on older
