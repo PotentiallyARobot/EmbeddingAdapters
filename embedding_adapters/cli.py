@@ -4,6 +4,8 @@ import sys
 import json
 import argparse
 from importlib import metadata as importlib_metadata
+import urllib.request
+import urllib.error
 
 from .auth import login
 from .loader import (
@@ -11,6 +13,16 @@ from .loader import (
     list_adapter_entries,
     find_adapter,
     AdapterEntry,
+)
+
+ANNOUNCEMENTS_URL = (
+    "https://raw.githubusercontent.com/"
+    "PotentiallyARobot/embedding-adapters-registry/main/announcements.txt"
+)
+
+SYSTEM_CONFIG_URL = (
+    "https://raw.githubusercontent.com/"
+    "PotentiallyARobot/embedding-adapters-registry/main/system_config.json"
 )
 
 
@@ -51,11 +63,110 @@ def _adapter_entry_to_dict(entry: AdapterEntry) -> dict:
 
 
 # ---------------------------------------------------------------------
+# helpers for remote config
+# ---------------------------------------------------------------------
+def _fetch_text(url: str) -> str:
+    """Fetch a text resource over HTTP and return it decoded as str."""
+    try:
+        with urllib.request.urlopen(url, timeout=10) as resp:
+            encoding = resp.headers.get_content_charset() or "utf-8"
+            return resp.read().decode(encoding, errors="replace")
+    except urllib.error.URLError as exc:
+        print(f"Error: could not fetch {url}: {exc}")
+        raise SystemExit(1)
+    except Exception as exc:
+        print(f"Unexpected error while fetching {url}: {exc}")
+        raise SystemExit(1)
+
+
+def _fetch_system_config() -> dict:
+    """Fetch and parse system_config.json from the registry repo."""
+    text = _fetch_text(SYSTEM_CONFIG_URL)
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError as exc:
+        print(f"Error: system_config.json is not valid JSON: {exc}")
+        raise SystemExit(1)
+    if not isinstance(data, dict):
+        print("Error: system_config.json is not a JSON object.")
+        raise SystemExit(1)
+    return data
+
+
+# ---------------------------------------------------------------------
 # login
 # ---------------------------------------------------------------------
 def _cmd_login(_args: argparse.Namespace) -> None:
     """Handle `embedding-adapters login`."""
     login()
+
+
+# ---------------------------------------------------------------------
+# announcements
+# ---------------------------------------------------------------------
+def _cmd_announcements(_args: argparse.Namespace) -> None:
+    """
+    Handle `embedding-adapters news`.
+
+    Fetch and display project-wide announcements from the central registry
+    repository. This allows the project maintainers to broadcast important
+    messages (breaking changes, deprecations, etc.) to all CLI users.
+    """
+    text = _fetch_text(ANNOUNCEMENTS_URL).strip()
+    if not text:
+        print("No announcements at this time.")
+        return
+    print(text)
+
+
+# ---------------------------------------------------------------------
+# donate
+# ---------------------------------------------------------------------
+def _cmd_donate(_args: argparse.Namespace) -> None:
+    """
+    Handle `embedding-adapters donate`.
+
+    Fetch DONATE_URL from system_config.json and print it, so users can
+    easily support the project financially.
+    """
+    config = _fetch_system_config()
+    url = config.get("DONATE_URL")
+    if not url:
+        print("No DONATE_URL configured in system_config.json.")
+        return
+    print(url)
+
+
+# ---------------------------------------------------------------------
+# docs
+# ---------------------------------------------------------------------
+_DOC_KEYS = [
+    "DOCS_URL",
+    "DOCUMENTATION_URL",
+    "DOC_URL",
+]
+
+
+def _cmd_docs(_args: argparse.Namespace) -> None:
+    """
+    Handle `embedding-adapters docs`.
+
+    Fetch a documentation URL from system_config.json and print it.
+    """
+    config = _fetch_system_config()
+
+    url = None
+    for key in _DOC_KEYS:
+        value = config.get(key)
+        if value:
+            url = value
+            break
+
+    if not url:
+        print("No documentation URL configured in system_config.json.")
+        return
+
+    print(url)
 
 
 # ---------------------------------------------------------------------
@@ -233,7 +344,6 @@ def _cmd_paths(_args: argparse.Namespace) -> None:
     print(json.dumps(path_list, indent=2, sort_keys=False))
 
 
-
 def _cmd_help(args: argparse.Namespace) -> None:
     """Handle `embedding-adapters help` – print the main help."""
     parser = getattr(args, "_parser", None)
@@ -254,7 +364,11 @@ def _cmd_version(_args: argparse.Namespace) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="embedding-adapters",
-        description="CLI for managing and inspecting embedding adapters.",
+        description=(
+            "Command-line tools for working with embedding adapters. "
+            "Run `embedding-adapters login` to purchase an API key, and "
+            "`embedding-adapters news` to check for project updates."
+        )
     )
     subparsers = parser.add_subparsers(
         dest="command",
@@ -268,6 +382,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="Log in with your API key (This command prints a link to purchase this if you need to)",
     )
     p_login.set_defaults(func=_cmd_login)
+
+    # announcements
+    p_announcements = subparsers.add_parser(
+        "news",
+        help="Show the latest project-wide announcements / news",
+    )
+    p_announcements.set_defaults(func=_cmd_announcements)
+
+    # donate
+    p_donate = subparsers.add_parser(
+        "donate",
+        help="Print a link where you can financially support this project",
+    )
+    p_donate.set_defaults(func=_cmd_donate)
+
+    # docs
+    p_docs = subparsers.add_parser(
+        "docs",
+        help="Print a link to the project documentation",
+    )
+    p_docs.set_defaults(func=_cmd_docs)
 
     # list (summary)
     p_list = subparsers.add_parser(
