@@ -14,7 +14,7 @@
 </p>
 
 <small>
-✨ <code>all-MiniLM-L6-v2 + Embedding Adapter</code> reaches ~93–96% of OpenAI’s
+✨ <code>all-MiniLM-L6-v2 + Embedding Adapter</code> reaches ~93% of OpenAI’s
 <code>text-embedding-3-small</code> recall (R@1/5/10) while running locally in just a few milliseconds.
 </small>
 
