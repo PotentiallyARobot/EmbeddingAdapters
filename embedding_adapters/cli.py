@@ -93,6 +93,61 @@ def _fetch_system_config() -> dict:
     return data
 
 
+def _get_registry_add_url() -> str:
+    """
+    Resolve the URL to which we send registry-add requests.
+    This is stored in system_config.json so it can be changed
+    without shipping a new client.
+    """
+    config = _fetch_system_config()
+    url = (
+        config.get("REGISTRY_ADD_URL")
+        or config.get("REGISTRY_ADD_ENDPOINT")
+        or config.get("REGISTRY_ADD")
+    )
+    if not url:
+        print(
+            "Error: no REGISTRY_ADD_URL (or REGISTRY_ADD_ENDPOINT / REGISTRY_ADD) "
+            "configured in system_config.json."
+        )
+        raise SystemExit(1)
+    return url
+
+
+def _post_json(url: str, payload: dict) -> tuple[int, str]:
+    """
+    Send a JSON POST to `url` and return (status_code, response_text).
+    """
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            status = resp.getcode()
+            body = resp.read().decode(
+                resp.headers.get_content_charset() or "utf-8",
+                errors="replace",
+            )
+            return status, body
+    except urllib.error.HTTPError as exc:
+        try:
+            body = exc.read().decode("utf-8", errors="replace")
+        except Exception:
+            body = str(exc)
+        print(f"Error: HTTP {exc.code} from {url}: {body}")
+        raise SystemExit(1)
+    except urllib.error.URLError as exc:
+        print(f"Error: could not POST to {url}: {exc}")
+        raise SystemExit(1)
+    except Exception as exc:
+        print(f"Unexpected error while POSTing to {url}: {exc}")
+        raise SystemExit(1)
+
+
 # ---------------------------------------------------------------------
 # login
 # ---------------------------------------------------------------------
@@ -167,6 +222,67 @@ def _cmd_docs(_args: argparse.Namespace) -> None:
         return
 
     print(url)
+
+
+# ---------------------------------------------------------------------
+# add (propose new registry entry -> worker -> PR)
+# ---------------------------------------------------------------------
+def _cmd_add(args: argparse.Namespace) -> None:
+    """
+    Handle `embedding-adapters add`.
+
+    This command proposes a new registry entry by sending it to the
+    remote worker, which will validate it and open a PR against the
+    central registry repo.
+    """
+    path = args.file
+    email = args.email
+
+    if not email:
+        print("Error: --email is required.")
+        raise SystemExit(1)
+
+    # Load the JSON payload from the given file (or stdin if "-")
+    try:
+        if path == "-":
+            raw_text = sys.stdin.read()
+            entry = json.loads(raw_text)
+        else:
+            with open(path, "r", encoding="utf-8") as f:
+                entry = json.load(f)
+    except FileNotFoundError:
+        print(f"Error: file not found: {path}")
+        raise SystemExit(1)
+    except json.JSONDecodeError as exc:
+        print(f"Error: {path} does not contain valid JSON: {exc}")
+        raise SystemExit(1)
+    except Exception as exc:
+        print(f"Error: could not read {path}: {exc}")
+        raise SystemExit(1)
+
+    if not isinstance(entry, dict):
+        print("Error: registry entry JSON must be a single JSON object.")
+        raise SystemExit(1)
+
+    # Build payload for the worker
+    payload = {
+        "entry": entry,
+        "email": email,
+        "client_version": _get_version(),
+    }
+
+    url = _get_registry_add_url()
+    status, body = _post_json(url, payload)
+
+    # Try to parse JSON response; if that fails, just print the body
+    try:
+        resp_json = json.loads(body)
+        print(json.dumps(resp_json, indent=2, sort_keys=False))
+    except Exception:
+        print(body)
+
+    if status < 200 or status >= 300:
+        raise SystemExit(1)
 
 
 # ---------------------------------------------------------------------
@@ -403,6 +519,29 @@ def build_parser() -> argparse.ArgumentParser:
         help="Print a link to the project documentation",
     )
     p_docs.set_defaults(func=_cmd_docs)
+
+    # add
+    p_add = subparsers.add_parser(
+        "add",
+        help=(
+            "Propose a new adapter registry entry. "
+            "Submit your JSON entry and email, "
+            "this will be validated and a PR opened."
+        ),
+    )
+    p_add.add_argument(
+        "file",
+        help=(
+            "Path to a JSON file containing a single registry entry "
+            "(or '-' to read from stdin)."
+        ),
+    )
+    p_add.add_argument(
+        "--email",
+        required=True,
+        help="Your contact email to attach to the registry proposal.",
+    )
+    p_add.set_defaults(func=_cmd_add)
 
     # list (summary)
     p_list = subparsers.add_parser(
