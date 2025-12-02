@@ -9,7 +9,7 @@
   <img
     src="openai_vs_minilm_plus_embedding_adapter_results.png"
     alt="Retriever Recall on SQuAD – Adapter vs OpenAI"
-    width="250"
+    width="300"
   >
 </p>
 
