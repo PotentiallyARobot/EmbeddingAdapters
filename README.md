@@ -1,6 +1,22 @@
+<div align="center">
+
 # EmbeddingAdapters 🧠 → 🧠  
-***Make embedding spaces interoperable with simple, drop-in adapters.***  
-***Bridge embedding spaces. Use adapters, not hacks.***
+
+*Make embedding spaces interoperable with simple, drop-in adapters.*  
+*Bridge embedding spaces. Use adapters, not hacks.*
+
+<p>
+  <img
+    src="openai_vs_minilm_plus_embedding_adapter_results.png"
+    alt="Retriever Recall on SQuAD – Adapter vs OpenAI"
+    width="450"
+  >
+</p>
+
+**✨ all-MiniLM-L6-v2 + Embedding Adapter performance reaches ~93–96% of OpenAI’s `text-embedding-3-small` recall across R@1/5/10 — while running locally in just a few milliseconds.**
+
+</div>
+
 ---
 ## What is EmbeddingAdapters?
 
