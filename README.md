@@ -61,6 +61,10 @@ Real problems this helps with:
 
 - **Fast experimentation**  
   You want to try different source models against a fixed target space / index without rebuilding the entire system every time. Adapters give you a low-friction way to do that.
+  
+- **Cheap embeddings**  
+  Run low-cost or local embedding models (MiniLM, e5, etc.) while still operating in a premium target space like OpenAI’s. You keep the retrieval quality of the expensive model for a fraction of the cost, and you only pay the cloud provider when you choose to — not for every embedding.
+
 
 In short: **EmbeddingAdapters turns cross-model compatibility into a first-class, reusable primitive**, rather than an ad-hoc alignment script hidden inside a platform or one-off migration projectps!
 
