@@ -142,6 +142,7 @@ Example: embed with `sentence-transformers/all-MiniLM-L6-v2` locally and map int
 pip install sentence-transformers embedding-adapters torch numpy
 ```
 ```python
+import os
 import torch
 import numpy as np
 from sentence_transformers import SentenceTransformer
