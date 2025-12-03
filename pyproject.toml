@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "embedding-adapters"
-version = "0.0.1"
+version = "0.0.2"
 description = "Universal embedding-space translation. Neural adapters that map one model's embeddings to another."
 readme = "README.md"
 requires-python = ">=3.9"
