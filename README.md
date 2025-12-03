@@ -68,8 +68,6 @@ Real problems this helps with:
 - **Fast Local embeddings**  
   Local or lightweight models can generate vectors in just a few milliseconds. With an adapter, you keep this speed while still operating inside a stronger target embedding space. This makes retrieval feel instant and dramatically reduces latency for chat, search, ranking, and real-time applications.
 
-
-
 In short: **EmbeddingAdapters turns cross-model compatibility into a first-class, reusable primitive**, rather than an ad-hoc alignment script hidden inside a platform or one-off migration projectps!
 
 ---
