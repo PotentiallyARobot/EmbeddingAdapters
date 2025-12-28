@@ -21,6 +21,21 @@
 </div>
 
 ---
+<p align="center">
+  <a href="https://colab.research.google.com/github/PotentiallyARobot/EmbeddingAdapters/blob/main/notebooks/EmbeddingAdaptersExamples.ipynb">
+    <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab">
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://mybinder.org/v2/gh/PotentiallyARobot/EmbeddingAdapters/HEAD?filepath=notebooks/EmbeddingAdaptersExamples.ipynb">
+    <img src="https://mybinder.org/badge_logo.svg" alt="Launch Binder">
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://pypi.org/project/embedding-adapters/">
+    <img src="https://img.shields.io/pypi/v/embedding-adapters.svg" alt="PyPI version">
+  </a>
+</p>
+
+---
 ## What is EmbeddingAdapters?
 
 `embedding-adapters` is a lightweight Python library and model collection that lets you **map embeddings from one model’s space into another’s**.
@@ -45,7 +60,6 @@ The goal is to make “take vectors from here, make them look like they came fro
 Quality / out-of-distribution (OOD) scoring is supported as an **optional diagnostic feature**. It can help you understand when an adapter is likely to behave well on your data, but it is *not* required to start using the library.
 
 ---
-
 ## Why would I use this?
 
 Real problems this helps with:
