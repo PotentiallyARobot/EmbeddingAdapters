@@ -22,11 +22,11 @@
 
 ---
 <p align="center">
-  <a href="https://colab.research.google.com/github/PotentiallyARobot/EmbeddingAdapters/blob/main/notebooks/EmbeddingAdaptersExamples.ipynb">
+  <a href="https://colab.research.google.com/github/PotentiallyARobot/EmbeddingAdapters/blob/main/notebooks/EmbeddingAdaptersQuickstart.ipynb">
     <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab">
   </a>
   &nbsp;&nbsp;
-  <a href="https://mybinder.org/v2/gh/PotentiallyARobot/EmbeddingAdapters/HEAD?filepath=notebooks/EmbeddingAdaptersExamples.ipynb">
+  <a href="https://mybinder.org/v2/gh/PotentiallyARobot/EmbeddingAdapters/HEAD?filepath=notebooks/EmbeddingAdaptersQuickstart.ipynb">
     <img src="https://mybinder.org/badge_logo.svg" alt="Launch Binder">
   </a>
   &nbsp;&nbsp;
