@@ -35,7 +35,7 @@
   </a>
 </p>
 
-🚀 Quick Start (30 seconds)
+#### 🚀 Quick Start (30 seconds)
 
 Translate embeddings between model spaces locally with a single command.
 ```bash
