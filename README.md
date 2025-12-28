@@ -35,6 +35,19 @@
   </a>
 </p>
 
+🚀 Quick Start (30 seconds)
+
+Translate embeddings between model spaces locally with a single command.
+```bash
+pip install embedding-adapters
+```
+```bash
+embedding-adapters embed \
+  --source sentence-transformers/all-MiniLM-L6-v2 \
+  --target openai/text-embedding-3-small \
+  --flavor large \
+  --text "Where can I get a hamburger?"
+```
 ---
 ## What is EmbeddingAdapters?
 
