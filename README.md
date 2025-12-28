@@ -7,7 +7,7 @@
 
 <p>
   <img
-    src="https://github.com/PotentiallyARobot/EmbeddingAdapters/blob/main/openai_vs_minilm_plus_embedding_adapter_results.png"
+    src="https://raw.githubusercontent.com/PotentiallyARobot/EmbeddingAdapters/main/openai_vs_minilm_plus_embedding_adapter_results.png"
     alt="Retriever Recall on SQuAD – Adapter vs OpenAI"
     width="300"
   >
