@@ -277,49 +277,66 @@ The `embedding_adapters.quality` module provides utilities to estimate when a gi
 Example:
 
 ```python
-import numpy as np
+# !pip -q install embedding-adapters sentence-transformers transformers torch numpy huggingface_hub
+
+import os
+import time
 import torch
+import numpy as np
+from sentence_transformers import SentenceTransformer
 from embedding_adapters import EmbeddingAdapter
 from embedding_adapters.quality import interpret_quality
 
-# -------------------------------------------------------------------------
-# 1) Load adapter (with quality stats) and source encoder
-# -------------------------------------------------------------------------
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"Using device: {device}")
+print("Using device:", device)
 
-adapter = EmbeddingAdapter.from_pair(
-    source="intfloat/e5-base-v2",
-    target="openai/text_embedding_3_small",
-    flavor="linear",
+# 1) Load source encoder + adapter (adapter loads quality stats automatically if present)
+src_model = SentenceTransformer(SOURCE_MODEL_ID, device=device)
+
+adapter = EmbeddingAdapter.from_registry(
+    source="sentence-transformers/all-MiniLM-L6-v2",
+    target="openai/text-embedding-3-small",
+    flavor="large",
     device=device,
-    load_source_encoder=True,
-    huggingface_token=os.environ['HUGGINGFACE_TOKEN']
+    # some adapters need a huggingface token to download
+    # huggingface_token=os.environ['HUGGINGFACE_TOKEN']
 )
 
-# -------------------------------------------------------------------------
-# 2) Example texts to score
-# -------------------------------------------------------------------------
 texts = [
-    "Where can I get a cheeseburger near my house",
-    "disney world fireworks are amazing",
-    "how to fix a docker networking issue on windows",
-    "asdfasdfasdfasdfasdfasdfasdfasdfasdfasdf",
+    "NASA announces discovery of Earth-like exoplanet.",
+    "How do I build a RAG pipeline?",
+    "Where can I get a hamburger near me?",
+    "asdfasdfasdfasdfasdfasdfasdfasdfasdfasdf",  # junk text to see quality drop
 ]
 
-# Get *source-space* embeddings (e5-base-v2) from the adapter
-src_embs = adapter.encode(
+# 2) Encode source embeddings
+src_embs = src_model.encode(
     texts,
-    as_numpy=True,
-    normalize=True,
-    return_source=True,
+    convert_to_numpy=True,
+    normalize_embeddings=True,
 )
 
-# -------------------------------------------------------------------------
-# 3) Get Quality Scores and Human-readable interpretation
-# -------------------------------------------------------------------------
+# 3) Translate embeddings (target space)
+t0 = time.time()
+translated = adapter.encode_embeddings(src_embs)
+t_ms = (time.time() - t0) * 1000.0
+
+print("Source shape     :", src_embs.shape)
+print("Translated shape :", translated.shape if hasattr(translated, "shape") else (len(translated), len(translated[0])))
+print(f"Translate time   : {t_ms:.2f} ms")
+
+# 4) Quality scoring on SOURCE embeddings (this does NOT require load_source_encoder)
+#    It uses the adapter's stored quality stats (npz) if present.
 scores = adapter.score_source(src_embs)
+
+# 5) Human-readable interpretation
+print("\n--- Quality interpretation (source space) ---")
 print(interpret_quality(texts, scores, space_label="source"))
+
+# 6) Raw per-text scores (handy for debugging / programmatic use)
+print("\n--- Raw scores ---")
+# scores might be a numpy array or dict-like depending on your implementation
+print(scores)
 ```
 
 The output gives you human-readable information about each text and its corresponding score, indicating whether the input looks typical for the adapter or unusual.
@@ -343,6 +360,159 @@ Some platforms implement their own internal adapters or regression layers for qu
 - Treats **adapters themselves** as first-class loadable models, rather than hiding them behind a larger hosted platform
 
 Think of it as a low-level tool in the stack: if embeddings are your “language of meaning,” this library provides the translators.
+
+---
+# Embedding Adapters CLI
+
+The `embedding-adapters` CLI lets you discover adapters, generate embeddings,
+translate between embedding spaces, and optionally score quality — all from
+the command line.
+
+After installing:
+
+```bash
+pip install embedding-adapters
+```
+
+You will have the `embedding-adapters` command available.
+
+---
+
+### Quick Start
+#### Generate Embeddings
+
+```bash
+embedding-adapters embed \
+  --source sentence-transformers/all-MiniLM-L6-v2 \
+  --target openai/text-embedding-3-small \
+  --flavor large \
+  --text "Where can I get a hamburger?"
+```
+
+On first run, models and adapters will be downloaded and cached locally.
+Subsequent runs reuse the cache automatically.
+
+---
+
+#### Embed Multiple Texts
+
+Repeat `--text`:
+
+```bash
+embedding-adapters embed \
+  --source sentence-transformers/all-MiniLM-L6-v2 \
+  --target openai/text-embedding-3-small \
+  --text "hello" \
+  --text "world"
+```
+
+Or pipe from stdin:
+
+```bash
+printf "hello\nworld\n" | embedding-adapters embed \
+  --source sentence-transformers/all-MiniLM-L6-v2 \
+  --target openai/text-embedding-3-small
+```
+
+---
+
+#### Skip Quality Scoring (Faster)
+
+Quality scoring is enabled by default when available.
+To skip it:
+
+```bash
+embedding-adapters embed --no-quality \
+  --source sentence-transformers/all-MiniLM-L6-v2 \
+  --target openai/text-embedding-3-small \
+  --text "hello world"
+```
+
+---
+
+#### NDJSON Output (Streaming Friendly)
+
+```bash
+embedding-adapters embed --ndjson \
+  --source sentence-transformers/all-MiniLM-L6-v2 \
+  --target openai/text-embedding-3-small \
+  --text "hello" \
+  --text "world"
+```
+
+Each line will contain:
+
+```json
+{
+  "text": "...",
+  "embedding": [...],
+  "confidence": 0.94
+}
+```
+
+---
+
+#### List Available Adapters
+
+```bash
+embedding-adapters list
+```
+
+Only show paid / pro adapters:
+
+```bash
+embedding-adapters list --pro-only
+```
+
+---
+
+#### Inspect the Full Registry
+
+```bash
+embedding-adapters registry
+```
+
+---
+
+#### Adapter Details by Slug
+
+```bash
+embedding-adapters info emb_adapter_minilm_to_openai_text-embedding-3-large_v1
+```
+
+---
+
+#### Show Available Source → Target Paths
+
+```bash
+embedding-adapters paths
+```
+
+---
+
+#### News, Docs, and Support
+
+```bash
+embedding-adapters news
+embedding-adapters docs
+embedding-adapters donate
+```
+
+---
+
+#### Version
+
+```bash
+embedding-adapters version
+```
+---
+
+#### Additional Notes:
+
+- Models and adapters are cached using Hugging Face caching.
+- GPU is used automatically when available.
+- No OpenAI or Gemini API keys are required — everything runs locally.
+- Adapters translate embeddings *between* model spaces without re-encoding text.
 
 ---
 
@@ -373,8 +543,10 @@ Areas we are interested in exploring over time:
 
 - More **source → target** adapter pairs, including domain-specific spaces  
 - Richer diagnostics and evaluation tools around adapters  
-- Example integrations with popular vector databases and frameworks  
-- Optional hosted endpoints for adapters so you don’t have to ship or manage weights yourself
+- Example integrations with popular vector databases and frameworks
+- Improved models with more expansive training sets
+- More domain specific adapters
+- Hosted endpoints for adapters so you don’t have to ship or manage weights yourself
 
 The guiding principle is to stay **small, explicit, and composable**. Adapters should be easy to understand, easy to evaluate, and easy to slot into existing systems.
 
