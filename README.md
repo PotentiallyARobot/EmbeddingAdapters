@@ -48,6 +48,8 @@ embedding-adapters embed \
   --flavor large \
   --text "Where can I get a hamburger?"
 ```
+^ outputs an embedding and confidence score
+
 ---
 ## What is EmbeddingAdapters?
 
