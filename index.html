@@ -336,27 +336,56 @@ nav.nav-open .nav-hamburger span:nth-child(3) {
   font-weight: 700;
 }
 
-.hero-sub {
-  font-size: clamp(15px, 1.8vw, 17px);
+.hero-tagline {
+  font-size: clamp(14px, 1.6vw, 16px);
   color: var(--text-secondary);
-  max-width: 480px;
-  line-height: 1.55;
+  max-width: 560px;
+  line-height: 1.6;
+  text-align: center;
   margin-bottom: 24px;
-  animation: fadeInUp 0.8s ease 0.2s both;
+  animation: fadeInUp 0.8s ease 0.15s both;
   position: relative;
   z-index: 3;
 }
 
+.hero-tagline a.hero-inline-link,
+.hero-tagline a.hero-learn-more {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.hero-tagline a.hero-inline-link:hover,
+.hero-tagline a.hero-learn-more:hover {
+  color: var(--accent-light);
+}
+
+.hero-sub-links {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  position: relative;
+  z-index: 3;
+  animation: fadeInUp 0.8s ease 0.4s both;
+}
+
+.hero-link-sep {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
 .hero-learn-more {
   display: inline-block;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--accent);
   text-decoration: none;
-  margin-bottom: 24px;
   position: relative;
   z-index: 3;
-  animation: fadeInUp 0.8s ease 0.25s both;
   transition: color 0.2s;
 }
 
@@ -487,7 +516,7 @@ nav.nav-open .nav-hamburger span:nth-child(3) {
   z-index: 1;
   display: flex;
   justify-content: center;
-  padding: 0 24px 48px;
+  padding: 0 24px 32px;
   animation: fadeInUp 0.8s ease 0.6s both;
 }
 
@@ -641,7 +670,7 @@ nav.nav-open .nav-hamburger span:nth-child(3) {
 section {
   position: relative;
   z-index: 1;
-  padding: 64px 24px;
+  padding: 48px 24px;
 }
 
 .container {
@@ -1567,7 +1596,7 @@ footer {
   }
   .hero-badge { font-size: 11px; padding: 4px 12px; margin-bottom: 16px; }
   .hero h1 { font-size: 32px; max-width: 400px; margin-bottom: 12px; }
-  .hero-sub { font-size: 14px; max-width: 340px; margin-bottom: 20px; }
+  .hero-tagline { font-size: 14px; max-width: 340px; margin-bottom: 12px; }
   .hero-actions { gap: 12px; }
   .btn-primary, .btn-secondary { padding: 10px 22px; font-size: 13px; }
 
@@ -1579,7 +1608,7 @@ footer {
 @media (max-width: 480px) {
   .hero { padding: 72px 16px 0; padding-bottom: 260px; }
   .hero h1 { font-size: 26px; max-width: 320px; }
-  .hero-sub { font-size: 13px; max-width: 300px; }
+  .hero-tagline { font-size: 13px; max-width: 300px; }
   .hero-actions { flex-direction: column; width: 100%; max-width: 280px; }
   .btn-primary, .btn-secondary { width: 100%; justify-content: center; padding: 12px 20px; }
   .hero-visual { height: 250px; }
@@ -1624,8 +1653,7 @@ footer {
   <!-- Text overlay -->
   <div class="hero-badge">Open-source &middot; Local-first &middot; Production-ready</div>
   <h1>Embedding <strong>interoperability,</strong><br>without re-indexing</h1>
-  <p class="hero-sub">Translate embeddings between models and providers while preserving retrieval performance. One line of code, zero re-embedding.</p>
-  <a href="learn-more.html" class="hero-learn-more">Learn more →</a>
+  <p class="hero-tagline">Universal embedding-space translation library. Plug-and-play adapters that map one model's vector space into another — locally, instantly, for free. <a href="learn-more.html" class="hero-learn-more">Learn more →</a></p>
   <div class="hero-actions">
     <a href="https://github.com/PotentiallyARobot/EmbeddingAdapters#readme" class="btn-primary">
       Get started
@@ -1633,8 +1661,8 @@ footer {
     </a>
     <a href="#benchmarks" class="btn-secondary">Read benchmarks →</a>
   </div>
-  <div class="hero-enterprise-link">
-    <a href="commercial.html" class="btn-enterprise-sm">Commercial inquiries →</a>
+  <div class="hero-sub-links">
+    <a href="commercial.html" class="hero-learn-more">Commercial inquiries →</a>
   </div>
   <div id="heroModelPair" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:12px;color:var(--text-muted);letter-spacing:0.01em;transition:opacity 0.5s;z-index:3;white-space:nowrap;">
     <span id="heroPairText"></span>
@@ -2401,11 +2429,12 @@ document.getElementById('contactForm').addEventListener('submit', async function
 
   // Particles with source→target color transition
   var parts=[];
-  function spawnPart(x1,y1,x2,y2,c,srcHue,tgtHue) {
+  var lastPairIdx = 0;
+  function spawnPart(x1,y1,x2,y2,c,srcHue,tgtHue,pidx) {
     parts.push({x1:x1,y1:y1,x2:x2,y2:y2,
       mx:(x1+x2)/2, my:Math.min(y1,y2)-c,
       t:0, spd:0.0015+Math.random()*0.0025,
-      srcHue:srcHue, tgtHue:tgtHue});
+      srcHue:srcHue, tgtHue:tgtHue, pairIdx:pidx});
   }
 
   function lerpHue(a,b,t) {
@@ -2413,24 +2442,31 @@ document.getElementById('contactForm').addEventListener('submit', async function
     return (a+d*t+360)%360;
   }
 
-  function drawParts() {
+  function drawParts(currentPairIdx, isTransitioning) {
     for(var i=parts.length-1;i>=0;i--) {
       var p=parts[i]; p.t+=p.spd;
       if(p.t>1){parts.splice(i,1);continue;}
+
+      // If transitioning and this particle belongs to the old pair, fade it out fast
+      var stale = isTransitioning && (p.pairIdx !== currentPairIdx);
+      if(stale) {
+        p.t += p.spd * 4; // accelerate to end
+        if(p.t > 1){parts.splice(i,1);continue;}
+      }
+
       var t=p.t,t1=1-t;
       var px=t1*t1*p.x1+2*t1*t*p.mx+t*t*p.x2;
       var py=t1*t1*p.y1+2*t1*t*p.my+t*t*p.y2;
       var a=Math.sin(t*Math.PI)*0.45;
-      // Interpolate hue from source to target as particle travels
+      if(stale) a *= 0.3; // dim stale particles
+
       var hue=lerpHue(p.srcHue, p.tgtHue, t);
       var col='hsla('+hue+',60%,55%,';
-      // Main dot
       ctx.beginPath();ctx.arc(px,py,2.2,0,Math.PI*2);
       ctx.fillStyle=col+a+')';ctx.fill();
-      // Glow
       ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);
       ctx.fillStyle=col+(a*0.15)+')';ctx.fill();
-      // Trail — small dot behind
+      // Trail
       var tb=Math.max(0,t-0.06),tb1=1-tb;
       var trx=tb1*tb1*p.x1+2*tb1*tb*p.mx+tb*tb*p.x2;
       var try2=tb1*tb1*p.y1+2*tb1*tb*p.my+tb*tb*p.y2;
@@ -2460,16 +2496,16 @@ document.getElementById('contactForm').addEventListener('submit', async function
       if(trans>1) trans=1;
     }
 
-    // Smooth label fade: fade out during first 30% of transition, update text, fade in
+    // Smooth bottom label fade
     var pr=pairs[pairIdx];
     var prevPr=pairs[(pairIdx-1+pairs.length)%pairs.length];
-    if(trans>0 && trans<0.3) {
-      pairWrap.style.opacity = String(1 - trans/0.3);
-    } else if(trans>=0.3 && trans<1) {
-      var cpr=pairs[pairIdx];
-      pairText.textContent=models[cpr.src].label+'  \u2192  '+models[cpr.tgt].label;
-      pairWrap.style.opacity = String(Math.min(1, (trans-0.3)/0.3));
+    if(trans>0 && trans<1) {
+      var fo = 1 - ease(Math.min(trans/0.35, 1));
+      var fi2 = ease(Math.max((trans-0.25)/0.4, 0));
+      pairText.textContent=models[pr.src].label+'  \u2192  '+models[pr.tgt].label;
+      pairWrap.style.opacity = String(Math.max(fo, fi2));
     } else {
+      pairText.textContent=models[pr.src].label+'  \u2192  '+models[pr.tgt].label;
       pairWrap.style.opacity='1';
     }
     var srcM, tgtM;
@@ -2481,9 +2517,9 @@ document.getElementById('contactForm').addEventListener('submit', async function
       srcM=models[pr.src]; tgtM=models[pr.tgt];
     }
 
-    // Layout
-    var sw=W*0.38, sh=H*0.72;
-    var lx=W*0.28, rx=W*0.72, cy=H*0.50;
+    // Layout — meshes pushed down to leave room for labels above
+    var sw=W*0.36, sh=H*0.64;
+    var lx=W*0.28, rx=W*0.72, cy=H*0.56;
 
     // Draw surfaces
     drawSurface(srcM, lx, cy, sw, sh, time);
@@ -2509,17 +2545,17 @@ document.getElementById('contactForm').addEventListener('submit', async function
         'hsla('+midHue+',35%,50%,'+(0.14*fi)+')');
     }
 
-    // Spawn particles with source/target hue info
+    // Spawn particles only when holding (not transitioning), tagged with current pair
     spC+=dt;
-    if(spC>0.22&&trans>=0.4){
+    if(spC>0.22 && trans>=1){
       spC=0;
       var idx=Math.floor(Math.random()*sp.length);
       if(sp[idx]&&tp[idx]){
         var c=25+idx*10+Math.sin(time*0.6+idx*1.5)*5;
-        spawnPart(sp[idx].x,sp[idx].y,tp[idx].x,tp[idx].y,c, srcHue, tgtHue);
+        spawnPart(sp[idx].x,sp[idx].y,tp[idx].x,tp[idx].y,c, srcHue, tgtHue, pairIdx);
       }
     }
-    drawParts();
+    drawParts(pairIdx, trans < 1);
 
     // Small dots on surfaces (subtle, no labels — keeps it clean)
     for(var i=0;i<sp.length;i++){
@@ -2537,37 +2573,76 @@ document.getElementById('contactForm').addEventListener('submit', async function
       ctx.fillStyle='hsla('+tgtHue+',50%,40%,'+(0.08*fi)+')';ctx.fill();
     }
 
-    // Badges — prominent labels
-    var ba=trans<1?ease(trans):1;
-    var by=cy+sh*0.36;
+    // Labels — true cross-fade: draw both old and new, one fading out, one fading in
+    var srcChanging = (prevPr.src !== pr.src);
+    var tgtChanging = (prevPr.tgt !== pr.tgt);
 
-    // Source badge
-    ctx.font='700 13px "JetBrains Mono",monospace';ctx.textAlign='center';
-    var sl=srcM.short||'';var slw=ctx.measureText(sl).width+24;
-    // White pill background
-    ctx.fillStyle='rgba(255,255,255,'+(ba*0.85)+')';
-    ctx.beginPath();ctx.roundRect(lx-slw/2,by,slw,28,6);ctx.fill();
-    // Subtle border
-    ctx.strokeStyle='hsla('+srcHue+',40%,60%,'+(ba*0.3)+')';
-    ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(lx-slw/2,by,slw,28,6);ctx.stroke();
-    // Text
-    ctx.fillStyle='hsla('+srcHue+',50%,30%,'+(ba*0.85)+')';ctx.fillText(sl,lx,by+19);
-    // Subtitle
-    ctx.font='500 12px "DM Sans",sans-serif';
-    ctx.fillStyle='rgba(15,23,41,'+(ba*0.45)+')';
-    ctx.fillText('Source space',lx,by+46);
+    // Label Y: well above mesh top
+    var labelY = cy - sh*0.48 - 60;
 
-    // Target badge
-    ctx.font='700 13px "JetBrains Mono",monospace';
-    var tl=tgtM.short||'';var tlw=ctx.measureText(tl).width+24;
-    ctx.fillStyle='rgba(255,255,255,'+(ba*0.85)+')';
-    ctx.beginPath();ctx.roundRect(rx-tlw/2,by,tlw,28,6);ctx.fill();
-    ctx.strokeStyle='hsla('+tgtHue+',40%,60%,'+(ba*0.3)+')';
-    ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(rx-tlw/2,by,tlw,28,6);ctx.stroke();
-    ctx.fillStyle='hsla('+tgtHue+',50%,30%,'+(ba*0.85)+')';ctx.fillText(tl,rx,by+19);
-    ctx.font='500 12px "DM Sans",sans-serif';
-    ctx.fillStyle='rgba(15,23,41,'+(ba*0.45)+')';
-    ctx.fillText('Target space',rx,by+46);
+    function drawLabel(x, y, alpha, label, hue, subtitle) {
+      if(alpha < 0.01) return;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.textAlign = 'center';
+      ctx.font = '700 14px "JetBrains Mono",monospace';
+      ctx.fillStyle = 'hsla('+hue+',50%,28%,1)';
+      ctx.fillText(label, x, y);
+      ctx.font = '500 11px "DM Sans",sans-serif';
+      ctx.fillStyle = 'rgba(72,85,106,0.65)';
+      ctx.fillText(subtitle, x, y + 16);
+      ctx.restore();
+    }
+
+    if(trans > 0 && trans < 1) {
+      // Smooth fade curve: ease the transition alpha
+      var fadeOut = 1 - ease(Math.min(trans / 0.4, 1));
+      var fadeIn = ease(Math.max((trans - 0.3) / 0.4, 0));
+
+      // Source side
+      if(srcChanging) {
+        drawLabel(lx, labelY, fadeOut, models[prevPr.src].short, models[prevPr.src].hue, 'Source embedding space');
+        drawLabel(lx, labelY, fadeIn, models[pr.src].short, models[pr.src].hue, 'Source embedding space');
+      } else {
+        drawLabel(lx, labelY, 1, srcM.short, srcHue, 'Source embedding space');
+      }
+      // Target side
+      if(tgtChanging) {
+        drawLabel(rx, labelY, fadeOut, models[prevPr.tgt].short, models[prevPr.tgt].hue, 'Target embedding space');
+        drawLabel(rx, labelY, fadeIn, models[pr.tgt].short, models[pr.tgt].hue, 'Target embedding space');
+      } else {
+        drawLabel(rx, labelY, 1, tgtM.short, tgtHue, 'Target embedding space');
+      }
+    } else {
+      drawLabel(lx, labelY, 1, srcM.short, srcHue, 'Source embedding space');
+      drawLabel(rx, labelY, 1, tgtM.short, tgtHue, 'Target embedding space');
+    }
+
+    // Solid arrow between labels with "Adapter" text
+    ctx.save();
+    ctx.globalAlpha = 0.3;
+    var ax1 = lx + 55, ax2 = rx - 55, ay = labelY - 4;
+    ctx.strokeStyle = 'rgba(72,85,106,1)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(ax1, ay);
+    ctx.lineTo(ax2 - 6, ay);
+    ctx.stroke();
+    // Arrowhead
+    ctx.fillStyle = 'rgba(72,85,106,1)';
+    ctx.beginPath();
+    ctx.moveTo(ax2, ay);
+    ctx.lineTo(ax2 - 7, ay - 3.5);
+    ctx.lineTo(ax2 - 7, ay + 3.5);
+    ctx.closePath();
+    ctx.fill();
+    // "Adapter" text below arrow
+    ctx.globalAlpha = 0.35;
+    ctx.textAlign = 'center';
+    ctx.font = '500 10px "DM Sans",sans-serif';
+    ctx.fillStyle = 'rgba(72,85,106,1)';
+    ctx.fillText('Adapter', (ax1 + ax2) / 2, ay + 14);
+    ctx.restore();
 
     time+=0.012;
     requestAnimationFrame(draw);
