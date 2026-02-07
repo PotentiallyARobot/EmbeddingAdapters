@@ -1667,6 +1667,24 @@ footer {
   <div id="heroModelPair" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:12px;color:var(--text-muted);letter-spacing:0.01em;transition:opacity 0.5s;z-index:3;white-space:nowrap;">
     <span id="heroPairText"></span>
   </div>
+  <!-- HTML label overlays for source/target — above hero text -->
+  <div id="heroLabels" style="position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none;z-index:4;">
+    <div id="srcLabel" style="position:absolute;text-align:center;transition:opacity 0.4s;">
+      <div style="font:700 14px 'JetBrains Mono',monospace;"></div>
+      <div style="font:500 11px 'DM Sans',sans-serif;color:rgba(72,85,106,0.65);margin-top:2px;"></div>
+    </div>
+    <div id="tgtLabel" style="position:absolute;text-align:center;transition:opacity 0.4s;">
+      <div style="font:700 14px 'JetBrains Mono',monospace;"></div>
+      <div style="font:500 11px 'DM Sans',sans-serif;color:rgba(72,85,106,0.65);margin-top:2px;"></div>
+    </div>
+    <div id="arrowLabel" style="position:absolute;pointer-events:none;">
+      <svg id="arrowSvg" style="position:absolute;top:0;left:0;overflow:visible;" width="100" height="30">
+        <line id="arrowLine" x1="0" y1="10" x2="90" y2="10" stroke="rgba(72,85,106,0.3)" stroke-width="1"/>
+        <polygon id="arrowHead" points="90,10 83,6.5 83,13.5" fill="rgba(72,85,106,0.3)"/>
+      </svg>
+      <div id="arrowText" style="font:500 10px 'DM Sans',sans-serif;color:rgba(72,85,106,0.35);text-align:center;position:absolute;top:16px;width:100%;white-space:nowrap;">Adapter</div>
+    </div>
+  </div>
 </section>
 <!-- ═══ INSTALL ═══ -->
 <div class="install-section">
@@ -2427,14 +2445,10 @@ document.getElementById('contactForm').addEventListener('submit', async function
     ctx.lineWidth=1.5; ctx.stroke();
   }
 
-  // Particles with source→target color transition
+  // Particles — store point index, recompute position from live surfaces each frame
   var parts=[];
-  var lastPairIdx = 0;
-  function spawnPart(x1,y1,x2,y2,c,srcHue,tgtHue,pidx) {
-    parts.push({x1:x1,y1:y1,x2:x2,y2:y2,
-      mx:(x1+x2)/2, my:Math.min(y1,y2)-c,
-      t:0, spd:0.0015+Math.random()*0.0025,
-      srcHue:srcHue, tgtHue:tgtHue, pairIdx:pidx});
+  function spawnPart(idx, srcHue, tgtHue) {
+    parts.push({idx:idx, t:0, spd:0.0018, srcHue:srcHue, tgtHue:tgtHue});
   }
 
   function lerpHue(a,b,t) {
@@ -2442,37 +2456,34 @@ document.getElementById('contactForm').addEventListener('submit', async function
     return (a+d*t+360)%360;
   }
 
-  function drawParts(currentPairIdx, isTransitioning) {
+  var MAX_PARTS = 12;
+
+  function drawParts(spArr, tpArr, curSrcHue, curTgtHue) {
     for(var i=parts.length-1;i>=0;i--) {
       var p=parts[i]; p.t+=p.spd;
       if(p.t>1){parts.splice(i,1);continue;}
 
-      // If transitioning and this particle belongs to the old pair, fade it out fast
-      var stale = isTransitioning && (p.pairIdx !== currentPairIdx);
-      if(stale) {
-        p.t += p.spd * 4; // accelerate to end
-        if(p.t > 1){parts.splice(i,1);continue;}
-      }
+      // Get live positions for this particle's point index
+      var s=spArr[p.idx], tp2=tpArr[p.idx];
+      if(!s||!tp2){parts.splice(i,1);continue;}
 
-      var t=p.t,t1=1-t;
-      var px=t1*t1*p.x1+2*t1*t*p.mx+t*t*p.x2;
-      var py=t1*t1*p.y1+2*t1*t*p.my+t*t*p.y2;
-      var a=Math.sin(t*Math.PI)*0.45;
-      if(stale) a *= 0.3; // dim stale particles
+      var c=25+p.idx*10;
+      var mx=(s.x+tp2.x)/2, my=Math.min(s.y,tp2.y)-c;
+      var t=p.t, t1=1-t;
+      var px=t1*t1*s.x+2*t1*t*mx+t*t*tp2.x;
+      var py=t1*t1*s.y+2*t1*t*my+t*t*tp2.y;
 
-      var hue=lerpHue(p.srcHue, p.tgtHue, t);
+      // Constant opacity with gentle edge fade
+      var edgeFade = Math.min(t*5, 1) * Math.min((1-t)*5, 1);
+      var a = 0.35 * edgeFade;
+
+      // Use current surface hues so color updates during transitions
+      var hue=lerpHue(curSrcHue, curTgtHue, t);
       var col='hsla('+hue+',60%,55%,';
       ctx.beginPath();ctx.arc(px,py,2.2,0,Math.PI*2);
       ctx.fillStyle=col+a+')';ctx.fill();
       ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);
       ctx.fillStyle=col+(a*0.15)+')';ctx.fill();
-      // Trail
-      var tb=Math.max(0,t-0.06),tb1=1-tb;
-      var trx=tb1*tb1*p.x1+2*tb1*tb*p.mx+tb*tb*p.x2;
-      var try2=tb1*tb1*p.y1+2*tb1*tb*p.my+tb*tb*p.y2;
-      var trHue=lerpHue(p.srcHue, p.tgtHue, tb);
-      ctx.beginPath();ctx.arc(trx,try2,1.2,0,Math.PI*2);
-      ctx.fillStyle='hsla('+trHue+',55%,55%,'+(a*0.25)+')';ctx.fill();
     }
   }
 
@@ -2533,134 +2544,118 @@ document.getElementById('contactForm').addEventListener('submit', async function
       tp.push(ptPos(tgtM,i,rx,cy,sw,sh,time+2));
     }
 
-    // Connection arrows with gradient from src color to tgt color
-    var fi=trans<1?ease(trans):1;
+    // Connection arrows with gradient from src color to tgt color — always visible
     var srcHue=srcM.hue||210, tgtHue=tgtM.hue||210;
     for(var i=0;i<sp.length;i++){
       if(!sp[i]||!tp[i]) continue;
       var c=25+i*10+Math.sin(time*0.6+i*1.5)*5;
-      // Arrow color blends source and target hues
       var midHue=lerpHue(srcHue, tgtHue, 0.5);
       arrow(sp[i].x,sp[i].y,tp[i].x,tp[i].y,c,
-        'hsla('+midHue+',35%,50%,'+(0.14*fi)+')');
+        'hsla('+midHue+',35%,50%,0.14)');
     }
 
-    // Spawn particles only when holding (not transitioning), tagged with current pair
+    // Spawn particles at steady rate, always, capped count
     spC+=dt;
-    if(spC>0.22 && trans>=1){
+    if(spC>0.35 && parts.length < MAX_PARTS){
       spC=0;
       var idx=Math.floor(Math.random()*sp.length);
       if(sp[idx]&&tp[idx]){
-        var c=25+idx*10+Math.sin(time*0.6+idx*1.5)*5;
-        spawnPart(sp[idx].x,sp[idx].y,tp[idx].x,tp[idx].y,c, srcHue, tgtHue, pairIdx);
+        spawnPart(idx, srcHue, tgtHue);
       }
     }
-    drawParts(pairIdx, trans < 1);
+    drawParts(sp, tp, srcHue, tgtHue);
 
-    // Small dots on surfaces (subtle, no labels — keeps it clean)
+    // Small dots on surfaces — always visible
     for(var i=0;i<sp.length;i++){
       if(!sp[i]) continue;
       ctx.beginPath();ctx.arc(sp[i].x,sp[i].y,3,0,Math.PI*2);
-      ctx.fillStyle='hsla('+srcHue+',50%,40%,'+(0.45*fi)+')';ctx.fill();
+      ctx.fillStyle='hsla('+srcHue+',50%,40%,0.45)';ctx.fill();
       ctx.beginPath();ctx.arc(sp[i].x,sp[i].y,7,0,Math.PI*2);
-      ctx.fillStyle='hsla('+srcHue+',50%,40%,'+(0.08*fi)+')';ctx.fill();
+      ctx.fillStyle='hsla('+srcHue+',50%,40%,0.08)';ctx.fill();
     }
     for(var i=0;i<tp.length;i++){
       if(!tp[i]) continue;
       ctx.beginPath();ctx.arc(tp[i].x,tp[i].y,3,0,Math.PI*2);
-      ctx.fillStyle='hsla('+tgtHue+',50%,40%,'+(0.45*fi)+')';ctx.fill();
+      ctx.fillStyle='hsla('+tgtHue+',50%,40%,0.45)';ctx.fill();
       ctx.beginPath();ctx.arc(tp[i].x,tp[i].y,7,0,Math.PI*2);
-      ctx.fillStyle='hsla('+tgtHue+',50%,40%,'+(0.08*fi)+')';ctx.fill();
+      ctx.fillStyle='hsla('+tgtHue+',50%,40%,0.08)';ctx.fill();
     }
 
-    // Labels — true cross-fade: draw both old and new, one fading out, one fading in
+    // Position HTML label overlays (z-index 4, above hero text)
     var srcChanging = (prevPr.src !== pr.src);
     var tgtChanging = (prevPr.tgt !== pr.tgt);
 
-    // Label Y: below the mesh
-    // Label Y: below mesh on wide screens, well above mesh on narrow
-    // Label Y: on desktop below mesh, on narrow/mobile always above mesh
     var labelY;
     if(W > 900) {
       labelY = cy + sh*0.28;
     } else {
-      labelY = cy - sh*0.70;
+      labelY = cy - sh*0.85;
     }
 
-    function drawLabel(x, y, alpha, label, hue, subtitle) {
-      if(alpha < 0.01) return;
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      ctx.textAlign = 'center';
-      // Measure for background
-      ctx.font = '700 14px "JetBrains Mono",monospace';
-      var tw = ctx.measureText(label).width;
-      ctx.font = '500 11px "DM Sans",sans-serif';
-      var sw = ctx.measureText(subtitle).width;
-      var bgW = Math.max(tw, sw) + 24;
-      // White background pill
-      ctx.fillStyle = 'rgba(255,255,255,0.55)';
-      ctx.beginPath();ctx.roundRect(x - bgW/2, y - 16, bgW, 42, 8);ctx.fill();
-      // Model name
-      ctx.font = '700 14px "JetBrains Mono",monospace';
-      ctx.fillStyle = 'hsla('+hue+',50%,28%,1)';
-      ctx.fillText(label, x, y);
-      // Subtitle
-      ctx.font = '500 11px "DM Sans",sans-serif';
-      ctx.fillStyle = 'rgba(72,85,106,0.65)';
-      ctx.fillText(subtitle, x, y + 16);
-      ctx.restore();
+    // Convert canvas coords to CSS coords (canvas is 2x for retina)
+    var cssScale = canvas.clientWidth / W;
+    var canvasRect = canvas.getBoundingClientRect();
+    var heroRect = canvas.parentElement.parentElement.getBoundingClientRect();
+    var offX = canvasRect.left - heroRect.left;
+    var offY = canvasRect.top - heroRect.top;
+
+    function posLabel(el, cx, cy2, alpha, label, hue, subtitle) {
+      el.style.left = (offX + cx * cssScale) + 'px';
+      el.style.top = (offY + (cy2 - 16) * cssScale) + 'px';
+      el.style.transform = 'translateX(-50%)';
+      el.style.opacity = alpha;
+      var nameEl = el.children[0];
+      var subEl = el.children[1];
+      nameEl.textContent = label;
+      nameEl.style.color = 'hsl('+hue+',50%,28%)';
+      subEl.textContent = subtitle;
+      // White background
+      el.style.background = 'rgba(255,255,255,0.55)';
+      el.style.borderRadius = '8px';
+      el.style.padding = '4px 12px 6px';
     }
+
+    var srcEl = document.getElementById('srcLabel');
+    var tgtEl = document.getElementById('tgtLabel');
 
     if(trans > 0 && trans < 1) {
-      // Smooth fade curve: ease the transition alpha
-      var fadeOut = 1 - ease(Math.min(trans / 0.4, 1));
-      var fadeIn = ease(Math.max((trans - 0.3) / 0.4, 0));
-
-      // Source side
+      var fadeProgress = ease(Math.min(trans / 0.4, 1));
       if(srcChanging) {
-        drawLabel(lx, labelY, fadeOut, models[prevPr.src].short, models[prevPr.src].hue, 'Source embedding space');
-        drawLabel(lx, labelY, fadeIn, models[pr.src].short, models[pr.src].hue, 'Source embedding space');
+        var label = fadeProgress > 0.5 ? models[pr.src].short : models[prevPr.src].short;
+        var hue = fadeProgress > 0.5 ? models[pr.src].hue : models[prevPr.src].hue;
+        var alpha = fadeProgress > 0.5 ? (fadeProgress - 0.5)*2 : 1 - fadeProgress*2;
+        posLabel(srcEl, lx, labelY, Math.max(0.15, alpha), label, hue, 'Source embedding space');
       } else {
-        drawLabel(lx, labelY, 1, srcM.short, srcHue, 'Source embedding space');
+        posLabel(srcEl, lx, labelY, 1, srcM.short, srcHue, 'Source embedding space');
       }
-      // Target side
       if(tgtChanging) {
-        drawLabel(rx, labelY, fadeOut, models[prevPr.tgt].short, models[prevPr.tgt].hue, 'Target embedding space');
-        drawLabel(rx, labelY, fadeIn, models[pr.tgt].short, models[pr.tgt].hue, 'Target embedding space');
+        var label = fadeProgress > 0.5 ? models[pr.tgt].short : models[prevPr.tgt].short;
+        var hue = fadeProgress > 0.5 ? models[pr.tgt].hue : models[prevPr.tgt].hue;
+        var alpha = fadeProgress > 0.5 ? (fadeProgress - 0.5)*2 : 1 - fadeProgress*2;
+        posLabel(tgtEl, rx, labelY, Math.max(0.15, alpha), label, hue, 'Target embedding space');
       } else {
-        drawLabel(rx, labelY, 1, tgtM.short, tgtHue, 'Target embedding space');
+        posLabel(tgtEl, rx, labelY, 1, tgtM.short, tgtHue, 'Target embedding space');
       }
     } else {
-      drawLabel(lx, labelY, 1, srcM.short, srcHue, 'Source embedding space');
-      drawLabel(rx, labelY, 1, tgtM.short, tgtHue, 'Target embedding space');
+      posLabel(srcEl, lx, labelY, 1, srcM.short, srcHue, 'Source embedding space');
+      posLabel(tgtEl, rx, labelY, 1, tgtM.short, tgtHue, 'Target embedding space');
     }
 
-    // Solid arrow between labels with "Adapter" text
-    ctx.save();
-    ctx.globalAlpha = 0.3;
-    var ax1 = lx + 55, ax2 = rx - 55, ay = labelY - 4;
-    ctx.strokeStyle = 'rgba(72,85,106,1)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(ax1, ay);
-    ctx.lineTo(ax2 - 6, ay);
-    ctx.stroke();
-    // Arrowhead
-    ctx.fillStyle = 'rgba(72,85,106,1)';
-    ctx.beginPath();
-    ctx.moveTo(ax2, ay);
-    ctx.lineTo(ax2 - 7, ay - 3.5);
-    ctx.lineTo(ax2 - 7, ay + 3.5);
-    ctx.closePath();
-    ctx.fill();
-    // "Adapter" text below arrow
-    ctx.globalAlpha = 0.35;
-    ctx.textAlign = 'center';
-    ctx.font = '500 10px "DM Sans",sans-serif';
-    ctx.fillStyle = 'rgba(72,85,106,1)';
-    ctx.fillText('Adapter', (ax1 + ax2) / 2, ay + 14);
-    ctx.restore();
+    // Position arrow between labels
+    var arrowEl = document.getElementById('arrowLabel');
+    var ax1css = offX + (lx + 55) * cssScale;
+    var ax2css = offX + (rx - 55) * cssScale;
+    var aycss = offY + (labelY - 12) * cssScale;
+    var arrowW = ax2css - ax1css;
+    arrowEl.style.left = ax1css + 'px';
+    arrowEl.style.top = aycss + 'px';
+    arrowEl.style.width = arrowW + 'px';
+    var svgEl = document.getElementById('arrowSvg');
+    svgEl.setAttribute('width', arrowW);
+    var lineEl = document.getElementById('arrowLine');
+    lineEl.setAttribute('x2', arrowW - 7);
+    var headEl = document.getElementById('arrowHead');
+    headEl.setAttribute('points', arrowW+',10 '+(arrowW-7)+',6.5 '+(arrowW-7)+',13.5');
 
     time+=0.012;
     requestAnimationFrame(draw);
@@ -2669,6 +2664,14 @@ document.getElementById('contactForm').addEventListener('submit', async function
   // Init
   var ip=pairs[pairIdx];
   pairText.textContent=models[ip.src].label+'  \u2192  '+models[ip.tgt].label;
+
+  // Pre-populate particles spread along paths
+  var initN = Math.min(models[ip.src].points.length, models[ip.tgt].points.length);
+  for(var i=0; i<MAX_PARTS; i++){
+    var idx = Math.floor(Math.random()*initN);
+    parts.push({idx:idx, t:Math.random(), spd:0.0018, srcHue:models[ip.src].hue, tgtHue:models[ip.tgt].hue});
+  }
+
   requestAnimationFrame(draw);
 })();
 </script>
