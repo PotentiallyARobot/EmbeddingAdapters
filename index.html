@@ -290,12 +290,12 @@ nav.nav-open .nav-hamburger span:nth-child(3) {
   gap: 8px;
   background: var(--accent-surface);
   border: 1px solid rgba(37, 99, 235, 0.15);
-  padding: 5px 14px;
+  padding: 4px 12px;
   border-radius: 100px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--accent);
-  margin-bottom: 20px;
+  margin-bottom: 14px;
   animation: fadeInDown 0.8s ease;
   position: relative;
   z-index: 3;
@@ -317,7 +317,7 @@ nav.nav-open .nav-hamburger span:nth-child(3) {
 
 .hero h1 {
   font-family: var(--font-display);
-  font-size: clamp(36px, 5vw, 58px);
+  font-size: clamp(28px, 3.2vw, 40px);
   font-weight: 700;
   line-height: 1.10;
   letter-spacing: -0.03em;
@@ -337,7 +337,7 @@ nav.nav-open .nav-hamburger span:nth-child(3) {
 }
 
 .hero-tagline {
-  font-size: clamp(14px, 1.6vw, 16px);
+  font-size: clamp(12px, 1.2vw, 14px);
   color: var(--text-secondary);
   max-width: 560px;
   line-height: 1.6;
@@ -408,12 +408,12 @@ nav.nav-open .nav-hamburger span:nth-child(3) {
 .btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: var(--accent);
   color: #fff;
-  padding: 12px 28px;
-  border-radius: 10px;
-  font-size: 14px;
+  padding: 9px 22px;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s;
@@ -429,12 +429,12 @@ nav.nav-open .nav-hamburger span:nth-child(3) {
 .btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: var(--bg-card);
   color: var(--text-primary);
-  padding: 12px 28px;
-  border-radius: 10px;
-  font-size: 14px;
+  padding: 9px 22px;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 600;
   text-decoration: none;
   border: 1px solid var(--border);
@@ -2577,17 +2577,35 @@ document.getElementById('contactForm').addEventListener('submit', async function
     var srcChanging = (prevPr.src !== pr.src);
     var tgtChanging = (prevPr.tgt !== pr.tgt);
 
-    // Label Y: well above mesh top
-    var labelY = cy - sh*0.48 - 60;
+    // Label Y: below the mesh
+    // Label Y: below mesh on wide screens, well above mesh on narrow
+    // Label Y: on desktop below mesh, on narrow/mobile always above mesh
+    var labelY;
+    if(W > 900) {
+      labelY = cy + sh*0.28;
+    } else {
+      labelY = cy - sh*0.70;
+    }
 
     function drawLabel(x, y, alpha, label, hue, subtitle) {
       if(alpha < 0.01) return;
       ctx.save();
       ctx.globalAlpha = alpha;
       ctx.textAlign = 'center';
+      // Measure for background
+      ctx.font = '700 14px "JetBrains Mono",monospace';
+      var tw = ctx.measureText(label).width;
+      ctx.font = '500 11px "DM Sans",sans-serif';
+      var sw = ctx.measureText(subtitle).width;
+      var bgW = Math.max(tw, sw) + 24;
+      // White background pill
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.beginPath();ctx.roundRect(x - bgW/2, y - 16, bgW, 42, 8);ctx.fill();
+      // Model name
       ctx.font = '700 14px "JetBrains Mono",monospace';
       ctx.fillStyle = 'hsla('+hue+',50%,28%,1)';
       ctx.fillText(label, x, y);
+      // Subtitle
       ctx.font = '500 11px "DM Sans",sans-serif';
       ctx.fillStyle = 'rgba(72,85,106,0.65)';
       ctx.fillText(subtitle, x, y + 16);
