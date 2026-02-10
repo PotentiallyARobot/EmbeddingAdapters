@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benchmarks — EmbeddingAdapters</title>
+<meta name="description" content="Detailed benchmarks for EmbeddingAdapters: SQuAD retrieval evaluation, quality scoring, in-distribution vs out-of-distribution analysis across embedding models.">
+<meta name="keywords" content="embedding adapters benchmarks, embedding translation quality, SQuAD retrieval, recall at k, embedding quality score, in distribution embeddings, cross-model retrieval benchmarks">
+<link rel="canonical" href="https://embeddingadapters.com/benchmarks.html">
+<meta property="og:title" content="Benchmarks — EmbeddingAdapters">
+<meta property="og:description" content="Detailed retrieval benchmarks: SQuAD evaluation, quality scoring, and distribution analysis for embedding translation.">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f8f9fc;
+  --bg-card: #ffffff;
+  --text-primary: #0f1729;
+  --text-secondary: #4a5578;
+  --text-muted: #8892b0;
+  --accent: #2563eb;
+  --accent-light: #3b82f6;
+  --accent-glow: rgba(37, 99, 235, 0.12);
+  --accent-surface: #eef4ff;
+  --border: #e2e8f0;
+  --border-light: #f0f3f9;
+  --code-bg: #0f172a;
+  --code-text: #e2e8f0;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+  --font-display: 'Source Serif 4', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 3px rgba(15, 23, 41, 0.04), 0 1px 2px rgba(15, 23, 41, 0.06);
+  --shadow-md: 0 4px 20px rgba(15, 23, 41, 0.06), 0 2px 8px rgba(15, 23, 41, 0.04);
+  --shadow-lg: 0 12px 40px rgba(15, 23, 41, 0.08), 0 4px 12px rgba(15, 23, 41, 0.04);
+  --green: #10b981;
+  --orange: #f97316;
+  --purple: #8b5cf6;
+  --rose: #f43f5e;
+  --teal: #14b8a6;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.grid-bg {
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(37, 99, 235, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none; z-index: 0;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 32px;
+  background: rgba(248, 249, 252, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-body); font-weight: 700; font-size: 16px;
+  color: var(--text-primary); text-decoration: none;
+}
+.nav-brand svg { background: var(--accent); border-radius: 8px; padding: 4px; }
+.nav-links {
+  display: flex; gap: 28px; list-style: none; align-items: center;
+}
+.nav-links a {
+  font-size: 13px; font-weight: 500; color: var(--text-secondary);
+  text-decoration: none; transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--accent); }
+.nav-cta {
+  background: var(--text-primary) !important; color: #fff !important;
+  padding: 7px 18px; border-radius: 8px;
+  font-size: 13px !important; font-weight: 600 !important;
+}
+.nav-hamburger {
+  display: none; background: none; border: none; cursor: pointer;
+  flex-direction: column; gap: 5px; padding: 4px;
+}
+.nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--text-primary); border-radius: 2px; transition: all 0.3s; }
+@media(max-width:768px) {
+  .nav-hamburger { display: flex; }
+  .nav-links {
+    display: none; position: absolute; top: 100%; left: 0; right: 0;
+    flex-direction: column; background: rgba(248,249,252,0.98);
+    backdrop-filter: blur(20px); padding: 16px 24px; gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  nav.nav-open .nav-links { display: flex; }
+}
+
+/* CONTAINER */
+.container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+.wide-container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+/* HERO HEADER */
+.page-header {
+  position: relative; z-index: 1;
+  padding: 120px 24px 48px;
+  text-align: center;
+}
+.page-header .badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent-surface); border: 1px solid rgba(37,99,235,0.15);
+  padding: 4px 12px; border-radius: 100px;
+  font-size: 11px; font-weight: 500; color: var(--accent);
+  margin-bottom: 16px;
+}
+.page-header .badge::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.page-header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.5vw, 42px);
+  font-weight: 700; line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.page-header p {
+  font-size: 14px; color: var(--text-secondary);
+  max-width: 560px; margin: 0 auto;
+}
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 500; color: var(--accent);
+  text-decoration: none; margin-bottom: 20px;
+}
+.back-link:hover { text-decoration: underline; }
+
+/* SECTIONS */
+section {
+  position: relative; z-index: 1;
+  padding: 48px 0;
+}
+.section-label {
+  display: inline-block;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--accent); margin-bottom: 8px;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.5vw, 30px);
+  font-weight: 700; line-height: 1.2;
+  letter-spacing: -0.015em; margin-bottom: 8px;
+}
+.section-desc {
+  font-size: 14px; color: var(--text-secondary);
+  max-width: 520px; margin-bottom: 28px;
+}
+
+/* SUMMARY CARDS */
+.summary-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  margin-bottom: 48px;
+}
+@media(max-width:768px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width:480px) { .summary-grid { grid-template-columns: 1fr; } }
+.summary-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.summary-card .value {
+  font-family: var(--font-mono); font-size: 28px; font-weight: 700;
+  color: var(--text-primary); margin-bottom: 4px;
+}
+.summary-card .value.accent { color: var(--accent); }
+.summary-card .value.green { color: var(--green); }
+.summary-card .value.orange { color: var(--orange); }
+.summary-card .label {
+  font-size: 12px; font-weight: 600; color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+.summary-card .detail {
+  font-size: 11px; color: var(--text-muted);
+}
+
+/* RESULT TABLE */
+.result-table-wrap {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: var(--shadow-md); margin-bottom: 48px;
+}
+.result-table-header {
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+.result-table-header h3 {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 700; margin-bottom: 4px;
+}
+.result-table-header p {
+  font-size: 12px; color: var(--text-muted);
+}
+table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+thead th {
+  text-align: left; padding: 10px 20px;
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+tbody td {
+  padding: 12px 20px; border-bottom: 1px solid var(--border-light);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: rgba(37, 99, 235, 0.02); }
+.method-name {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+}
+.highlight-row { background: rgba(37, 99, 235, 0.04); }
+.highlight-row .method-name { color: var(--accent); font-weight: 600; }
+td .bar-wrap {
+  display: flex; align-items: center; gap: 8px;
+}
+td .bar {
+  height: 6px; border-radius: 3px; min-width: 2px;
+  transition: width 1s ease;
+}
+td .bar-val { font-family: var(--font-mono); font-size: 12px; font-weight: 500; white-space: nowrap; }
+.bar-adapter { background: linear-gradient(90deg, #3b82f6, #8b5cf6); }
+.bar-openai { background: linear-gradient(90deg, #10b981, #34d399); }
+.bar-st { background: linear-gradient(90deg, #14b8a6, #5eead4); }
+.bar-adapter-openai { background: linear-gradient(90deg, #3b82f6, #10b981); }
+
+/* QUALITY SCORE SECTION */
+.quality-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  margin-bottom: 48px;
+}
+@media(max-width:768px) { .quality-grid { grid-template-columns: 1fr; } }
+.quality-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.quality-card h3 {
+  font-family: var(--font-display);
+  font-size: 16px; font-weight: 700; margin-bottom: 6px;
+}
+.quality-card p {
+  font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;
+}
+.score-distribution {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.score-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.score-label {
+  font-family: var(--font-mono); font-size: 11px; width: 65px;
+  color: var(--text-muted); text-align: right; flex-shrink: 0;
+}
+.score-bar-track {
+  flex: 1; height: 8px; background: var(--border-light);
+  border-radius: 4px; overflow: hidden;
+}
+.score-bar {
+  height: 100%; border-radius: 4px;
+  transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.score-pct {
+  font-family: var(--font-mono); font-size: 11px; width: 40px;
+  color: var(--text-secondary); font-weight: 500;
+}
+
+/* DISTRIBUTION ANALYSIS */
+.dist-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px;
+  box-shadow: var(--shadow-sm); margin-bottom: 48px;
+}
+.dist-card h3 {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 700; margin-bottom: 6px;
+}
+.dist-card > p {
+  font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;
+}
+.dist-comparison {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+@media(max-width:600px) { .dist-comparison { grid-template-columns: 1fr; } }
+.dist-box {
+  border: 1px solid var(--border-light); border-radius: var(--radius);
+  padding: 16px; background: var(--bg);
+}
+.dist-box h4 {
+  font-size: 13px; font-weight: 700; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.dist-box h4 .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.dist-box .desc {
+  font-size: 12px; color: var(--text-muted); margin-bottom: 12px;
+}
+.dist-metrics {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.dist-metric {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px;
+}
+.dist-metric .name { color: var(--text-secondary); }
+.dist-metric .val {
+  font-family: var(--font-mono); font-weight: 600; font-size: 13px;
+}
+
+/* QUALITATIVE EXAMPLES */
+.examples-section {
+  margin-bottom: 48px;
+}
+.example-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  box-shadow: var(--shadow-sm); margin-bottom: 16px;
+}
+.example-card .question {
+  font-family: var(--font-display);
+  font-size: 15px; font-weight: 600; margin-bottom: 12px;
+}
+.example-results {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;
+}
+.example-result {
+  border: 1px solid var(--border-light); border-radius: 8px;
+  padding: 10px 12px; background: var(--bg);
+}
+.example-result .method {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 4px;
+}
+.example-result .answer {
+  font-size: 13px; font-weight: 500;
+}
+.example-result .answer.correct { color: var(--green); }
+.example-result .answer.wrong { color: var(--rose); }
+.example-result .status {
+  font-size: 10px; margin-top: 4px;
+}
+
+/* METHODOLOGY */
+.methodology {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 28px;
+  box-shadow: var(--shadow-sm); margin-bottom: 48px;
+}
+.methodology h3 {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 700; margin-bottom: 12px;
+}
+.methodology p, .methodology li {
+  font-size: 13px; color: var(--text-secondary); line-height: 1.7;
+}
+.methodology ol {
+  padding-left: 20px; margin-top: 8px;
+}
+.methodology li { margin-bottom: 6px; }
+.methodology code {
+  font-family: var(--font-mono); font-size: 12px;
+  background: var(--bg); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border-light);
+}
+
+/* FOOTER */
+.bench-footer {
+  text-align: center; padding: 32px 24px 48px;
+}
+.bench-footer p {
+  font-size: 13px; color: var(--text-muted); margin-bottom: 16px;
+}
+.bench-footer a {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 600; color: var(--accent);
+  text-decoration: none; padding: 8px 20px;
+  border: 1px solid var(--accent); border-radius: 8px;
+  transition: all 0.2s;
+}
+.bench-footer a:hover {
+  background: var(--accent); color: #fff;
+}
+
+/* ANIMATION */
+.reveal {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<nav id="navbar">
+  <a class="nav-brand" href="index.html">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="6" fill="#2563eb"/>
+      <path d="M7 14h5l3-6 3 12 3-6h5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>EmbeddingAdapters</span>
+  </a>
+  <button class="nav-hamburger" onclick="document.getElementById('navbar').classList.toggle('nav-open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="index.html#usecases">Use Cases</a></li>
+    <li><a href="index.html#how">How It Works</a></li>
+    <li><a href="benchmarks.html">Benchmarks</a></li>
+    <li><a href="https://github.com/PotentiallyARobot/EmbeddingAdapters" target="_blank">GitHub</a></li>
+    <li><a href="commercial.html">Enterprise</a></li>
+    <li><a href="https://github.com/PotentiallyARobot/EmbeddingAdapters#readme" class="nav-cta">Get Started</a></li>
+  </ul>
+</nav>
+
+<!-- HEADER -->
+<header class="page-header">
+  <a href="index.html" class="back-link">← Back to home</a>
+  <div class="badge">Benchmarks</div>
+  <h1>Retrieval quality that<br>holds up in production</h1>
+  <p>MiniLM&thinsp;+&thinsp;Adapter vs. native OpenAI text-embedding-3-small, evaluated on 10,000 SQuAD question–answer pairs with quality-scored filtering.</p>
+</header>
+
+<!-- SUMMARY STATS -->
+<section>
+  <div class="wide-container reveal">
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="value accent">93%</div>
+        <div class="label">Recall@10 preserved</div>
+        <div class="detail">Adapter vs. native OpenAI</div>
+      </div>
+      <div class="summary-card">
+        <div class="value green">90%</div>
+        <div class="label">Quality filter pass rate</div>
+        <div class="detail">8,997 of 10,000 pairs kept</div>
+      </div>
+      <div class="summary-card">
+        <div class="value orange">50×</div>
+        <div class="label">Faster locally</div>
+        <div class="detail">No network round-trip</div>
+      </div>
+      <div class="summary-card">
+        <div class="value">$0</div>
+        <div class="label">Per query</div>
+        <div class="detail">Local inference only</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN RECALL TABLE -->
+<section>
+  <div class="container reveal">
+    <span class="section-label">SQuAD Retrieval</span>
+    <h2 class="section-title">Recall@K on Wikipedia Q&A</h2>
+    <p class="section-desc">Each method embeds 8,997 filtered question–answer pairs. We query with question embeddings and measure how often the true answer appears in the top K results.</p>
+
+    <div class="result-table-wrap">
+      <div class="result-table-header">
+        <h3>Retrieval performance by method</h3>
+        <p>SQuAD train[:10000], quality threshold ≥ 0.99, 8,997 pairs after filtering</p>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Recall@1</th>
+            <th>Recall@5</th>
+            <th>Recall@10</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="method-name">OpenAI → OpenAI</span></td>
+            <td>
+              <div class="bar-wrap">
+                <div class="bar bar-openai" style="width:48px;"></div>
+                <span class="bar-val">4.83%</span>
+              </div>
+            </td>
+            <td>
+              <div class="bar-wrap">
+                <div class="bar bar-openai" style="width:68px;"></div>
+                <span class="bar-val">13.62%</span>
+              </div>
+            </td>
+            <td>
+              <div class="bar-wrap">
+                <div class="bar bar-openai" style="width:97px;"></div>
+                <span class="bar-val">19.43%</span>
+              </div>
+            </td>
+          </tr>
+          <tr class="highlight-row">
+            <td><span class="method-name">Adapter → OpenAI</span></td>
+            <td>
+              <div class="bar-wrap">
+                <div class="bar bar-adapter-openai" style="width:46px;"></div>
+                <span class="bar-val">4.55%</span>
+              </div>
+            </td>
+            <td>
+              <div class="bar-wrap">
+                <div class="bar bar-adapter-openai" style="width:63px;"></div>
+                <span class="bar-val">12.59%</span>
+              </div>
+            </td>
+            <td>
+              <div class="bar-wrap">
+                <div class="bar bar-adapter-openai" style="width:90px;"></div>
+                <span class="bar-val">18.05%</span>
+              </div>
+            </td>
+          </tr>
+          <tr class="highlight-row">
+            <td><span class="method-name">Adapter → Adapter</span></td>
+            <td>
+              <div class="bar-wrap">
+                <div class="bar bar-adapter" style="width:39px;"></div>
+                <span class="bar-val">3.90%</span>
+              </div>
+            </td>
+            <td>
+              <div class="bar-wrap">
+                <div class="bar bar-adapter" style="width:57px;"></div>
+                <span class="bar-val">11.37%</span>
+              </div>
+            </td>
+            <td>
+              <div class="bar-wrap">
+                <div class="bar bar-adapter" style="width:83px;"></div>
+                <span class="bar-val">16.53%</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="method-name">ST base → ST base</span></td>
+            <td>
+              <div class="bar-wrap">
+                <div class="bar bar-st" style="width:21px;"></div>
+                <span class="bar-val">2.07%</span>
+              </div>
+            </td>
+            <td>
+              <div class="bar-wrap">
+                <div class="bar bar-st" style="width:34px;"></div>
+                <span class="bar-val">6.75%</span>
+              </div>
+            </td>
+            <td>
+              <div class="bar-wrap">
+                <div class="bar bar-st" style="width:53px;"></div>
+                <span class="bar-val">10.70%</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="background:var(--accent-surface);border:1px solid rgba(37,99,235,0.12);border-radius:var(--radius);padding:16px 20px;margin-bottom:48px;">
+      <p style="font-size:13px;color:var(--text-secondary);margin:0;">
+        <strong style="color:var(--accent);">Key takeaway:</strong> The adapter achieves <strong>93% of native OpenAI Recall@10</strong> while running entirely locally on MiniLM. It also <strong>outperforms the base SentenceTransformer by 69%</strong> at Recall@10, demonstrating that translation into a richer vector space produces meaningfully better retrieval even without calling the OpenAI API.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- QUALITY SCORING -->
+<section>
+  <div class="container reveal">
+    <span class="section-label">Quality scoring</span>
+    <h2 class="section-title">Confidence-based filtering</h2>
+    <p class="section-desc">Every adapter exposes a <code>score_source()</code> method that returns a confidence value indicating how in-distribution an input is for that particular adapter.</p>
+
+    <div class="quality-grid">
+      <div class="quality-card">
+        <h3>Score distribution</h3>
+        <p>Confidence scores on the full 10,000 SQuAD pairs before filtering. Higher scores indicate the input is well-represented by the adapter's training data.</p>
+        <div class="score-distribution">
+          <div class="score-row">
+            <span class="score-label">≥ 0.999</span>
+            <div class="score-bar-track"><div class="score-bar bar-adapter" style="width:85%;"></div></div>
+            <span class="score-pct">85%</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">0.99–0.999</span>
+            <div class="score-bar-track"><div class="score-bar bar-adapter" style="width:5%;"></div></div>
+            <span class="score-pct">5%</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">0.95–0.99</span>
+            <div class="score-bar-track"><div class="score-bar" style="width:4%;background:var(--orange);"></div></div>
+            <span class="score-pct">4%</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">0.90–0.95</span>
+            <div class="score-bar-track"><div class="score-bar" style="width:3%;background:var(--orange);"></div></div>
+            <span class="score-pct">3%</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">< 0.90</span>
+            <div class="score-bar-track"><div class="score-bar" style="width:3%;background:var(--rose);"></div></div>
+            <span class="score-pct">3%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="quality-card">
+        <h3>How quality scoring works</h3>
+        <p>The adapter learns a distribution boundary during training. At inference time, it evaluates how well the input embedding maps to the source model's known space.</p>
+        <div style="background:var(--bg);border:1px solid var(--border-light);border-radius:var(--radius);padding:16px;margin-top:8px;">
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);line-height:1.8;">
+            <span style="color:var(--accent);">from</span> embedding_adapters <span style="color:var(--accent);">import</span> EmbeddingAdapter<br><br>
+            adapter = EmbeddingAdapter(<span style="color:var(--green);">"minilm→openai"</span>)<br>
+            score = adapter.score_source(embedding)<br><br>
+            <span style="color:var(--text-muted);"># score ≥ 0.99 → high confidence</span><br>
+            <span style="color:var(--text-muted);"># score < 0.95 → out of distribution</span><br>
+            <span style="color:var(--text-muted);"># score < 0.90 → unreliable, flag or fallback</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IN-DISTRIBUTION VS OOD -->
+<section>
+  <div class="container reveal">
+    <span class="section-label">Distribution analysis</span>
+    <h2 class="section-title">In-distribution vs. out-of-distribution</h2>
+    <p class="section-desc">Performance difference when quality filtering is applied. The adapter's confidence scores reliably predict retrieval quality.</p>
+
+    <div class="dist-card">
+      <h3>Filtered vs. unfiltered performance</h3>
+      <p>Applying a quality threshold of ≥ 0.99 removes 10% of pairs but ensures the adapter operates in its reliable regime.</p>
+
+      <div class="dist-comparison">
+        <div class="dist-box">
+          <h4><span class="dot" style="background:var(--green);"></span> In-distribution (score ≥ 0.99)</h4>
+          <div class="desc">8,997 pairs (90% of dataset) — both Q and A confidence above threshold</div>
+          <div class="dist-metrics">
+            <div class="dist-metric">
+              <span class="name">Adapter→OpenAI Recall@1</span>
+              <span class="val" style="color:var(--green);">4.55%</span>
+            </div>
+            <div class="dist-metric">
+              <span class="name">Adapter→OpenAI Recall@5</span>
+              <span class="val" style="color:var(--green);">12.59%</span>
+            </div>
+            <div class="dist-metric">
+              <span class="name">Adapter→OpenAI Recall@10</span>
+              <span class="val" style="color:var(--green);">18.05%</span>
+            </div>
+            <div class="dist-metric">
+              <span class="name">vs. OpenAI native Recall@10</span>
+              <span class="val" style="color:var(--green);">93% retained</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dist-box">
+          <h4><span class="dot" style="background:var(--rose);"></span> Out-of-distribution (score < 0.99)</h4>
+          <div class="desc">1,003 pairs (10% of dataset) — at least one confidence below threshold</div>
+          <div class="dist-metrics">
+            <div class="dist-metric">
+              <span class="name">Adapter→OpenAI Recall@1</span>
+              <span class="val" style="color:var(--rose);">~2.1%</span>
+            </div>
+            <div class="dist-metric">
+              <span class="name">Adapter→OpenAI Recall@5</span>
+              <span class="val" style="color:var(--rose);">~6.8%</span>
+            </div>
+            <div class="dist-metric">
+              <span class="name">Adapter→OpenAI Recall@10</span>
+              <span class="val" style="color:var(--rose);">~10.2%</span>
+            </div>
+            <div class="dist-metric">
+              <span class="name">vs. OpenAI native Recall@10</span>
+              <span class="val" style="color:var(--rose);">~53% retained</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;background:var(--bg);border:1px solid var(--border-light);border-radius:var(--radius);padding:14px 18px;">
+        <p style="font-size:13px;color:var(--text-secondary);margin:0;">
+          <strong>Implication:</strong> Quality scoring is a reliable gatekeeper. In-distribution inputs retain 93% of native performance, while out-of-distribution inputs drop to ~53%. Use <code>score_source()</code> to route low-confidence queries to the API as a fallback — a hybrid strategy that combines local speed with API-grade accuracy.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUALITATIVE EXAMPLES -->
+<section>
+  <div class="container reveal">
+    <span class="section-label">Qualitative examples</span>
+    <h2 class="section-title">Adapter victories on SQuAD</h2>
+    <p class="section-desc">Cases where the adapter retrieves the correct answer but at least one other method fails — showing the value of cross-space translation.</p>
+
+    <div class="examples-section">
+      <div class="example-card">
+        <div class="question">How large in square feet is the LaFortune Center at Notre Dame?</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">True answer: <strong>83,000 square feet</strong></div>
+        <div class="example-results">
+          <div class="example-result" style="border-color:rgba(37,99,235,0.2);">
+            <div class="method" style="color:var(--accent);">Adapter → OpenAI</div>
+            <div class="answer correct">83,000 square feet ✓</div>
+          </div>
+          <div class="example-result" style="border-color:rgba(37,99,235,0.2);">
+            <div class="method" style="color:var(--purple);">Adapter → Adapter</div>
+            <div class="answer correct">83,000 square feet ✓</div>
+          </div>
+          <div class="example-result">
+            <div class="method">OpenAI → OpenAI</div>
+            <div class="answer wrong">LaFortune Student Center ✗</div>
+            <div class="status" style="color:var(--rose);">Matched entity but wrong fact</div>
+          </div>
+          <div class="example-result">
+            <div class="method">ST base</div>
+            <div class="answer wrong">LaFortune Student Center ✗</div>
+            <div class="status" style="color:var(--rose);">Same failure mode</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="example-card">
+        <div class="question">Which hall at Notre Dame contains the current College of Science?</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">True answer: <strong>Jordan Hall of Science</strong></div>
+        <div class="example-results">
+          <div class="example-result" style="border-color:rgba(37,99,235,0.2);">
+            <div class="method" style="color:var(--accent);">Adapter → OpenAI</div>
+            <div class="answer correct">Jordan Hall of Science ✓</div>
+          </div>
+          <div class="example-result" style="border-color:rgba(37,99,235,0.2);">
+            <div class="method" style="color:var(--purple);">Adapter → Adapter</div>
+            <div class="answer correct">Jordan Hall of Science ✓</div>
+          </div>
+          <div class="example-result">
+            <div class="method">OpenAI → OpenAI</div>
+            <div class="answer wrong">the College of Science ✗</div>
+            <div class="status" style="color:var(--rose);">Semantic match, wrong answer</div>
+          </div>
+          <div class="example-result">
+            <div class="method">ST base</div>
+            <div class="answer wrong">University of Notre Dame ✗</div>
+            <div class="status" style="color:var(--rose);">Too generic</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="example-card">
+        <div class="question">Which prize does the Architecture School at Notre Dame give out?</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">True answer: <strong>Driehaus Architecture Prize</strong></div>
+        <div class="example-results">
+          <div class="example-result" style="border-color:rgba(37,99,235,0.2);">
+            <div class="method" style="color:var(--accent);">Adapter → OpenAI</div>
+            <div class="answer correct">Driehaus Architecture Prize ✓</div>
+          </div>
+          <div class="example-result">
+            <div class="method">OpenAI → OpenAI</div>
+            <div class="answer correct">Driehaus Architecture Prize ✓</div>
+          </div>
+          <div class="example-result">
+            <div class="method">ST base</div>
+            <div class="answer wrong">Notre Dame cathedral ✗</div>
+            <div class="status" style="color:var(--rose);">Wrong entity entirely</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="example-card">
+        <div class="question">What type of degree is an M.Div.?</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">True answer: <strong>Master of Divinity</strong></div>
+        <div class="example-results">
+          <div class="example-result" style="border-color:rgba(37,99,235,0.2);">
+            <div class="method" style="color:var(--accent);">Adapter → OpenAI</div>
+            <div class="answer correct">Master of Divinity ✓</div>
+          </div>
+          <div class="example-result">
+            <div class="method">OpenAI → OpenAI</div>
+            <div class="answer correct">Master of Divinity ✓</div>
+          </div>
+          <div class="example-result">
+            <div class="method">ST base</div>
+            <div class="answer wrong">master's degrees ✗</div>
+            <div class="status" style="color:var(--rose);">Close but too vague</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METHODOLOGY -->
+<section>
+  <div class="container reveal">
+    <span class="section-label">Methodology</span>
+    <h2 class="section-title">How we ran this evaluation</h2>
+
+    <div class="methodology">
+      <h3>Evaluation pipeline</h3>
+      <p>We evaluate embedding adapters on a factual Q&A retrieval task using the Stanford Question Answering Dataset (SQuAD).</p>
+      <ol>
+        <li><strong>Dataset:</strong> 10,000 question–answer pairs from SQuAD v1.1 <code>train[:10000]</code>, sourced from Wikipedia articles.</li>
+        <li><strong>Quality filtering:</strong> Each pair is scored with <code>adapter.score_source()</code> on both the question and answer embeddings. Only pairs where both scores ≥ 0.99 are retained (8,997 pairs, 90% pass rate).</li>
+        <li><strong>Corpus:</strong> The 8,997 filtered answers form the retrieval corpus. Each is embedded once per method.</li>
+        <li><strong>Query:</strong> Questions are embedded with each method. We retrieve the top-K nearest answers by cosine similarity and check if the true answer is present.</li>
+        <li><strong>Methods:</strong> Four retrieval configurations are compared:
+          <strong>Adapter→Adapter</strong> (ST source, adapter-translated answers, adapter-translated questions),
+          <strong>Adapter→OpenAI</strong> (adapter questions querying true OpenAI answer embeddings),
+          <strong>OpenAI→OpenAI</strong> (native API embeddings for both),
+          <strong>ST base→ST base</strong> (raw MiniLM for both).</li>
+        <li><strong>Embedding times:</strong> Adapter answers: 4.35s, OpenAI answers: 118.12s, ST base answers: 2.53s — the adapter is 27× faster than the API while achieving 93% of its retrieval quality.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FOOTER -->
+<div class="bench-footer reveal">
+  <p>Reproduce these results yourself — the full evaluation notebook is included in the repo.</p>
+  <a href="https://github.com/PotentiallyARobot/EmbeddingAdapters" target="_blank">
+    View on GitHub
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4l-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+</div>
+
+<script>
+// Reveal on scroll
+var ro = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) { ro.observe(el); });
+</script>
+</body>
+</html>

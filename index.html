@@ -1637,7 +1637,7 @@ footer {
   <ul class="nav-links">
     <li><a href="#usecases">Use Cases</a></li>
     <li><a href="#how">How It Works</a></li>
-    <li><a href="#benchmarks">Benchmarks</a></li>
+    <li><a href="benchmarks.html">Benchmarks</a></li>
     <li><a href="https://github.com/PotentiallyARobot/EmbeddingAdapters" target="_blank">GitHub</a></li>
     <li><a href="commercial.html">Enterprise</a></li>
     <li><a href="https://github.com/PotentiallyARobot/EmbeddingAdapters#readme" class="nav-cta">Get Started</a></li>
@@ -1659,7 +1659,7 @@ footer {
       Get started
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4l-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
-    <a href="#benchmarks" class="btn-secondary">Read benchmarks →</a>
+    <a href="benchmarks.html" class="btn-secondary">Read benchmarks →</a>
   </div>
   <div class="hero-sub-links">
     <a href="commercial.html" class="hero-learn-more">Commercial inquiries →</a>
@@ -2014,7 +2014,7 @@ footer {
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4l-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </form>
-    <p class="modal-footer-text">Or email us directly at <a href="mailto:embeddingadapters@gmail.com">embeddingadapters@gmail.com</a></p>
+    <p class="modal-footer-text">Or email us directly at <a href="/cdn-cgi/l/email-protection#82e7efe0e7e6e6ebece5e3e6e3f2f6e7f0f1c2e5efe3ebeeace1edef"><span class="__cf_email__" data-cfemail="ec89818e89888885828b8d888d9c98899e9fac8b818d8580c28f8381">[email&#160;protected]</span></a></p>
   </div>
 </div>
 
@@ -2026,7 +2026,7 @@ footer {
         <h4>Product</h4>
         <a href="learn-more.html">Features</a>
         <a href="#how">How It Works</a>
-        <a href="#benchmarks">Benchmarks</a>
+        <a href="benchmarks.html">Benchmarks</a>
         <a href="https://github.com/PotentiallyARobot/EmbeddingAdapters#readme">Documentation</a>
       </div>
       <div class="footer-col">
@@ -2039,7 +2039,7 @@ footer {
         <h4>Commercial</h4>
         <a href="commercial.html">Enterprise Services</a>
         <a href="commercial.html#contact">Contact Sales</a>
-        <a href="mailto:embeddingadapters@gmail.com">embeddingadapters@gmail.com</a>
+        <a href="/cdn-cgi/l/email-protection#e6838b848382828f88818782879692839495a6818b878f8ac885898b"><span class="__cf_email__" data-cfemail="91f4fcf3f4f5f5f8fff6f0f5f0e1e5f4e3e2d1f6fcf0f8fdbff2fefc">[email&#160;protected]</span></a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -2054,7 +2054,7 @@ footer {
 </footer>
 
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // Nav scroll
 const nav = document.getElementById('navbar');
 window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
@@ -2169,7 +2169,7 @@ document.getElementById('contactForm').addEventListener('submit', async function
   // MiniLM (teal):    Simplest — gentle single hill, very smooth
   // BGE (blue):       Twin peaks — two spires with valley between
   // E5 (purple):      Crater — raised rim, deep center bowl
-  // mE5 (rose):       Ripple — diagonal wave pattern
+  // Gemini (rose):    Ripple — diagonal wave pattern
   // OpenAI (orange):  Most complex — multiple peaks, ridges, valleys, rich detail
 
   var models = {
@@ -2192,7 +2192,7 @@ document.getElementById('contactForm').addEventListener('submit', async function
         {u:0.20,v:0.22},{u:0.38,v:0.40},{u:0.50,v:0.50},
         {u:0.62,v:0.60},{u:0.80,v:0.72},{u:0.35,v:0.65},
       ],
-      label: 'bge-base-en', short: 'BGE',
+      label: 'bge-base', short: 'BGE',
     },
     'openai': {
       hue: 28,
@@ -2255,9 +2255,9 @@ document.getElementById('contactForm').addEventListener('submit', async function
         {u:0.50,v:0.48},{u:0.25,v:0.32},{u:0.75,v:0.35},
         {u:0.72,v:0.70},{u:0.28,v:0.70},{u:0.50,v:0.15},
       ],
-      label: 'intfloat/e5-large-v2', short: 'E5',
+      label: 'e5-base', short: 'E5',
     },
-    'me5': {
+    'gemini': {
       hue: 340,
       peaks: [
         // Ripple: three parallel ridges running diagonally
@@ -2275,30 +2275,33 @@ document.getElementById('contactForm').addEventListener('submit', async function
         {u:0.20,v:0.22},{u:0.38,v:0.38},{u:0.50,v:0.50},
         {u:0.62,v:0.62},{u:0.80,v:0.78},{u:0.70,v:0.40},
       ],
-      label: 'multilingual-e5-large', short: 'mE5',
+      label: 'google/text-embedding-004', short: 'Gemini',
     },
   };
 
-  // Pairs ordered so only ONE model changes at a time (source or target):
-  // bge→openai: then source changes to minilm
-  // minilm→openai: then target changes to e5
-  // minilm→e5: then source changes to bge
-  // bge→e5: then target changes to me5
-  // bge→me5: then source changes to openai
-  // openai→me5: then target changes to minilm
-  // openai→minilm: then source changes to e5
-  // e5→minilm: then target changes to bge (loops back)
-  // e5→bge: ... wraps, source changes to bge → back to pair[0]
+  // 20 pairs, alternating which side changes (right then left).
+  // Both terrains are never the same model. Wraps cleanly.
   var pairs = [
-    {src:'bge',    tgt:'openai'},
-    {src:'minilm', tgt:'openai'},
-    {src:'minilm', tgt:'e5'},
-    {src:'bge',    tgt:'e5'},
-    {src:'bge',    tgt:'me5'},
-    {src:'openai', tgt:'me5'},
-    {src:'openai', tgt:'minilm'},
-    {src:'e5',     tgt:'minilm'},
-    {src:'e5',     tgt:'bge'},
+    {src:'minilm', tgt:'openai'},   //  1  start
+    {src:'e5',     tgt:'openai'},   //  2  left changes
+    {src:'e5',     tgt:'gemini'},   //  3  right changes
+    {src:'bge',    tgt:'gemini'},   //  4  left changes
+    {src:'bge',    tgt:'openai'},   //  5  right changes
+    {src:'gemini', tgt:'openai'},   //  6  left changes
+    {src:'gemini', tgt:'minilm'},   //  7  right changes
+    {src:'openai', tgt:'minilm'},   //  8  left changes
+    {src:'openai', tgt:'e5'},       //  9  right changes
+    {src:'gemini', tgt:'e5'},       // 10  left changes
+    {src:'gemini', tgt:'bge'},      // 11  right changes
+    {src:'openai', tgt:'bge'},      // 12  left changes
+    {src:'openai', tgt:'gemini'},   // 13  right changes
+    {src:'minilm', tgt:'gemini'},   // 14  left changes
+    {src:'minilm', tgt:'e5'},       // 15  right changes
+    {src:'bge',    tgt:'e5'},       // 16  left changes
+    {src:'bge',    tgt:'minilm'},   // 17  right changes
+    {src:'e5',     tgt:'minilm'},   // 18  left changes
+    {src:'e5',     tgt:'bge'},      // 19  right changes
+    {src:'minilm', tgt:'bge'},      // 20  left changes (wraps: next right changes bge->openai → pair[0])
   ];
 
   var pairIdx = 0, trans = 1, hold = 0;
@@ -2320,18 +2323,23 @@ document.getElementById('contactForm').addEventListener('submit', async function
     return z;
   }
 
-  // Project to screen — 45° isometric view (looking from corner, like reference)
+  // Project to screen — isometric view with -10° CCW rotation
   // u and v both go diagonal; z goes straight up
   function proj(u, v, z, cx, cy, w, h) {
     // Center u,v around 0
     var cu = u - 0.5;
     var cv = v - 0.5;
-    // Rotate 45° and scale: x = (u - v), y = (u + v) * tilt - z
+    // Isometric base
     var isoX = (cu - cv) * 0.70;  // horizontal spread
     var isoY = (cu + cv) * 0.36;  // depth (foreshortened)
+    // Apply -10° counter-clockwise rotation
+    var rad = -10 * Math.PI / 180;
+    var cosR = Math.cos(rad), sinR = Math.sin(rad);
+    var rx = isoX * cosR - isoY * sinR;
+    var ry = isoX * sinR + isoY * cosR;
     return {
-      x: cx + isoX * w,
-      y: cy + isoY * h - z * h * 0.38
+      x: cx + rx * w,
+      y: cy + ry * h - z * h * 0.38
     };
   }
 
@@ -2613,6 +2621,12 @@ document.getElementById('contactForm').addEventListener('submit', async function
       el.style.background = 'rgba(255,255,255,0.55)';
       el.style.borderRadius = '8px';
       el.style.padding = '4px 12px 6px';
+      // On mobile, constrain width so both labels wrap to multiple lines consistently
+      if(W <= 900) {
+        el.style.maxWidth = '80px';
+      } else {
+        el.style.maxWidth = '';
+      }
     }
 
     var srcEl = document.getElementById('srcLabel');
