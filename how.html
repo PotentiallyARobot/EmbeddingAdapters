@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How It Works — EmbeddingAdapters</title>
+<meta name="description" content="How EmbeddingAdapters works: learned mappings between embedding spaces, confidence scoring, and the adapter training pipeline.">
+<link rel="canonical" href="https://embeddingadapters.com/how.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f8f9fc; --bg-card: #ffffff; --text-primary: #0f1729;
+  --text-secondary: #4a5578; --text-muted: #8892b0;
+  --accent: #2563eb; --accent-light: #3b82f6;
+  --accent-glow: rgba(37, 99, 235, 0.12);
+  --accent-surface: #eef4ff; --border: #e2e8f0; --border-light: #f0f3f9;
+  --code-bg: #0f172a; --code-text: #e2e8f0;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+  --font-display: 'Source Serif 4', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px; --radius-lg: 20px;
+  --shadow-sm: 0 1px 3px rgba(15,23,41,0.04), 0 1px 2px rgba(15,23,41,0.06);
+  --shadow-md: 0 4px 20px rgba(15,23,41,0.06), 0 2px 8px rgba(15,23,41,0.04);
+  --shadow-lg: 0 12px 40px rgba(15,23,41,0.08), 0 4px 12px rgba(15,23,41,0.04);
+  --green: #10b981; --orange: #f97316; --purple: #8b5cf6;
+  --gradient-cool: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%);
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text-primary); line-height: 1.65; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+.grid-bg { position: fixed; inset: 0; background-image: linear-gradient(rgba(37,99,235,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,0.03) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; z-index: 0; }
+
+nav { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; background: rgba(248,249,252,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); z-index: 100; }
+.nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; color: var(--text-primary); text-decoration: none; }
+.nav-brand svg { background: var(--accent); border-radius: 8px; padding: 4px; }
+.nav-links { display: flex; gap: 28px; list-style: none; align-items: center; }
+.nav-links a { font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--accent); }
+.nav-cta { background: var(--text-primary) !important; color: #fff !important; padding: 7px 18px; border-radius: 8px; font-size: 13px !important; font-weight: 600 !important; }
+.nav-hamburger { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; padding: 4px; }
+.nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--text-primary); border-radius: 2px; transition: all 0.3s; }
+@media(max-width:768px) {
+  .nav-hamburger { display: flex; }
+  .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; background: rgba(248,249,252,0.98); backdrop-filter: blur(20px); padding: 16px 24px; gap: 12px; border-bottom: 1px solid var(--border); }
+  nav.nav-open .nav-links { display: flex; }
+}
+
+.container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+.page-header { position: relative; z-index: 1; padding: 120px 24px 48px; text-align: center; }
+.page-header .badge { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-surface); border: 1px solid rgba(37,99,235,0.15); padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 500; color: var(--accent); margin-bottom: 16px; }
+.page-header .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.page-header h1 { font-family: var(--font-display); font-size: clamp(28px,3.5vw,42px); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 12px; }
+.page-header h1 strong { background: var(--gradient-cool); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.page-header p { font-size: 15px; color: var(--text-secondary); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--accent); text-decoration: none; margin-bottom: 20px; }
+.back-link:hover { text-decoration: underline; }
+
+section { position: relative; z-index: 1; padding: 48px 0; }
+.section-label { display: inline-block; font-family: var(--font-mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 8px; }
+.section-title { font-family: var(--font-display); font-size: clamp(22px,2.5vw,30px); font-weight: 700; line-height: 1.2; letter-spacing: -0.015em; margin-bottom: 8px; }
+.section-desc { font-size: 14px; color: var(--text-secondary); max-width: 520px; margin-bottom: 28px; line-height: 1.7; }
+
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+
+.bench-footer { text-align: center; padding: 32px 24px 48px; }
+.bench-footer p { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+.bench-footer a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; padding: 8px 20px; border: 1px solid var(--accent); border-radius: 8px; transition: all 0.2s; }
+.bench-footer a:hover { background: var(--accent); color: #fff; }
+
+
+.how-flow {
+  display: flex; align-items: stretch; justify-content: center; gap: 0;
+  margin: 32px 0 48px; max-width: 100%;
+}
+.how-step {
+  flex: 1; position: relative; padding: 40px 28px;
+  background: var(--bg-card); border: 1px solid var(--border); text-align: center;
+}
+.how-step:first-child { border-radius: var(--radius-lg) 0 0 var(--radius-lg); }
+.how-step:last-child { border-radius: 0 var(--radius-lg) var(--radius-lg) 0; }
+.how-step:not(:last-child) { border-right: none; }
+.how-step-num {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 15px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 18px;
+}
+.how-step h4 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin-bottom: 10px; }
+.how-step p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+.how-arrow {
+  position: absolute; right: -14px; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  z-index: 2; color: var(--accent); font-size: 14px;
+}
+@media(max-width:700px) {
+  .how-flow { flex-direction: column; }
+  .how-step { border-radius: 0 !important; border-right: 1px solid var(--border) !important; border-bottom: none; }
+  .how-step:first-child { border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important; }
+  .how-step:last-child { border-radius: 0 0 var(--radius-lg) var(--radius-lg) !important; border-bottom: 1px solid var(--border); }
+  .how-arrow { display: none; }
+}
+
+.detail-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.detail-card h3 {
+  font-family: var(--font-display); font-size: 18px; font-weight: 700; margin-bottom: 10px;
+}
+.detail-card p {
+  font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 10px;
+}
+.detail-card p:last-child { margin-bottom: 0; }
+.detail-card code {
+  font-family: var(--font-mono); font-size: 12px;
+  background: var(--bg); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border-light);
+}
+
+.code-block {
+  background: var(--code-bg); border-radius: var(--radius-lg);
+  overflow: hidden; box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.05);
+  margin: 24px 0;
+}
+.code-block-header {
+  display: flex; align-items: center; gap: 8px; padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.code-dot { width: 10px; height: 10px; border-radius: 50%; }
+.code-dot:nth-child(1) { background: #ff5f57; }
+.code-dot:nth-child(2) { background: #febc2e; }
+.code-dot:nth-child(3) { background: #28c840; }
+.code-block-header span {
+  margin-left: 8px; font-size: 12px; color: rgba(255,255,255,0.35);
+  font-family: var(--font-mono);
+}
+.code-block pre {
+  padding: 24px; overflow-x: auto; font-family: var(--font-mono);
+  font-size: 13px; line-height: 1.75; color: var(--code-text);
+}
+.kw { color: #c084fc; } .fn { color: #60a5fa; } .str { color: #4ade80; }
+.cm { color: #64748b; } .var { color: #f8fafc; } .op { color: #f59e0b; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<nav id="navbar">
+  <a class="nav-brand" href="index.html">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="6" fill="#2563eb"/>
+      <path d="M7 14h5l3-6 3 12 3-6h5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>EmbeddingAdapters</span>
+  </a>
+  <button class="nav-hamburger" onclick="document.getElementById('navbar').classList.toggle('nav-open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="usecases.html">Use Cases</a></li>
+    <li><a href="how.html">How It Works</a></li>
+    <li><a href="benchmarks.html">Benchmarks</a></li>
+    <li><a href="https://github.com/PotentiallyARobot/EmbeddingAdapters" target="_blank">GitHub</a></li>
+    <li><a href="commercial.html">Enterprise</a></li>
+    <li><a href="https://github.com/PotentiallyARobot/EmbeddingAdapters#readme" class="nav-cta">Get Started</a></li>
+  </ul>
+</nav>
+
+<header class="page-header">
+  <a href="index.html" class="back-link">&larr; Back to home</a>
+  <div class="badge">How It Works</div>
+  <h1>Learned mappings between<br><strong>embedding spaces</strong></h1>
+  <p>Each adapter is a compact, carefully trained model that translates one embedding space into another. The key isn't architecture complexity &mdash; it's the training process, which ensures the adapter preserves the geometric relationships that matter for retrieval without collapsing or losing fidelity.</p>
+</header>
+
+<section>
+  <div class="container reveal">
+    <div class="how-flow">
+      <div class="how-step">
+        <div class="how-step-num">1</div>
+        <h4>Embed with source</h4>
+        <p>Generate embeddings using your local or source model as you normally would.</p>
+        <div class="how-arrow">&rarr;</div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">2</div>
+        <h4>Adapt</h4>
+        <p>The adapter applies a trained transformation, mapping vectors into the target space.</p>
+        <div class="how-arrow">&rarr;</div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">3</div>
+        <h4>Retrieve</h4>
+        <p>Query your existing vector index directly &mdash; no re-embedding, no downtime, no data migration.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container reveal">
+    <span class="section-label">Under the hood</span>
+    <h2 class="section-title">What adapters actually do</h2>
+
+    <div class="detail-card">
+      <h3>The adapter model</h3>
+      <p>Each adapter is a compact, multi-layer model &mdash; not a simple linear transform. The architecture is designed to capture the non-trivial geometric differences between embedding spaces while staying fast enough for real-time inference (&lt;0.5ms per embedding on CPU).</p>
+      <p>The adapter files are small (a few MB), load instantly, and have negligible memory overhead. The design is deliberately lightweight so that the translation step never becomes the bottleneck in your pipeline.</p>
+    </div>
+
+    <div class="detail-card">
+      <h3>Confidence scoring</h3>
+      <p>Each adapter also learns a distribution boundary during training. At inference time, <code>score_source()</code> evaluates how well an input embedding fits within the source model's known space. This returns a confidence value between 0 and 1.</p>
+      <p>High scores (&#8805; 0.99) mean the input is well-represented by the adapter's training data and the translation is reliable. Low scores (&lt; 0.95) indicate the input is out-of-distribution &mdash; the adapter may still work, but you should consider falling back to the native API.</p>
+      <p>This is the foundation of the hybrid routing strategy: use the adapter when confident, escalate to the API when not.</p>
+    </div>
+
+    <div class="detail-card">
+      <h3>Training process</h3>
+      <p>Adapters are trained on parallel corpora: the same set of texts is embedded by both the source and target model, producing aligned vector pairs. The adapter learns to map from one space to the other on this parallel data.</p>
+      <p>The critical challenge in training is avoiding collapse &mdash; ensuring the adapter preserves fine-grained distinctions rather than converging to a degenerate mapping. Our training pipeline is carefully designed to prevent this, producing adapters that maintain neighbor structure, relative distances, and cluster boundaries even across very different embedding geometries.</p>
+      <p>Pre-trained adapters in the registry cover common model pairs (MiniLM &rarr; OpenAI, BGE &rarr; OpenAI, E5 &rarr; OpenAI, etc.). You can also commission custom adapters trained on your domain data for higher fidelity on specialized corpora.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container reveal">
+    <span class="section-label">Quick start</span>
+    <h2 class="section-title">Three lines to cross-model compatibility</h2>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <div class="code-dot"></div>
+        <div class="code-dot"></div>
+        <div class="code-dot"></div>
+        <span>quickstart.py</span>
+      </div>
+      <pre><span class="kw">from</span> <span class="var">sentence_transformers</span> <span class="kw">import</span> <span class="fn">SentenceTransformer</span>
+<span class="kw">from</span> <span class="var">embedding_adapters</span> <span class="kw">import</span> <span class="fn">EmbeddingAdapter</span>
+
+<span class="cm"># 1) Load a lightweight local model</span>
+<span class="var">model</span> <span class="op">=</span> <span class="fn">SentenceTransformer</span>(<span class="str">"all-MiniLM-L6-v2"</span>)
+
+<span class="cm"># 2) Load a pre-trained adapter</span>
+<span class="var">adapter</span> <span class="op">=</span> <span class="fn">EmbeddingAdapter</span>.<span class="fn">from_registry</span>(
+    <span class="var">source</span><span class="op">=</span><span class="str">"sentence-transformers/all-MiniLM-L6-v2"</span>,
+    <span class="var">target</span><span class="op">=</span><span class="str">"openai/text-embedding-3-small"</span>,
+    <span class="var">flavor</span><span class="op">=</span><span class="str">"large"</span>,
+)
+
+<span class="cm"># 3) Encode locally, translate into OpenAI's space</span>
+<span class="var">src_embs</span> <span class="op">=</span> <span class="var">model</span>.<span class="fn">encode</span>(<span class="var">texts</span>, <span class="var">normalize_embeddings</span><span class="op">=</span><span class="kw">True</span>)
+<span class="var">translated</span> <span class="op">=</span> <span class="var">adapter</span>.<span class="fn">translate</span>(<span class="var">src_embs</span>)
+
+<span class="cm"># Check confidence per query</span>
+<span class="var">scores</span> <span class="op">=</span> <span class="var">adapter</span>.<span class="fn">score_source</span>(<span class="var">src_embs</span>)
+<span class="cm"># scores &gt;= 0.99 → use translated</span>
+<span class="cm"># scores &lt;  0.99 → fall back to API</span></pre>
+    </div>
+  </div>
+</section>
+
+<div class="bench-footer reveal">
+  <p>See the numbers behind these claims.</p>
+  <a href="benchmarks.html">
+    View benchmarks
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4l-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+</div>
+
+<script>
+var ro = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) { ro.observe(el); });
+</script>
+</body>
+</html>

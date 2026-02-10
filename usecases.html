@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Use Cases — EmbeddingAdapters</title>
+<meta name="description" content="Real-world use cases for EmbeddingAdapters: latency-sensitive RAG, gradual provider migration, hybrid routing, cost optimization, and cross-model interoperability.">
+<link rel="canonical" href="https://embeddingadapters.com/usecases.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f8f9fc; --bg-card: #ffffff; --text-primary: #0f1729;
+  --text-secondary: #4a5578; --text-muted: #8892b0;
+  --accent: #2563eb; --accent-light: #3b82f6;
+  --accent-glow: rgba(37, 99, 235, 0.12);
+  --accent-surface: #eef4ff; --border: #e2e8f0; --border-light: #f0f3f9;
+  --code-bg: #0f172a; --code-text: #e2e8f0;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+  --font-display: 'Source Serif 4', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 12px; --radius-lg: 20px;
+  --shadow-sm: 0 1px 3px rgba(15,23,41,0.04), 0 1px 2px rgba(15,23,41,0.06);
+  --shadow-md: 0 4px 20px rgba(15,23,41,0.06), 0 2px 8px rgba(15,23,41,0.04);
+  --shadow-lg: 0 12px 40px rgba(15,23,41,0.08), 0 4px 12px rgba(15,23,41,0.04);
+  --green: #10b981; --orange: #f97316; --purple: #8b5cf6;
+  --gradient-cool: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%);
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text-primary); line-height: 1.65; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+.grid-bg { position: fixed; inset: 0; background-image: linear-gradient(rgba(37,99,235,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,0.03) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; z-index: 0; }
+
+nav { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; background: rgba(248,249,252,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); z-index: 100; }
+.nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; color: var(--text-primary); text-decoration: none; }
+.nav-brand svg { background: var(--accent); border-radius: 8px; padding: 4px; }
+.nav-links { display: flex; gap: 28px; list-style: none; align-items: center; }
+.nav-links a { font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--accent); }
+.nav-cta { background: var(--text-primary) !important; color: #fff !important; padding: 7px 18px; border-radius: 8px; font-size: 13px !important; font-weight: 600 !important; }
+.nav-hamburger { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; padding: 4px; }
+.nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--text-primary); border-radius: 2px; transition: all 0.3s; }
+@media(max-width:768px) {
+  .nav-hamburger { display: flex; }
+  .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; background: rgba(248,249,252,0.98); backdrop-filter: blur(20px); padding: 16px 24px; gap: 12px; border-bottom: 1px solid var(--border); }
+  nav.nav-open .nav-links { display: flex; }
+}
+
+.container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+.page-header { position: relative; z-index: 1; padding: 120px 24px 48px; text-align: center; }
+.page-header .badge { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-surface); border: 1px solid rgba(37,99,235,0.15); padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 500; color: var(--accent); margin-bottom: 16px; }
+.page-header .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.page-header h1 { font-family: var(--font-display); font-size: clamp(28px,3.5vw,42px); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 12px; }
+.page-header h1 strong { background: var(--gradient-cool); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.page-header p { font-size: 15px; color: var(--text-secondary); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--accent); text-decoration: none; margin-bottom: 20px; }
+.back-link:hover { text-decoration: underline; }
+
+section { position: relative; z-index: 1; padding: 48px 0; }
+.section-label { display: inline-block; font-family: var(--font-mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 8px; }
+.section-title { font-family: var(--font-display); font-size: clamp(22px,2.5vw,30px); font-weight: 700; line-height: 1.2; letter-spacing: -0.015em; margin-bottom: 8px; }
+.section-desc { font-size: 14px; color: var(--text-secondary); max-width: 520px; margin-bottom: 28px; line-height: 1.7; }
+
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+
+.bench-footer { text-align: center; padding: 32px 24px 48px; }
+.bench-footer p { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+.bench-footer a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; padding: 8px 20px; border: 1px solid var(--accent); border-radius: 8px; transition: all 0.2s; }
+.bench-footer a:hover { background: var(--accent); color: #fff; }
+
+
+.usecases-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 32px;
+}
+@media(max-width:700px) { .usecases-grid { grid-template-columns: 1fr; } }
+.usecase-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 36px 32px;
+  transition: all 0.3s ease; position: relative; overflow: hidden;
+}
+.usecase-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--gradient-cool); opacity: 0; transition: opacity 0.3s;
+}
+.usecase-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: rgba(37,99,235,0.15); }
+.usecase-card:hover::before { opacity: 1; }
+.usecase-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px; font-size: 22px; background: var(--accent-surface);
+}
+.usecase-card h3 {
+  font-family: var(--font-display); font-size: 20px; font-weight: 600;
+  margin-bottom: 10px; letter-spacing: -0.01em;
+}
+.usecase-card p { font-size: 14.5px; color: var(--text-secondary); line-height: 1.65; }
+
+.scenario-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 16px;
+}
+.scenario-card h3 {
+  font-family: var(--font-display); font-size: 18px; font-weight: 700;
+  margin-bottom: 8px;
+}
+.scenario-card p {
+  font-size: 14px; color: var(--text-secondary); line-height: 1.7;
+}
+.scenario-card code {
+  font-family: var(--font-mono); font-size: 12px;
+  background: var(--bg); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border-light);
+}
+.scenario-flow {
+  display: flex; align-items: center; gap: 12px; margin-top: 16px;
+  flex-wrap: wrap;
+}
+.scenario-step {
+  background: var(--bg); border: 1px solid var(--border-light);
+  border-radius: 8px; padding: 8px 14px; font-size: 13px;
+  font-family: var(--font-mono); color: var(--text-secondary);
+}
+.scenario-arrow { color: var(--accent); font-size: 16px; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<nav id="navbar">
+  <a class="nav-brand" href="index.html">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="6" fill="#2563eb"/>
+      <path d="M7 14h5l3-6 3 12 3-6h5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>EmbeddingAdapters</span>
+  </a>
+  <button class="nav-hamburger" onclick="document.getElementById('navbar').classList.toggle('nav-open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="usecases.html">Use Cases</a></li>
+    <li><a href="how.html">How It Works</a></li>
+    <li><a href="benchmarks.html">Benchmarks</a></li>
+    <li><a href="https://github.com/PotentiallyARobot/EmbeddingAdapters" target="_blank">GitHub</a></li>
+    <li><a href="commercial.html">Enterprise</a></li>
+    <li><a href="https://github.com/PotentiallyARobot/EmbeddingAdapters#readme" class="nav-cta">Get Started</a></li>
+  </ul>
+</nav>
+
+<header class="page-header">
+  <a href="index.html" class="back-link">&larr; Back to home</a>
+  <div class="badge">Use Cases</div>
+  <h1>Real problems adapters<br>actually solve</h1>
+  <p>Adapters aren't a theoretical exercise. They solve concrete operational problems that come up any time you work with multiple embedding models or providers in production.</p>
+</header>
+
+<section>
+  <div class="container reveal">
+    <div class="usecases-grid">
+      <div class="usecase-card">
+        <div class="usecase-icon">&#9889;</div>
+        <h3>Latency-sensitive RAG</h3>
+        <p>Use a lightweight local model for queries while your index was built with a heavier cloud provider. Get sub-10ms embeddings without sacrificing retrieval quality.</p>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">&#128260;</div>
+        <h3>Gradual model migration</h3>
+        <p>Move from one embedding provider to another incrementally. No need to re-embed millions of documents at once &mdash; translate on the fly during the transition.</p>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">&#128737;&#65039;</div>
+        <h3>Provider resilience</h3>
+        <p>Handle rate limits, outages, and provider changes without breaking your retrieval pipeline. Route through local adapters when the cloud is unavailable.</p>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">&#129514;</div>
+        <h3>Model evaluation</h3>
+        <p>Compare how different embedding providers behave on your data without committing to any single one. Sample multiple spaces from a single source model.</p>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">&#128269;</div>
+        <h3>Quality routing</h3>
+        <p>Detect when a query is too complex for your local model and intelligently route it to a stronger provider. Built-in confidence scoring tells you when to escalate.</p>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">&#128176;</div>
+        <h3>Cost optimization</h3>
+        <p>Slash embedding API costs by running common queries through a free local model with an adapter, and reserving cloud calls for only the hardest cases.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container reveal">
+    <span class="section-label">Scenarios</span>
+    <h2 class="section-title">How teams use adapters in practice</h2>
+
+    <div class="scenario-card">
+      <h3>Migrate from OpenAI to a local model without downtime</h3>
+      <p>Your Pinecone index has 5M documents embedded with OpenAI <code>text-embedding-3-small</code>. You want to switch to a local model for cost and latency reasons, but re-embedding everything would take days and require downtime.</p>
+      <p style="margin-top:10px;">With an adapter, you embed new queries locally with MiniLM, translate them into OpenAI's space on the fly, and query your existing index directly. Zero downtime, zero re-indexing. Migrate at your own pace.</p>
+      <div class="scenario-flow">
+        <div class="scenario-step">New query</div>
+        <span class="scenario-arrow">&rarr;</span>
+        <div class="scenario-step">MiniLM encode</div>
+        <span class="scenario-arrow">&rarr;</span>
+        <div class="scenario-step">Adapter translate</div>
+        <span class="scenario-arrow">&rarr;</span>
+        <div class="scenario-step">Query OpenAI index</div>
+      </div>
+    </div>
+
+    <div class="scenario-card">
+      <h3>Hybrid routing: local-first with API fallback</h3>
+      <p>You want most queries handled locally for speed and cost, but some queries are out-of-distribution for your adapter. Use <code>score_source()</code> to check confidence per query, and only call the API when the adapter isn't sure.</p>
+      <p style="margin-top:10px;">Result: 90% of queries resolve in &lt;2ms locally. The remaining 10% fall back to the API. Your blended cost drops by 90% and median latency drops by 50&times;.</p>
+      <div class="scenario-flow">
+        <div class="scenario-step">Query</div>
+        <span class="scenario-arrow">&rarr;</span>
+        <div class="scenario-step">score_source()</div>
+        <span class="scenario-arrow">&rarr;</span>
+        <div class="scenario-step" style="background:var(--accent-surface);border-color:rgba(37,99,235,0.2);">score &ge; 0.99? Use adapter</div>
+        <span class="scenario-arrow">&rarr;</span>
+        <div class="scenario-step" style="background:#fef3c7;border-color:rgba(249,115,22,0.2);">score &lt; 0.99? Call API</div>
+      </div>
+    </div>
+
+    <div class="scenario-card">
+      <h3>Multi-provider interoperability</h3>
+      <p>Different teams in your org use different embedding models &mdash; one team uses BGE, another uses OpenAI, a third uses E5. With adapters, you can define a single "canonical" embedding space and translate everything into it.</p>
+      <p style="margin-top:10px;">Treat embedding space as a contract, not an implementation detail. Each team keeps their model; adapters handle the translation layer.</p>
+    </div>
+  </div>
+</section>
+
+<div class="bench-footer reveal">
+  <p>See how adapter quality holds up across these scenarios.</p>
+  <a href="benchmarks.html">
+    View benchmarks
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4l-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+</div>
+
+<script>
+var ro = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) { ro.observe(el); });
+</script>
+</body>
+</html>
