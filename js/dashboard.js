@@ -72,6 +72,9 @@ function renderSidebar() {
       <a href="docs.html" class="sidebar-item" style="text-decoration:none;">
         <span class="icon">◆</span> Documentation
       </a>
+      <a href="benchmarks.html" class="sidebar-item" style="text-decoration:none;">
+        <span class="icon">▦</span> Benchmarks
+      </a>
     </div>
     <div class="sidebar-footer">
       <div class="sidebar-email mono">${escHtml(session.email)}</div>
@@ -137,41 +140,91 @@ function renderOverview(el) {
 
   el.innerHTML = `
     <h2 style="font-size:22px; font-weight:800; margin-bottom:24px;">Overview</h2>
+
+    <div class="card fade-up" style="margin-bottom:20px; border-color:#10b98130;">
+      <div class="card-header" style="border-color:#10b98120;">
+        <h3 style="color:#10b981;">Your API Key</h3>
+        <div class="flex gap-8">
+          <button class="btn-copy" onclick="toggleKey()">${keyVisible ? "Hide" : "Reveal"}</button>
+          <button class="btn-copy" onclick="copyToClipboard('${userData.api_key}', this)">Copy</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="mono" style="font-size:14px; color:${keyVisible ? "#10b981" : "#3f3f46"};
+          word-break:break-all; user-select:${keyVisible ? "all" : "none"};
+          padding:12px 16px; background:#08080c; border-radius:8px; border:1px solid #1c1c26;">
+          ${keyVisible ? escHtml(userData.api_key) : userData.api_key.slice(0, 10) + "•".repeat(24) + userData.api_key.slice(-4)}
+        </div>
+      </div>
+    </div>
+
     <div class="grid-3" style="margin-bottom:28px;">
-      <div class="stat fade-up">
+      <div class="stat fade-up delay-1">
         <div class="stat-label">Balance</div>
         <div class="stat-value mono" style="color:#10b981;">$${d.balance.toFixed(4)}</div>
         <div class="stat-sub mono">Available credits</div>
       </div>
-      <div class="stat fade-up delay-1">
+      <div class="stat fade-up delay-2">
         <div class="stat-label">Total Spent</div>
         <div class="stat-value mono" style="color:#f59e0b;">$${d.total_spent.toFixed(4)}</div>
         <div class="stat-sub mono">Lifetime usage</div>
       </div>
-      <div class="stat fade-up delay-2">
+      <div class="stat fade-up delay-3">
         <div class="stat-label">Passages Embedded</div>
         <div class="stat-value mono" style="color:#6366f1;">${d.total_passages.toLocaleString()}</div>
         <div class="stat-sub mono">Total API calls</div>
       </div>
     </div>
-    <div class="card fade-up delay-3">
+
+    <div class="card fade-up delay-4">
       <div class="card-header"><h3>Quick Start</h3></div>
       <div class="card-body">
         <p style="font-size:14px; color:#71717a; line-height:1.6; margin-bottom:16px;">
-          Send texts, get TE3-compatible embeddings. 50-92% cheaper than OpenAI.
+          Send texts, get TE3-compatible embeddings. Your API key is pre-filled — copy and run.
         </p>
-        <div style="font-size:12px; color:#52525b; margin-bottom:8px;">Your API key is pre-filled below — copy and run:</div>
-        ${codeBlock("bash", `curl ${API_BASE}/v1/embed \\
+        ${tabbedCodeBlock([
+          { lang:"python", label:"Python", code: `import requests, base64, numpy as np
+
+resp = requests.post("${API_BASE}/v1/embed",
+    headers={"Authorization": "Bearer ${userData.api_key}"},
+    json={
+        "texts": ["Hello world", "Embedding adapters are great"],
+        "model": "minilm-te3-adapted",
+        "quality": 0,
+    })
+
+data = resp.json()
+embs = np.frombuffer(
+    base64.b64decode(data["embeddings_b64"]),
+    dtype=np.float32
+).reshape(data["n"], data["dim"])
+
+print(f"Shape: {embs.shape}")         # (2, 3072)
+print(f"Cost:  \${data['usage']['cost']}")` },
+          { lang:"javascript", label:"JavaScript", code: `const resp = await fetch("${API_BASE}/v1/embed", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer ${userData.api_key}",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    texts: ["Hello world", "Embedding adapters are great"],
+    model: "minilm-te3-adapted",
+    quality: 0,
+  }),
+});
+
+const data = await resp.json();
+console.log(data.n, data.dim);  // 2, 3072` },
+          { lang:"bash", label:"cURL", code: `curl ${API_BASE}/v1/embed \\
   -H "Authorization: Bearer ${userData.api_key}" \\
   -H "Content-Type: application/json" \\
-  -d '{"texts":["Hello world"],"model":"minilm-te3-adapted"}'`)}
-        <div style="margin-top:16px;">
-          <div style="font-size:13px; font-weight:700; color:#a1a1aa; margin-bottom:6px;">Your API Key</div>
-          <div class="flex gap-8 items-center">
-            <div class="mono" style="font-size:13px; color:#10b981; background:#08080c; border:1px solid #1c1c26; border-radius:8px; padding:10px 14px; flex:1; word-break:break-all; user-select:all;">${escHtml(userData.api_key)}</div>
-            <button class="btn-copy" onclick="copyToClipboard('${userData.api_key}', this)">Copy</button>
-          </div>
-        </div>
+  -d '{
+    "texts": ["Hello world", "Embedding adapters are great"],
+    "model": "minilm-te3-adapted",
+    "quality": 0
+  }'` },
+        ])}
       </div>
     </div>
   `;

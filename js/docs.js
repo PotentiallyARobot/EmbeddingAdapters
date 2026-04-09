@@ -3,6 +3,7 @@
 const API_DOCS_BASE = "https://embedding-adapters-api.embedding-adapters.workers.dev";
 
 const docSections = [
+  { id: "overview",     icon: "◈", label: "Overview" },
   { id: "embed",        icon: "↗", label: "Embed Texts" },
   { id: "quality",      icon: "◎", label: "Quality Routing" },
   { id: "batch",        icon: "▤", label: "Batch Processing" },
@@ -11,7 +12,7 @@ const docSections = [
   { id: "errors",       icon: "⚠", label: "Errors" },
 ];
 
-let currentSection = "embed";
+let currentSection = "overview";
 
 document.addEventListener("DOMContentLoaded", () => {
   const hash = window.location.hash.replace("#", "");
@@ -49,6 +50,9 @@ function renderDocsSidebar() {
       <a href="dashboard.html" class="sidebar-item" style="text-decoration:none;">
         <span class="icon">◧</span> Dashboard
       </a>
+      <a href="benchmarks.html" class="sidebar-item" style="text-decoration:none;">
+        <span class="icon">▦</span> Benchmarks
+      </a>
       <a href="index.html" class="sidebar-item" style="text-decoration:none;">
         <span class="icon">◪</span> Pricing
       </a>
@@ -63,6 +67,7 @@ function renderDocsContent() {
   const main = $("#main");
   main.className = "main-content fade-in";
   const renderers = {
+    overview: renderDocOverview,
     embed: renderDocEmbed,
     quality: renderDocQuality,
     batch: renderDocBatch,
@@ -70,7 +75,7 @@ function renderDocsContent() {
     models_ref: renderDocModelsRef,
     errors: renderDocErrors,
   };
-  main.innerHTML = (renderers[currentSection] || renderDocEmbed)();
+  main.innerHTML = (renderers[currentSection] || renderDocOverview)();
 }
 
 function codeBlock(lang, code) {
@@ -82,6 +87,160 @@ function codeBlock(lang, code) {
         <button class="btn-copy" onclick="copyToClipboard(document.getElementById('${id}').textContent, this)">Copy</button>
       </div>
       <pre class="code-block" id="${id}">${escHtml(code)}</pre>
+    </div>
+  `;
+}
+
+// ── Overview ──
+function renderDocOverview() {
+  return `
+    <h2 style="font-size:22px; font-weight:800; margin-bottom:6px;">What is Embedding Adapters?</h2>
+    <p style="font-size:14px; color:#52525b; margin-bottom:24px;">A drop-in replacement for OpenAI embeddings at a fraction of the cost.</p>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>The Problem</h3></div>
+      <div class="card-body">
+        <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:12px;">
+          OpenAI's <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">text-embedding-3-large</code> is the de-facto standard for vector search, RAG, and classification.
+          But at $0.13/1M tokens, costs add up fast — especially when you're embedding millions of documents.
+        </p>
+        <p style="font-size:14px; color:#a1a1aa; line-height:1.7;">
+          Switching to a cheaper open-source model means re-embedding your entire corpus and losing compatibility
+          with existing TE3 vector stores.
+        </p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>The Solution</h3></div>
+      <div class="card-body">
+        <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:12px;">
+          Embedding Adapters runs small, fast open-source encoders (MiniLM, Qwen3) and uses trained LoRA adapters
+          to project their output into OpenAI's TE3 embedding space. The result: <strong style="color:#10b981;">vectors that are directly
+          compatible with your existing TE3 data</strong> at 50-92% lower cost.
+        </p>
+        <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:16px;">
+          A quality routing system automatically detects texts where the adapter is less confident and can
+          selectively re-embed those via OpenAI — giving you a cost/quality dial from 0 (all local) to 100 (all OpenAI).
+        </p>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+          <div style="background:#0a0a0f; border:1px solid #1c1c26; border-radius:10px; padding:16px; text-align:center;">
+            <div style="font-size:28px; font-weight:800; color:#10b981; margin-bottom:4px;">50-92%</div>
+            <div style="font-size:12px; color:#52525b;">Cost Reduction</div>
+          </div>
+          <div style="background:#0a0a0f; border:1px solid #1c1c26; border-radius:10px; padding:16px; text-align:center;">
+            <div style="font-size:28px; font-weight:800; color:#6366f1; margin-bottom:4px;">3072-d</div>
+            <div style="font-size:12px; color:#52525b;">TE3-Compatible Vectors</div>
+          </div>
+          <div style="background:#0a0a0f; border:1px solid #1c1c26; border-radius:10px; padding:16px; text-align:center;">
+            <div style="font-size:28px; font-weight:800; color:#f59e0b; margin-bottom:4px;">93-98%</div>
+            <div style="font-size:12px; color:#52525b;">Cosine Similarity to TE3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>How It Works</h3></div>
+      <div class="card-body">
+        <div style="font-size:14px; color:#a1a1aa; line-height:1.7;">
+          <div style="display:flex; gap:12px; margin-bottom:16px; align-items:flex-start;">
+            <div style="min-width:28px; height:28px; border-radius:50%; background:#10b98120; color:#10b981; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">1</div>
+            <div><strong style="color:#d4d4d8;">You send texts</strong> to our API with a model choice (e.g. <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">minilm-te3-adapted</code>).</div>
+          </div>
+          <div style="display:flex; gap:12px; margin-bottom:16px; align-items:flex-start;">
+            <div style="min-width:28px; height:28px; border-radius:50%; background:#10b98120; color:#10b981; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">2</div>
+            <div><strong style="color:#d4d4d8;">We encode locally</strong> using the open-source model, then apply a trained LoRA adapter to project embeddings into TE3's 3072-d space.</div>
+          </div>
+          <div style="display:flex; gap:12px; margin-bottom:16px; align-items:flex-start;">
+            <div style="min-width:28px; height:28px; border-radius:50%; background:#10b98120; color:#10b981; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">3</div>
+            <div><strong style="color:#d4d4d8;">Quality routing</strong> (optional): a confidence head scores each text. Below your threshold, we re-embed via OpenAI for full fidelity.</div>
+          </div>
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <div style="min-width:28px; height:28px; border-radius:50%; background:#10b98120; color:#10b981; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">4</div>
+            <div><strong style="color:#d4d4d8;">You get back</strong> base64-encoded float32 vectors that drop directly into any TE3 vector store — Pinecone, Weaviate, Qdrant, pgvector, etc.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>Use Cases</h3></div>
+      <div class="card-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div>
+            <div style="font-size:14px; font-weight:600; color:#d4d4d8; margin-bottom:6px;">RAG / Retrieval Pipelines</div>
+            <p style="font-size:13px; color:#71717a; line-height:1.6;">Embed user queries and document chunks for retrieval-augmented generation. Quality routing ensures critical queries get full TE3 accuracy while bulk indexing stays cheap.</p>
+          </div>
+          <div>
+            <div style="font-size:14px; font-weight:600; color:#d4d4d8; margin-bottom:6px;">Semantic Search</div>
+            <p style="font-size:13px; color:#71717a; line-height:1.6;">Drop-in replacement for existing TE3-powered search. Mix adapted and native vectors in the same index — cosine similarity stays high.</p>
+          </div>
+          <div>
+            <div style="font-size:14px; font-weight:600; color:#d4d4d8; margin-bottom:6px;">Classification & Clustering</div>
+            <p style="font-size:13px; color:#71717a; line-height:1.6;">Embed text into TE3 space and use existing classifiers or cluster boundaries. No retraining needed when switching from native TE3.</p>
+          </div>
+          <div>
+            <div style="font-size:14px; font-weight:600; color:#d4d4d8; margin-bottom:6px;">Batch Document Processing</div>
+            <p style="font-size:13px; color:#71717a; line-height:1.6;">Async batch API handles 1K–100K texts. Ideal for initial corpus indexing, periodic re-embedding, or data migration.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Quick Start</h3></div>
+      <div class="card-body">
+        <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:16px;">
+          Create an API key from the <a href="dashboard.html" style="color:#10b981;">dashboard</a>, then embed your first texts:
+        </p>
+        ${tabbedCodeBlock([
+          { lang:"python", label:"Python", code: `import requests, base64, numpy as np
+
+API_KEY = "YOUR_API_KEY"
+url = "${API_DOCS_BASE}/v1/embed"
+
+resp = requests.post(url,
+    headers={"Authorization": f"Bearer {API_KEY}"},
+    json={
+        "texts": ["Embedding adapters save money", "Drop-in TE3 replacement"],
+        "model": "minilm-te3-adapted",
+        "quality": 0,   # 0 = all local, cheapest
+    })
+
+data = resp.json()
+embs = np.frombuffer(
+    base64.b64decode(data["embeddings_b64"]),
+    dtype=np.float32
+).reshape(data["n"], data["dim"])
+
+print(f"Shape: {embs.shape}")         # (2, 3072)
+print(f"Cost:  \${data['usage']['cost']}")` },
+          { lang:"javascript", label:"JavaScript", code: `const resp = await fetch("${API_DOCS_BASE}/v1/embed", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    texts: ["Embedding adapters save money", "Drop-in TE3 replacement"],
+    model: "minilm-te3-adapted",
+    quality: 0,
+  }),
+});
+
+const data = await resp.json();
+console.log(data.n, data.dim);  // 2, 3072` },
+          { lang:"bash", label:"cURL", code: `curl ${API_DOCS_BASE}/v1/embed \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "texts": ["Embedding adapters save money", "Drop-in TE3 replacement"],
+    "model": "minilm-te3-adapted",
+    "quality": 0
+  }'` },
+        ])}
+      </div>
     </div>
   `;
 }
@@ -164,9 +323,8 @@ embs = np.frombuffer(
     <div class="card">
       <div class="card-header"><h3>Full Examples</h3></div>
       <div class="card-body">
-        <div style="margin-bottom:20px;">
-          <div style="font-size:13px; font-weight:700; color:#a1a1aa; margin-bottom:6px;">Python</div>
-          ${codeBlock("python", `import requests, base64, numpy as np
+        ${tabbedCodeBlock([
+          { lang:"python", label:"Python", code: `import requests, base64, numpy as np
 
 resp = requests.post("${API_DOCS_BASE}/v1/embed",
     headers={"Authorization": "Bearer YOUR_API_KEY"},
@@ -183,11 +341,8 @@ embs = np.frombuffer(
 ).reshape(data["n"], data["dim"])
 
 print(f"Shape: {embs.shape}")     # (1, 3072)
-print(f"Cost: \${data['usage']['cost']}")`)}
-        </div>
-        <div style="margin-bottom:20px;">
-          <div style="font-size:13px; font-weight:700; color:#a1a1aa; margin-bottom:6px;">JavaScript</div>
-          ${codeBlock("javascript", `const resp = await fetch("${API_DOCS_BASE}/v1/embed", {
+print(f"Cost: \${data['usage']['cost']}")` },
+          { lang:"javascript", label:"JavaScript", code: `const resp = await fetch("${API_DOCS_BASE}/v1/embed", {
   method: "POST",
   headers: {
     "Authorization": "Bearer YOUR_API_KEY",
@@ -201,19 +356,16 @@ print(f"Cost: \${data['usage']['cost']}")`)}
 });
 
 const data = await resp.json();
-console.log(data.n, data.dim);  // 1, 3072`)}
-        </div>
-        <div>
-          <div style="font-size:13px; font-weight:700; color:#a1a1aa; margin-bottom:6px;">cURL</div>
-          ${codeBlock("bash", `curl ${API_DOCS_BASE}/v1/embed \\
+console.log(data.n, data.dim);  // 1, 3072` },
+          { lang:"bash", label:"cURL", code: `curl ${API_DOCS_BASE}/v1/embed \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "texts": ["Quantum computing uses qubits"],
     "model": "minilm-te3-adapted",
     "quality": 0
-  }'`)}
-        </div>
+  }'` },
+        ])}
       </div>
     </div>
   `;
@@ -241,14 +393,38 @@ function renderDocQuality() {
             <tr><td class="green">100</td><td>All via OpenAI</td><td>Highest</td><td>100% TE3 native</td></tr>
           </tbody>
         </table>
-        ${codeBlock("python", `# Cheapest — all local
-resp = post(url, json={"texts": texts, "model": "minilm-te3-adapted", "quality": 0})
+        ${tabbedCodeBlock([
+          { lang:"python", label:"Python", code: `import requests
+
+url = "${API_DOCS_BASE}/v1/embed"
+h = {"Authorization": "Bearer YOUR_API_KEY", "Content-Type": "application/json"}
+
+# Cheapest — all local
+resp = requests.post(url, headers=h, json={
+    "texts": texts, "model": "minilm-te3-adapted", "quality": 0
+})
 
 # Balanced — hybrid routing
-resp = post(url, json={"texts": texts, "model": "minilm-te3-adapted", "quality": 50})
+resp = requests.post(url, headers=h, json={
+    "texts": texts, "model": "minilm-te3-adapted", "quality": 50
+})
 
 # Maximum accuracy — all OpenAI
-resp = post(url, json={"texts": texts, "model": "minilm-te3-adapted", "quality": 100})`)}
+resp = requests.post(url, headers=h, json={
+    "texts": texts, "model": "minilm-te3-adapted", "quality": 100
+})` },
+          { lang:"bash", label:"cURL", code: `# Cheapest — quality=0
+curl ${API_DOCS_BASE}/v1/embed \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"texts":["Hello"],"model":"minilm-te3-adapted","quality":0}'
+
+# Balanced — quality=50
+curl ${API_DOCS_BASE}/v1/embed \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"texts":["Hello"],"model":"minilm-te3-adapted","quality":50}'` },
+        ])}
       </div>
     </div>
   `;
@@ -295,7 +471,8 @@ function renderDocBatch() {
         <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:16px;">
           Retrieve completed embeddings. Supports <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">format=binary</code> or <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">format=json</code>.
         </p>
-        ${codeBlock("python", `import requests, time, numpy as np
+        ${tabbedCodeBlock([
+          { lang:"python", label:"Python", code: `import requests, time, numpy as np
 
 url = "${API_DOCS_BASE}"
 h = {"Authorization": "Bearer YOUR_API_KEY", "Content-Type": "application/json"}
@@ -314,7 +491,19 @@ while True:
 
 # 3. Retrieve as binary
 r = requests.get(f"{url}/v1/batch/{job_id}/results?api_key=KEY&format=binary")
-embs = np.frombuffer(r.content, dtype=np.float32).reshape(-1, 3072)`)}
+embs = np.frombuffer(r.content, dtype=np.float32).reshape(-1, 3072)` },
+          { lang:"bash", label:"cURL", code: `# 1. Submit
+curl -X POST ${API_DOCS_BASE}/v1/batch/submit \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"texts":["text1","text2","..."],"model":"minilm-te3-adapted"}'
+
+# 2. Poll
+curl "${API_DOCS_BASE}/v1/batch/JOB_ID?api_key=YOUR_API_KEY"
+
+# 3. Retrieve
+curl "${API_DOCS_BASE}/v1/batch/JOB_ID/results?api_key=YOUR_API_KEY&format=binary" -o embeddings.bin` },
+        ])}
       </div>
     </div>
   `;
