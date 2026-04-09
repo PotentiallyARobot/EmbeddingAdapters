@@ -52,7 +52,6 @@ function renderSidebar() {
     { id: "overview", icon: "◈", label: "Overview" },
     { id: "keys", icon: "⚿", label: "API Keys" },
     { id: "billing", icon: "◎", label: "Billing" },
-    { id: "docs", icon: "◆", label: "Documentation" },
     { id: "models", icon: "◇", label: "Models" },
     { id: "adapters", icon: "◉", label: "Adapters" },
   ];
@@ -60,8 +59,8 @@ function renderSidebar() {
   sb.innerHTML = `
     <div class="sidebar-header">
       <a href="index.html" class="nav-logo">
-        <svg style="width:28px;height:28px;" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="8" fill="#2563eb"/><path d="M8 10.5C8 10.5 10.5 7 14 7s6 3.5 6 3.5M8 14c0 0 2.5-3.5 6-3.5s6 3.5 6 3.5M8 17.5c0 0 2.5-3.5 6-3.5s6 3.5 6 3.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
-        <span class="nav-logo-text">EmbeddingAdapters</span>
+        <div class="nav-logo-icon mono">E</div>
+        <span class="nav-logo-text">Embedding Adapters</span>
       </a>
     </div>
     <div class="sidebar-nav">
@@ -70,6 +69,9 @@ function renderSidebar() {
           <span class="icon">${t.icon}</span> ${t.label}
         </button>
       `).join("")}
+      <a href="docs.html" class="sidebar-item" style="text-decoration:none;">
+        <span class="icon">◆</span> Documentation
+      </a>
     </div>
     <div class="sidebar-footer">
       <div class="sidebar-email mono">${escHtml(session.email)}</div>
@@ -85,7 +87,6 @@ function renderTab() {
     case "overview": renderOverview(main); break;
     case "keys": renderKeys(main); break;
     case "billing": renderBilling(main); break;
-    case "docs": renderDocs(main); break;
     case "models": renderModels(main); break;
     case "adapters": renderAdapters(main); break;
   }
@@ -102,7 +103,7 @@ function renderOverview(el) {
           <div style="font-size:48px; margin-bottom:16px;">🔑</div>
           <h3 style="font-size:20px; font-weight:700; margin-bottom:8px;">Create your API key</h3>
           <p style="color:#71717a; line-height:1.6; margin-bottom:8px; max-width:400px; margin-left:auto; margin-right:auto;">
-            Get started with <strong style="color:#2563eb;">10,000 free tokens</strong> — enough to embed ~100 texts and test every model.
+            Get started with <strong style="color:#10b981;">10,000 free tokens</strong> — enough to embed ~100 texts and test every model.
           </p>
           <p style="color:#52525b; font-size:13px; margin-bottom:24px;">No credit card required.</p>
           <button class="btn btn-primary" onclick="createApiKey()" id="create-key-btn" style="font-size:16px; padding:14px 32px;">
@@ -134,29 +135,13 @@ function renderOverview(el) {
     return;
   }
 
-  const lowBalance = d.balance < 0.01;
-  const tokensLeft = Math.floor(d.balance / 0.065 * 1_000_000);
-
   el.innerHTML = `
     <h2 style="font-size:22px; font-weight:800; margin-bottom:24px;">Overview</h2>
-
-    ${lowBalance ? `
-    <div class="card fade-up" style="border-color:#d97706; background:linear-gradient(135deg, #fffbeb, #fef3c7); margin-bottom:20px;">
-      <div class="card-body" style="display:flex; align-items:center; justify-content:space-between;">
-        <div>
-          <div style="font-size:15px; font-weight:700; color:#92400e; margin-bottom:4px;">Low balance — ${tokensLeft.toLocaleString()} tokens remaining</div>
-          <div style="font-size:13px; color:#a16207;">Add credits to keep embedding. Plans start at $5.</div>
-        </div>
-        <button class="btn btn-primary" onclick="switchTab('billing')" style="white-space:nowrap;">Add Credits →</button>
-      </div>
-    </div>
-    ` : ''}
-
     <div class="grid-3" style="margin-bottom:28px;">
       <div class="stat fade-up">
         <div class="stat-label">Balance</div>
-        <div class="stat-value mono" style="color:#16a34a;">$${d.balance.toFixed(4)}</div>
-        <div class="stat-sub mono">${tokensLeft.toLocaleString()} tokens remaining</div>
+        <div class="stat-value mono" style="color:#10b981;">$${d.balance.toFixed(4)}</div>
+        <div class="stat-sub mono">Available credits</div>
       </div>
       <div class="stat fade-up delay-1">
         <div class="stat-label">Total Spent</div>
@@ -172,13 +157,21 @@ function renderOverview(el) {
     <div class="card fade-up delay-3">
       <div class="card-header"><h3>Quick Start</h3></div>
       <div class="card-body">
-        <p style="font-size:14px; color:var(--text-secondary); line-height:1.6; margin-bottom:16px;">
+        <p style="font-size:14px; color:#71717a; line-height:1.6; margin-bottom:16px;">
           Send texts, get TE3-compatible embeddings. 50-92% cheaper than OpenAI.
         </p>
+        <div style="font-size:12px; color:#52525b; margin-bottom:8px;">Your API key is pre-filled below — copy and run:</div>
         ${codeBlock("bash", `curl ${API_BASE}/v1/embed \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Authorization: Bearer ${userData.api_key}" \\
   -H "Content-Type: application/json" \\
   -d '{"texts":["Hello world"],"model":"minilm-te3-adapted"}'`)}
+        <div style="margin-top:16px;">
+          <div style="font-size:13px; font-weight:700; color:#a1a1aa; margin-bottom:6px;">Your API Key</div>
+          <div class="flex gap-8 items-center">
+            <div class="mono" style="font-size:13px; color:#10b981; background:#08080c; border:1px solid #1c1c26; border-radius:8px; padding:10px 14px; flex:1; word-break:break-all; user-select:all;">${escHtml(userData.api_key)}</div>
+            <button class="btn-copy" onclick="copyToClipboard('${userData.api_key}', this)">Copy</button>
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -240,7 +233,7 @@ function renderKeys(el) {
         </div>
       </div>
       <div class="card-body">
-        <div class="mono" style="font-size:14px; color:${keyVisible ? "#2563eb" : "#3f3f46"};
+        <div class="mono" style="font-size:14px; color:${keyVisible ? "#10b981" : "#3f3f46"};
           word-break:break-all; user-select:${keyVisible ? "all" : "none"};
           padding:12px 16px; background:#08080c; border-radius:8px; border:1px solid #1c1c26;">
           ${keyVisible ? escHtml(userData.api_key) : masked}
@@ -321,73 +314,47 @@ function renderBilling(el) {
   const d = userData;
   const tokensLeft = Math.floor(d.balance / 0.065 * 1_000_000);
   el.innerHTML = `
-    <h2 style="font-size:22px; font-weight:800; margin-bottom:24px;">Billing & Plans</h2>
-    <div class="grid-2" style="margin-bottom:28px;">
+    <h2 style="font-size:22px; font-weight:800; margin-bottom:24px;">Billing</h2>
+    <div class="grid-2" style="margin-bottom:24px;">
       <div class="stat fade-up">
         <div class="stat-label">Current Balance</div>
-        <div class="stat-value mono" style="font-size:32px; color:#16a34a;">$${d.balance.toFixed(4)}</div>
+        <div class="stat-value mono" style="font-size:32px; color:#10b981;">$${d.balance.toFixed(4)}</div>
         <div class="stat-sub mono">≈ ${tokensLeft.toLocaleString()} tokens remaining</div>
       </div>
       <div class="stat fade-up delay-1">
         <div class="stat-label">Lifetime Spend</div>
-        <div class="stat-value mono" style="font-size:32px; color:#d97706;">$${d.total_spent.toFixed(4)}</div>
+        <div class="stat-value mono" style="font-size:32px; color:#f59e0b;">$${d.total_spent.toFixed(4)}</div>
         <div class="stat-sub mono">${d.total_passages.toLocaleString()} passages embedded</div>
       </div>
     </div>
-
-    <!-- Plans -->
-    <div class="grid-3 fade-up delay-2" style="margin-bottom:24px;">
-      ${[
-        { name:"Starter", price:5, tokens:"77K", texts:"~770", desc:"Test & prototype" },
-        { name:"Developer", price:25, tokens:"385K", texts:"~3,850", desc:"Build & ship", popular:true },
-        { name:"Growth", price:100, tokens:"1.54M", texts:"~15,400", desc:"Scale production" },
-      ].map(p => `
-        <div class="card" style="margin-bottom:0; ${p.popular ? 'border:2px solid var(--accent);' : ''}">
-          ${p.popular ? '<div style="background:var(--accent); color:#fff; text-align:center; padding:4px; font-size:11px; font-weight:700; letter-spacing:0.05em;">MOST POPULAR</div>' : ''}
-          <div class="card-body text-center" style="padding:28px 20px;">
-            <div style="font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:8px;">${p.name}</div>
-            <div style="font-size:36px; font-weight:800; color:var(--text); margin-bottom:4px;">$${p.price}</div>
-            <div class="mono" style="font-size:13px; color:var(--accent); font-weight:600; margin-bottom:4px;">${p.tokens} tokens</div>
-            <div style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">${p.texts} texts · ${p.desc}</div>
-            <button class="btn ${p.popular ? 'btn-primary' : 'btn-secondary'}" onclick="selectDeposit(${p.price}); submitDeposit();" style="width:100%; justify-content:center;">
-              Buy $${p.price}
-            </button>
-          </div>
-        </div>
-      `).join("")}
-    </div>
-
-    <!-- Custom amount -->
-    <div class="card fade-up delay-3">
-      <div class="card-header"><h3>Custom Amount</h3></div>
+    <div class="card fade-up delay-2">
+      <div class="card-header"><h3>Add Credits</h3></div>
       <div class="card-body">
+        <p style="font-size:13px; color:#71717a; margin-bottom:16px;">Payments processed securely via Stripe.</p>
         <div class="flex gap-8" style="flex-wrap:wrap; margin-bottom:16px;">
-          ${[5, 10, 25, 50, 100, 250, 500].map(v => `
+          ${[5, 10, 25, 50, 100].map(v => `
             <button class="deposit-btn" data-amt="${v}" onclick="selectDeposit(${v})">$${v}</button>
           `).join("")}
         </div>
         <div class="flex gap-12">
           <div style="position:relative; flex:1;">
-            <span class="mono" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:15px;">$</span>
-            <input type="number" id="deposit-input" min="1" placeholder="Enter amount" class="input mono"
+            <span class="mono" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#52525b; font-size:15px;">$</span>
+            <input type="number" id="deposit-input" min="1" placeholder="Amount" class="input mono"
               style="padding-left:28px;" oninput="onDepositInput()">
           </div>
           <button id="deposit-submit" class="btn btn-primary" onclick="submitDeposit()" disabled>Pay with Stripe →</button>
         </div>
-        <div id="deposit-preview" style="margin-top:12px; font-size:13px; color:var(--text-muted);"></div>
       </div>
     </div>
-
-    <!-- Pricing table -->
-    <div class="card fade-up delay-4" style="margin-top:16px;">
-      <div class="card-header"><h3>Per-Token Rates</h3></div>
+    <div class="card fade-up delay-3" style="margin-top:16px;">
+      <div class="card-header"><h3>Pricing</h3></div>
       <div class="card-body">
         <table class="table mono">
-          <thead><tr><th>Model</th><th>Rate /1M tokens</th><th>OpenAI TE3</th><th>You Save</th></tr></thead>
+          <thead><tr><th>Model</th><th>Rate /1M tokens</th><th>vs OpenAI TE3</th></tr></thead>
           <tbody>
-            <tr><td>minilm-te3-adapted</td><td style="color:var(--text);">$0.065</td><td style="color:var(--text-muted);">$0.130</td><td class="green" style="font-weight:600;">50%</td></tr>
-            <tr><td>qwen06b-te3-adapted</td><td style="color:var(--text);">$0.040</td><td style="color:var(--text-muted);">$0.130</td><td class="green" style="font-weight:600;">69%</td></tr>
-            <tr><td>all-MiniLM-L6-v2</td><td style="color:var(--text);">$0.010</td><td style="color:var(--text-muted);">$0.130</td><td class="green" style="font-weight:600;">92%</td></tr>
+            <tr><td>minilm-te3-adapted</td><td class="green">$0.065</td><td class="green" style="font-weight:600;">50% cheaper</td></tr>
+            <tr><td>qwen06b-te3-adapted</td><td class="green">$0.040</td><td class="green" style="font-weight:600;">69% cheaper</td></tr>
+            <tr><td>all-MiniLM-L6-v2</td><td class="green">$0.010</td><td class="green" style="font-weight:600;">92% cheaper</td></tr>
           </tbody>
         </table>
       </div>
@@ -397,27 +364,15 @@ function renderBilling(el) {
 
 function selectDeposit(amt) {
   const inp = $("#deposit-input");
-  if (inp) inp.value = amt;
+  inp.value = amt;
   $$(".deposit-btn").forEach(b => b.classList.toggle("active", parseInt(b.dataset.amt) === amt));
-  const sub = $("#deposit-submit");
-  if (sub) sub.disabled = false;
-  updateDepositPreview(amt);
+  $("#deposit-submit").disabled = false;
 }
 
 function onDepositInput() {
   const val = parseFloat($("#deposit-input").value);
   $$(".deposit-btn").forEach(b => b.classList.toggle("active", parseInt(b.dataset.amt) === val));
   $("#deposit-submit").disabled = !val || val < 1;
-  updateDepositPreview(val);
-}
-
-function updateDepositPreview(amt) {
-  const el = $("#deposit-preview");
-  if (!el || !amt || amt < 1) { if(el) el.innerHTML = ""; return; }
-  const tokens = Math.floor(amt / 0.065 * 1_000_000);
-  const texts = Math.floor(tokens / 13);
-  const oaiCost = (tokens * 0.130 / 1_000_000).toFixed(2);
-  el.innerHTML = `<span class="mono">≈ ${tokens.toLocaleString()} tokens · ~${texts.toLocaleString()} texts · <span style="color:var(--green);">saves $${(oaiCost - amt).toFixed(2)} vs OpenAI</span></span>`;
 }
 
 async function submitDeposit() {
@@ -431,203 +386,19 @@ async function submitDeposit() {
   else { btn.textContent = "Pay with Stripe →"; btn.disabled = false; }
 }
 
-// ── Docs ──
-let docsSection = "embed";
-function switchDoc(sec) { docsSection = sec; renderTab(); }
-
-function renderDocs(el) {
-  const sections = [
-    { id: "embed", label: "Embed Texts" },
-    { id: "quality", label: "Quality Routing" },
-    { id: "batch", label: "Batch Processing" },
-    { id: "adapters_doc", label: "Custom Adapters" },
-    { id: "errors", label: "Errors" },
-  ];
-
-  let content = "";
-  if (docsSection === "embed") content = renderDocEmbed();
-  else if (docsSection === "quality") content = renderDocQuality();
-  else if (docsSection === "batch") content = renderDocBatch();
-  else if (docsSection === "adapters_doc") content = renderDocAdapters();
-  else if (docsSection === "errors") content = renderDocErrors();
-
-  el.innerHTML = `
-    <h2 style="font-size:22px; font-weight:800; margin-bottom:24px;">Documentation</h2>
-    <div class="flex gap-8" style="margin-bottom:24px; flex-wrap:wrap;">
-      ${sections.map(s => `<button class="pill ${docsSection === s.id ? 'active' : ''}" onclick="switchDoc('${s.id}')">${s.label}</button>`).join("")}
-    </div>
-    <div class="fade-in">${content}</div>
-  `;
-}
-
-function renderDocEmbed() {
-  return `
-    <div class="card">
-      <div class="card-header"><h3>POST /v1/embed</h3></div>
-      <div class="card-body">
-        <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:16px;">
-          Send texts, receive embeddings. Returns base64-encoded float32 arrays.
-        </p>
-        <div style="font-size:13px; font-weight:700; color:#a1a1aa; margin-bottom:8px;">Request Body</div>
-        <table class="table mono" style="font-size:12px; margin-bottom:20px;">
-          <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
-          <tbody>
-            <tr><td class="green">texts</td><td>string[]</td><td>✓</td><td>List of texts (max 8192)</td></tr>
-            <tr><td class="green">model</td><td>string</td><td></td><td>Default: minilm-te3-adapted</td></tr>
-            <tr><td class="green">quality</td><td>integer</td><td></td><td>0-100. 0=adapted, 100=OpenAI</td></tr>
-            <tr><td class="green">include_quality</td><td>boolean</td><td></td><td>Return quality scores</td></tr>
-            <tr><td class="green">adapter_id</td><td>string</td><td></td><td>Custom LoRA adapter</td></tr>
-          </tbody>
-        </table>
-        <div style="font-size:13px; font-weight:700; color:#a1a1aa; margin-bottom:8px;">Response</div>
-        ${codeBlock("json", `{
-  "id": "emb_a1b2c3d4",
-  "model": "minilm-te3-adapted",
-  "embeddings_b64": "base64...",
-  "n": 5,
-  "dim": 3072,
-  "quality_scores": [0.82, 0.67, 0.91, 0.45, 0.73],
-  "usage": {
-    "tokens": 340,
-    "adapted": 5,
-    "reembedded": 0,
-    "cost": 0.000022
-  }
-}`)}
-        <div style="font-size:13px; font-weight:700; color:#a1a1aa; margin:20px 0 8px;">Decode Embeddings</div>
-        ${codeBlock("python", `import base64, numpy as np
-
-embs = np.frombuffer(
-    base64.b64decode(data["embeddings_b64"]),
-    dtype=np.float32
-).reshape(data["n"], data["dim"])  # (5, 3072)`)}
-      </div>
-    </div>
-  `;
-}
-
-function renderDocQuality() {
-  return `
-    <div class="card">
-      <div class="card-header"><h3>Quality-Based Routing</h3></div>
-      <div class="card-body">
-        <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:16px;">
-          The quality head predicts adaptation fidelity. Low-quality texts get re-embedded via OpenAI.
-        </p>
-        <table class="table mono" style="font-size:12px; margin-bottom:16px;">
-          <thead><tr><th>quality</th><th>Behavior</th><th>Cost</th><th>Accuracy</th></tr></thead>
-          <tbody>
-            <tr><td class="green">0</td><td>All adapted locally</td><td>Lowest</td><td>~93-97% of TE3</td></tr>
-            <tr><td class="green">25-75</td><td>Hybrid routing</td><td>Medium</td><td>~97-99% of TE3</td></tr>
-            <tr><td class="green">100</td><td>All via OpenAI</td><td>Highest</td><td>100% TE3 native</td></tr>
-          </tbody>
-        </table>
-        ${codeBlock("python", `# Cheapest
-resp = post(url, json={"texts": texts, "model": "minilm-te3-adapted", "quality": 0})
-
-# Balanced
-resp = post(url, json={"texts": texts, "model": "minilm-te3-adapted", "quality": 50})
-
-# Maximum accuracy
-resp = post(url, json={"texts": texts, "model": "minilm-te3-adapted", "quality": 100})`)}
-      </div>
-    </div>
-  `;
-}
-
-function renderDocBatch() {
-  return `
-    <div class="card">
-      <div class="card-header"><h3>Batch Processing</h3></div>
-      <div class="card-body">
-        <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:16px;">
-          For large jobs (1K-100K texts), use the async batch API.
-        </p>
-        ${codeBlock("python", `# Submit
-resp = post(f"{url}/v1/batch/submit", headers=h, json={
-    "texts": large_list, "model": "minilm-te3-adapted", "quality": 0
-})
-job_id = resp.json()["id"]
-
-# Poll
-while True:
-    s = get(f"{url}/v1/batch/{job_id}?api_key=KEY").json()
-    if s["status"] in ("done","failed"): break
-    time.sleep(5)
-
-# Retrieve
-r = get(f"{url}/v1/batch/{job_id}/results?api_key=KEY&format=binary")
-embs = np.frombuffer(r.content, dtype=np.float32).reshape(-1, 3072)`)}
-      </div>
-    </div>
-  `;
-}
-
-function renderDocAdapters() {
-  return `
-    <div class="card">
-      <div class="card-header"><h3>Custom LoRA Adapters</h3></div>
-      <div class="card-body">
-        <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:16px;">
-          Create adapters that learn from your data. The system auto-trains LoRA weights when you use quality routing.
-        </p>
-        ${codeBlock("python", `# Create
-resp = post(f"{url}/v1/adapters", headers=h, json={
-    "source_model": "all-MiniLM-L6-v2",
-    "target_model": "text-embedding-3-large",
-    "name": "my-adapter",
-})
-adapter_id = resp.json()["id"]
-
-# Use (quality > 0 triggers learning)
-resp = post(f"{url}/v1/embed", headers=h, json={
-    "texts": texts, "model": "minilm-te3-adapted",
-    "adapter_id": adapter_id, "quality": 50,
-})`)}
-      </div>
-    </div>
-  `;
-}
-
-function renderDocErrors() {
-  return `
-    <div class="card">
-      <div class="card-header"><h3>Error Codes</h3></div>
-      <div class="card-body">
-        <table class="table mono" style="font-size:12px;">
-          <thead><tr><th>Status</th><th>Type</th><th>Description</th></tr></thead>
-          <tbody>
-            <tr><td class="yellow">400</td><td class="red">texts_required</td><td>Missing texts array</td></tr>
-            <tr><td class="yellow">400</td><td class="red">batch_too_large</td><td>Exceeds 8192 texts</td></tr>
-            <tr><td class="yellow">400</td><td class="red">unknown_model</td><td>Invalid model name</td></tr>
-            <tr><td class="yellow">401</td><td class="red">authentication</td><td>Invalid API key</td></tr>
-            <tr><td class="yellow">402</td><td class="red">insufficient_balance</td><td>Not enough credits</td></tr>
-            <tr><td class="yellow">429</td><td class="red">rate_limited</td><td>Too many requests</td></tr>
-          </tbody>
-        </table>
-        ${codeBlock("json", `{
-  "error": {
-    "type": "insufficient_balance",
-    "message": "Balance $0.0012 insufficient."
-  }
-}`)}
-      </div>
-    </div>
-  `;
-}
-
 // ── Models ──
 function renderModels(el) {
   const models = [
-    { id:"minilm-te3-adapted", name:"MiniLM → TE3", src:"all-MiniLM-L6-v2 (22M, 384d)", tgt:"text-embedding-3-large (3072d)", rate:"$0.065", save:"50%", desc:"Fastest. Tiny MiniLM encoder + 27M adapter. Best for throughput.", quality:"93-97% of TE3" },
-    { id:"qwen06b-te3-adapted", name:"Qwen3-0.6B → TE3", src:"Qwen3-Embedding-0.6B (600M, 1024d)", tgt:"text-embedding-3-large (3072d)", rate:"$0.040", save:"69%", desc:"Higher source quality from 600M-param encoder. Better nuance.", quality:"95-98% of TE3" },
-    { id:"all-MiniLM-L6-v2", name:"MiniLM Raw", src:"all-MiniLM-L6-v2 (22M, 384d)", tgt:"—", rate:"$0.010", save:"92%", desc:"Raw 384d embeddings. No TE3 projection. Cheapest option.", quality:"MiniLM native" },
+    { id:"minilm-te3-adapted", name:"MiniLM → TE3", src:"all-MiniLM-L6-v2 (22M, 384d)", tgt:"text-embedding-3-large (3072d)", rate:"$0.065", save:"50%", desc:"Fastest adapted model. Tiny 22M-param MiniLM encoder with a 27M-param LoRA adapter projects into TE3's 3072-d space. Best when you need high throughput at low cost and TE3-level compatibility.", quality:"93-97% of TE3", useCases:["Semantic search over large corpora","RAG retrieval pipelines","Near-real-time classification","Clustering & deduplication"] },
+    { id:"qwen06b-te3-adapted", name:"Qwen3-0.6B → TE3", src:"Qwen3-Embedding-0.6B (600M, 1024d)", tgt:"text-embedding-3-large (3072d)", rate:"$0.040", save:"69%", desc:"Higher-fidelity adapted model. The 600M-param Qwen3 encoder captures richer semantics — longer contexts, nuanced meaning, multilingual text — then projects to TE3-compatible 3072-d vectors. Ideal when quality matters more than latency.", quality:"95-98% of TE3", useCases:["Complex document retrieval & legal/medical search","Multilingual & cross-lingual embedding","Fine-grained similarity (paraphrase detection, plagiarism)","High-stakes classification where accuracy is critical"] },
+    { id:"all-MiniLM-L6-v2", name:"MiniLM Raw", src:"all-MiniLM-L6-v2 (22M, 384d)", tgt:"—", rate:"$0.010", save:"92%", desc:"Raw 384-d MiniLM embeddings with no adapter projection. Cheapest option by far. Use when you don't need TE3 compatibility and just want fast, good-enough embeddings.", quality:"MiniLM native (384d)", useCases:["Prototyping & experimentation","Internal tools with cost constraints","Simple keyword-level similarity","Lightweight recommendations"] },
   ];
 
   el.innerHTML = `
-    <h2 style="font-size:22px; font-weight:800; margin-bottom:24px;">Models</h2>
+    <h2 style="font-size:22px; font-weight:800; margin-bottom:8px;">Models</h2>
+    <p style="font-size:14px; color:#71717a; margin-bottom:24px; line-height:1.6;">All adapted models output TE3-compatible 3072-d vectors — drop-in replacements for OpenAI <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">text-embedding-3-large</code>.</p>
     ${models.map((m, i) => `
-      <div class="card fade-up delay-${i + 1}">
+      <div class="card fade-up delay-${i + 1}" style="margin-bottom:16px;">
         <div class="card-body">
           <div class="flex justify-between" style="align-items:flex-start; margin-bottom:12px;">
             <div>
@@ -635,13 +406,20 @@ function renderModels(el) {
               <div class="mono" style="font-size:12px; color:#52525b;">${m.id}</div>
             </div>
             <div style="text-align:right;">
-              <div class="mono" style="font-size:14px; color:#2563eb; font-weight:700;">${m.rate} /1M</div>
-              <div style="font-size:12px; color:#2563eb;">${m.save} cheaper</div>
+              <div class="mono" style="font-size:14px; color:#10b981; font-weight:700;">${m.rate} /1M</div>
+              <div style="font-size:12px; color:#10b981;">${m.save} cheaper</div>
             </div>
           </div>
-          <p style="font-size:13px; color:#a1a1aa; line-height:1.6; margin-bottom:12px;">${m.desc}</p>
+          <p style="font-size:13px; color:#a1a1aa; line-height:1.6; margin-bottom:14px;">${m.desc}</p>
+          <div style="margin-bottom:14px;">
+            <div style="font-size:12px; font-weight:700; color:#52525b; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">Best for</div>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              ${m.useCases.map(u => `<span style="font-size:12px; padding:4px 10px; border-radius:6px; background:#10b98110; color:#10b981; border:1px solid #10b98125;">${u}</span>`).join("")}
+            </div>
+          </div>
           <div class="flex gap-16" style="font-size:12px; color:#52525b;">
             <span>Source: <span style="color:#71717a;">${m.src}</span></span>
+            <span>Target: <span style="color:#71717a;">${m.tgt}</span></span>
             <span>Quality: <span style="color:#71717a;">${m.quality}</span></span>
           </div>
         </div>
@@ -666,7 +444,7 @@ async function renderAdapters(el) {
           <div style="font-size:15px; font-weight:600; margin-bottom:8px;">No adapters yet</div>
           <p style="font-size:13px; color:#52525b; line-height:1.6;">
             Create a custom LoRA adapter to improve quality for your specific data.
-            <br>See the <span style="color:#2563eb; cursor:pointer;" onclick="switchDoc('adapters_doc'); switchTab('docs');">documentation</span>.
+            <br>See the <a href="docs.html#adapters_doc" style="color:#10b981;">documentation</a>.
           </p>
         </div>
       </div>
@@ -685,9 +463,9 @@ async function renderAdapters(el) {
               <div class="mono" style="font-size:12px; color:#52525b; margin-top:4px;">${escHtml(a.source_model)} → ${escHtml(a.target_model)}</div>
             </div>
             <div class="flex gap-16" style="text-align:right;">
-              <div><div class="mono" style="font-size:14px; color:#2563eb; font-weight:600;">${a.n_pairs ?? 0}</div><div style="font-size:11px; color:#52525b;">pairs</div></div>
+              <div><div class="mono" style="font-size:14px; color:#10b981; font-weight:600;">${a.n_pairs ?? 0}</div><div style="font-size:11px; color:#52525b;">pairs</div></div>
               <div><div class="mono" style="font-size:14px; color:#6366f1; font-weight:600;">${a.lora_generation ?? 0}</div><div style="font-size:11px; color:#52525b;">gen</div></div>
-              <div><div style="font-size:14px; color:${a.calibrated ? "#2563eb" : "#52525b"};">${a.calibrated ? "✓" : "—"}</div><div style="font-size:11px; color:#52525b;">calibrated</div></div>
+              <div><div style="font-size:14px; color:${a.calibrated ? "#10b981" : "#52525b"};">${a.calibrated ? "✓" : "—"}</div><div style="font-size:11px; color:#52525b;">calibrated</div></div>
             </div>
           </div>
         </div>
