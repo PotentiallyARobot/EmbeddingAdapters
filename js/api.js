@@ -44,3 +44,32 @@ function escHtml(s) {
 
 function $(sel) { return document.querySelector(sel); }
 function $$(sel) { return document.querySelectorAll(sel); }
+
+// Tabbed code block: tabbedCodeBlock([{lang:"python",label:"Python",code:"..."}, ...])
+function tabbedCodeBlock(tabs) {
+  const gid = "tcb_" + Math.random().toString(36).slice(2, 8);
+  const tabBtns = tabs.map((t, i) =>
+    `<button class="code-tab ${i === 0 ? 'active' : ''}" onclick="switchCodeTab('${gid}',${i},this)">${t.label || t.lang}</button>`
+  ).join("");
+  const panels = tabs.map((t, i) => {
+    const pid = gid + "_" + i;
+    return `<div class="code-tab-panel ${i === 0 ? '' : 'hidden'}" data-tcb="${gid}" data-idx="${i}">
+      <div class="code-wrap" style="margin-top:0;">
+        <div class="code-actions">
+          <span class="mono code-lang">${t.lang}</span>
+          <button class="btn-copy" onclick="copyToClipboard(document.getElementById('${pid}').textContent, this)">Copy</button>
+        </div>
+        <pre class="code-block" id="${pid}">${escHtml(t.code)}</pre>
+      </div>
+    </div>`;
+  }).join("");
+  return `<div class="code-tabs-wrap">
+    <div class="code-tabs-bar">${tabBtns}</div>
+    ${panels}
+  </div>`;
+}
+
+function switchCodeTab(gid, idx, btn) {
+  btn.parentElement.querySelectorAll('.code-tab').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll(`[data-tcb="${gid}"]`).forEach((p, i) => p.classList.toggle('hidden', i !== idx));
+}
