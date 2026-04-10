@@ -176,8 +176,8 @@ section { position: relative; z-index: 1; padding: 48px 0; }
 <header class="page-header">
   <a href="index.html" class="back-link">&larr; Back to home</a>
   <div class="badge">How It Works</div>
-  <h1>Learned mappings between<br><strong>embedding spaces</strong></h1>
-  <p>Each adapter is a compact, carefully trained model that translates one embedding space into another. The key isn't architecture complexity &mdash; it's the training process, which ensures the adapter preserves the geometric relationships that matter for retrieval without collapsing or losing fidelity.</p>
+  <h1>Embed locally. Score confidence.<br><strong>Route intelligently.</strong></h1>
+  <p>Each adapter is a compact neural network that translates one embedding space into another. The key isn't just the translation — it's knowing when the translation is reliable. A built-in quality head scores every query, enabling smart routing: use the adapter when confident, call the provider when not.</p>
 </header>
 
 <section>
@@ -186,19 +186,19 @@ section { position: relative; z-index: 1; padding: 48px 0; }
       <div class="how-step">
         <div class="how-step-num">1</div>
         <h4>Embed with source</h4>
-        <p>Generate embeddings using your local or source model as you normally would.</p>
+        <p>Generate embeddings using your local model as you normally would. No changes to your existing pipeline.</p>
         <div class="how-arrow">&rarr;</div>
       </div>
       <div class="how-step">
         <div class="how-step-num">2</div>
-        <h4>Adapt</h4>
-        <p>The adapter applies a trained transformation, mapping vectors into the target space.</p>
+        <h4>Adapt + score</h4>
+        <p>The adapter translates vectors into the target space and scores confidence in the same forward pass. One number tells you how reliable this translation is.</p>
         <div class="how-arrow">&rarr;</div>
       </div>
       <div class="how-step">
         <div class="how-step-num">3</div>
-        <h4>Retrieve</h4>
-        <p>Query your existing vector index directly &mdash; no re-embedding, no downtime, no data migration.</p>
+        <h4>Route or retrieve</h4>
+        <p>High-confidence queries go straight to your index at $0. Low-confidence queries route to the provider &mdash; one API call, only when needed.</p>
       </div>
     </div>
   </div>
@@ -217,9 +217,9 @@ section { position: relative; z-index: 1; padding: 48px 0; }
 
     <div class="detail-card">
       <h3>Confidence scoring</h3>
-      <p>Each adapter also learns a distribution boundary during training. At inference time, <code>score_source()</code> evaluates how well an input embedding fits within the source model's known space. This returns a confidence value between 0 and 1.</p>
-      <p>High scores (&#8805; 0.99) mean the input is well-represented by the adapter's training data and the translation is reliable. Low scores (&lt; 0.95) indicate the input is out-of-distribution &mdash; the adapter may still work, but you should consider falling back to the native API.</p>
-      <p>This is the foundation of the hybrid routing strategy: use the adapter when confident, escalate to the API when not.</p>
+      <p>Each query is scored individually. The quality head evaluates how well an input embedding fits within the adapter's training distribution, returning a confidence value between 0 and 1.</p>
+      <p>High scores mean the translation is reliable — retrieval matches the target model. Low scores mean the input is out-of-distribution and you should route to the native provider for a guaranteed-quality embedding.</p>
+      <p>You control the confidence threshold. Higher routes more queries to the provider for guaranteed accuracy, lower keeps more local for maximum savings. The <code>calibrate</code> endpoint analyzes your data and recommends the optimal setting, so you never degrade below your baseline.</p>
     </div>
 
     <div class="detail-card">

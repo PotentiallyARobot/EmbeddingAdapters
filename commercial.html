@@ -39,20 +39,20 @@
 :root {
   --accent: #2563eb;
   --accent-light: #3b82f6;
-  --accent-glow: rgba(37,99,235,0.12);
+  --accent-glow: rgba(37,99,235,0.15);
   --purple: #7c3aed;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --bg: #f8fafc;
-  --bg-card: #ffffff;
-  --border: #e2e8f0;
+  --text-primary: #d4d4d8;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --bg: #08080c;
+  --bg-card: #0d0d12;
+  --border: #1c1c26;
   --font-body: 'DM Sans', sans-serif;
-  --font-display: 'Source Serif 4', Georgia, serif;
+  --font-display: 'DM Sans', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --radius: 12px;
-  --shadow-sm: 0 1px 4px rgba(15,23,41,0.06);
-  --shadow-md: 0 4px 16px rgba(15,23,41,0.08);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.3);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -74,9 +74,9 @@ nav {
   align-items: center;
   justify-content: space-between;
   padding: 16px 32px;
-  background: rgba(248,250,252,0.9);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(226,232,240,0.5);
+  background: rgba(8,8,12,0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(28,28,38,0.6);
 }
 
 .nav-logo {
@@ -115,7 +115,7 @@ nav {
   letter-spacing: 0.06em;
   color: var(--purple);
   margin-bottom: 16px;
-  background: rgba(124,58,237,0.06);
+  background: rgba(124,58,237,0.12);
   padding: 4px 14px;
   border-radius: 100px;
 }
@@ -167,7 +167,7 @@ nav {
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(124,58,237,0.08));
+  background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.12));
   border-radius: 10px;
   margin-bottom: 18px;
 }
@@ -335,6 +335,10 @@ nav {
 
 .form-group textarea { resize: vertical; }
 
+::selection { background: rgba(37,99,235,0.3); color: #fff; }
+::placeholder { color: var(--text-muted); }
+select option { background: var(--bg-card); color: var(--text-primary); }
+
 .form-submit {
   display: flex;
   align-items: center;
@@ -417,8 +421,8 @@ nav {
 
 <div class="page-hero">
   <span class="page-label">Enterprise &amp; Commercial</span>
-  <h1>Custom embedding adapters for your business</h1>
-  <p>Go beyond our open-source models with custom-trained adapters, private model access, on-premise deployment, and expert consulting.</p>
+  <h1>Custom adapters trained on your data</h1>
+  <p>Go beyond general-purpose models. We train adapters on your domain, deploy on your infrastructure, and support any target provider — with dedicated SLAs.</p>
 </div>
 
 <div class="services">
@@ -524,11 +528,11 @@ nav {
       </button>
     </form>
 
-    <p class="form-footer">Or email us directly at <a href="mailto:embeddingadapters@gmail.com">embeddingadapters@gmail.com</a></p>
+    <p class="form-footer">Or email us directly at <a href="/cdn-cgi/l/email-protection#244149464140404d4a434540455450415657644349454d480a474b49"><span class="__cf_email__" data-cfemail="197c747b7c7d7d70777e787d78696d7c6b6a597e74787075377a7674">[email&#160;protected]</span></a></p>
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 document.getElementById('contactForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
@@ -595,12 +599,4 @@ document.getElementById('contactForm').addEventListener('submit', async function
     '<div class="form-success">' +
     '<h4>' + (sent ? '✓ Inquiry sent successfully' : '✓ Opening your email client') + '</h4>' +
     '<p>' + (sent
-      ? 'Thanks for reaching out! We\'ll get back to you within 24 hours.'
-      : 'Please send the pre-filled email, or write to <a href="mailto:embeddingadapters@gmail.com" style="color:var(--accent)">embeddingadapters@gmail.com</a> directly.')
-    + '</p>' +
-    '</div>';
-});
-</script>
-
-</body>
-</html>
+      ? 'Thanks for reaching out! We\'ll get back to you 
