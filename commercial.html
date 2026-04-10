@@ -67,13 +67,15 @@ body {
 
 /* Nav */
 nav {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 32px;
+  padding: 14px 32px;
   background: rgba(8,8,12,0.85);
   backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid rgba(28,28,38,0.6);
@@ -90,20 +92,24 @@ nav {
 .nav-logo svg { width: 28px; height: 28px; }
 .nav-logo span { font-weight: 600; font-size: 17px; letter-spacing: -0.02em; }
 
-.nav-back {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--accent);
-  text-decoration: none;
+.nav-links { display: flex; gap: 28px; list-style: none; align-items: center; }
+.nav-links a { font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--text-primary); }
+.nav-cta { background: var(--accent) !important; color: #fff !important; padding: 7px 18px; border-radius: 8px; font-size: 13px !important; font-weight: 600 !important; }
+.nav-cta:hover { background: var(--accent-light) !important; }
+.nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+.nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--text-primary); margin: 5px 0; border-radius: 2px; transition: all 0.3s; }
+@media(max-width:768px) {
+  .nav-hamburger { display: flex; flex-direction: column; }
+  .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; background: rgba(8,8,12,0.98); backdrop-filter: blur(20px); padding: 16px 24px; gap: 12px; border-bottom: 1px solid var(--border); }
+  nav.nav-open .nav-links { display: flex; }
 }
-
-.nav-back:hover { color: var(--accent-light); }
 
 /* Hero */
 .page-hero {
   max-width: 760px;
   margin: 0 auto;
-  padding: 72px 24px 24px;
+  padding: 90px 24px 24px;
   text-align: center;
 }
 
@@ -408,7 +414,7 @@ select option { background: var(--bg-card); color: var(--text-primary); }
 </head>
 <body>
 
-<nav>
+<nav id="navbar">
   <a href="index.html" class="nav-logo">
     <svg viewBox="0 0 28 28" fill="none">
       <rect width="28" height="28" rx="7" fill="#2563eb"/>
@@ -416,7 +422,17 @@ select option { background: var(--bg-card); color: var(--text-primary); }
     </svg>
     <span>EmbeddingAdapters</span>
   </a>
-  <a href="index.html" class="nav-back">← Back to home</a>
+  <button class="nav-hamburger" onclick="document.getElementById('navbar').classList.toggle('nav-open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="usecases.html">Use Cases</a></li>
+    <li><a href="how.html">How It Works</a></li>
+    <li><a href="benchmarks.html">Benchmarks</a></li>
+    <li><a href="https://github.com/PotentiallyARobot/EmbeddingAdapters" target="_blank">GitHub</a></li>
+    <li><a href="commercial.html">Enterprise</a></li>
+    <li><a href="dashboard.html" class="nav-cta">Dashboard →</a></li>
+  </ul>
 </nav>
 
 <div class="page-hero">
