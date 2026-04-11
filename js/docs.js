@@ -329,6 +329,16 @@ function renderDocEmbed() {
           Send texts or pre-computed embeddings, receive adapted embedding vectors. Forward adapters (e.g. <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">minilm-te3-adapted</code>) accept texts and output 3072-d TE3-compatible vectors. Reverse adapters (e.g. <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">te3-qwen3-8b-adapted</code>) accept pre-computed TE3 embeddings and output vectors in the target model's space.
         </p>
 
+        ${tabbedCodeBlock([
+          { lang:"bash", label:"cURL", code: `curl -X POST ${API_DOCS_BASE}/v1/embed \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"texts": ["hello world"], "model": "qwen06b-te3-adapted", "quality": 0}'` },
+          { lang:"python", label:"Python", code: `resp = requests.post("${API_DOCS_BASE}/v1/embed",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={"texts": ["hello world"], "model": "qwen06b-te3-adapted", "quality": 0})` },
+        ])}
+
         <div style="font-size:13px; font-weight:700; color:#a1a1aa; margin-bottom:8px;">Request Headers</div>
         <table class="table mono" style="font-size:12px; margin-bottom:20px;">
           <thead><tr><th>Header</th><th>Value</th></tr></thead>
