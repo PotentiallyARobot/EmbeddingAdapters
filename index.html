@@ -1650,7 +1650,7 @@ footer {
     padding: 80px 20px 0;
     min-height: auto;
     height: auto;
-    padding-bottom: 320px;
+    padding-bottom: 380px;
   }
   .hero-badge { font-size: 11px; padding: 4px 12px; margin-bottom: 16px; }
   .hero h1 { font-size: 32px; max-width: 400px; margin-bottom: 0; }
@@ -1679,7 +1679,7 @@ footer {
 }
 
 @media (max-width: 480px) {
-  .hero { padding: 72px 16px 0; padding-bottom: 260px; }
+  .hero { padding: 72px 16px 0; padding-bottom: 320px; }
   .hero h1 { font-size: 26px; max-width: 320px; }
   .hero-gradient-line { font-size: 26px !important; }
   .hero-tagline { font-size: 13px; max-width: 300px; }
@@ -1749,7 +1749,6 @@ footer {
     <div id="heroB" style="font-size:15px; color:var(--accent-light); font-weight:500; line-height:24px; text-align:center; transition:opacity 1.5s ease; position:absolute; top:0; left:0; right:0; opacity:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
   </div>
   <p class="hero-tagline">Universal embedding-space translation library. Plug-and-play adapters that map one model's vector space into another — locally, instantly, for free. <a href="how.html" class="hero-learn-more">Learn more →</a></p>
-  <div style="font-size:12px; color:var(--text-muted); margin-bottom:18px; position:relative; z-index:3;">Works with Pinecone, Weaviate, Qdrant, pgvector, and FAISS</div>
   <div class="hero-actions">
     <a href="dashboard.html" class="btn-primary">
       Get API key
@@ -1757,7 +1756,6 @@ footer {
     </a>
     <a href="benchmarks.html" class="btn-secondary">See benchmarks →</a>
   </div>
-  <div style="margin-top:12px; font-size:12px; color:var(--text-muted); position:relative; z-index:3; font-family:var(--font-mono);">Matches OpenAI text-embedding-3-large on benchmark runs at ~98% lower cost</div>
   <div id="heroModelPair" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:12px;color:var(--text-muted);letter-spacing:0.01em;transition:opacity 0.5s;z-index:3;white-space:nowrap;">
     <span id="heroPairText"></span>
   </div>
@@ -2561,12 +2559,12 @@ document.getElementById('contactForm').addEventListener('submit', async function
       nameEl.style.color = 'hsl('+hue+',70%,70%)';
       subEl.textContent = subtitle;
       subEl.style.color = 'rgba(161,161,170,0.7)';
-      // Dark glass background
-      el.style.background = 'rgba(13,13,18,0.75)';
-      el.style.border = '1px solid rgba(255,255,255,0.08)';
-      el.style.backdropFilter = 'blur(8px)';
-      el.style.borderRadius = '10px';
-      el.style.padding = '6px 14px 8px';
+      // Clean floating text — no background box
+      el.style.background = 'none';
+      el.style.border = 'none';
+      el.style.backdropFilter = 'none';
+      el.style.borderRadius = '0';
+      el.style.padding = '0';
       // On mobile, constrain width so both labels wrap to multiple lines consistently
       if(W <= 900) {
         el.style.maxWidth = '80px';
