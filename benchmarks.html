@@ -14,27 +14,35 @@
   --accent:#2563eb; --blue:#3b82f6; --green:#10b981; --purple:#6366f1; --red:#ef4444; --amber:#f59e0b;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;position:relative}
 a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+
+/* Grid background */
+.grid-bg{position:fixed;inset:0;background:linear-gradient(180deg,#0c1a30 0%,#0a1222 25%,#08080c 55%);pointer-events:none;z-index:0}
+.grid-bg::before{content:'';position:absolute;inset:-50% -50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(37,99,235,0.18) 0%,transparent 40%),radial-gradient(ellipse at 70% 30%,rgba(139,92,246,0.12) 0%,transparent 40%),radial-gradient(ellipse at 50% 10%,rgba(16,185,129,0.10) 0%,transparent 40%);animation:glowDrift 25s ease-in-out infinite}
+@keyframes glowDrift{0%,100%{transform:translate(0%,0%)}25%{transform:translate(-8%,3%)}50%{transform:translate(5%,-5%)}75%{transform:translate(-3%,-2%)}}
+.grid-bg::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(37,99,235,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,0.07) 1px,transparent 1px);background-size:60px 60px}
 .mono{font-family:'JetBrains Mono',monospace}
-nav{display:flex;justify-content:space-between;align-items:center;padding:16px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:rgba(8,8,12,0.92);backdrop-filter:blur(12px)}
+nav{display:flex;justify-content:space-between;align-items:center;padding:16px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:rgba(8,8,12,0.85);backdrop-filter:blur(12px)}
 .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-weight:600;font-size:17px}
 .nav-logo svg{width:28px;height:28px}
 .nav-links{display:flex;gap:24px;list-style:none}
 .nav-links a{color:var(--dim);font-size:14px;font-weight:500}
 .nav-links a:hover{color:var(--text);text-decoration:none}
-.wrap{max-width:900px;margin:0 auto;padding:0 24px}
+.nav-hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px}
+.nav-hamburger span{display:block;width:22px;height:2px;background:var(--text);margin:5px 0;transition:0.3s}
+.wrap{max-width:900px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
 .sec{padding:48px 0}
-.sec+.sec{border-top:1px solid var(--border)}
-.card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.sec+.sec{border-top:1px solid rgba(28,28,38,0.6)}
+.card{background:rgba(13,13,18,0.9);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;backdrop-filter:blur(8px)}
 .card-h{padding:14px 20px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;color:var(--dim)}
 .card-b{padding:20px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.stat{background:rgba(13,13,18,0.85);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;backdrop-filter:blur(8px)}
 .stat b{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;display:block}
 .stat small{font-size:11px;color:var(--muted);display:block;margin-top:4px}
 .cg{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
-.cc{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.cc{background:rgba(13,13,18,0.85);border:1px solid var(--border);border-radius:14px;overflow:hidden;backdrop-filter:blur(8px)}
 .cc img{width:100%;display:block}
 .cc .cap{padding:14px 18px}
 .cc .cap h4{font-size:14px;font-weight:600;margin-bottom:4px}
@@ -50,23 +58,47 @@ td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--dim)}
 .tag-m{color:var(--purple);background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2)}
 .tag-q{color:var(--green);background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2)}
 .tag-t{color:#71717a;background:rgba(113,113,122,0.1);border:1px solid rgba(113,113,122,0.2)}
-.note{background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.12);border-radius:10px;padding:16px 20px;font-size:13px;color:var(--dim);line-height:1.65;margin:20px 0}
+.note{background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.15);border-radius:10px;padding:16px 20px;font-size:13px;color:var(--dim);line-height:1.65;margin:20px 0;backdrop-filter:blur(8px)}
 .note b{color:var(--text)}
 h3{font-size:18px;font-weight:700;margin-bottom:6px}
 @media(max-width:768px){
-  nav{padding:12px 16px}.nav-links{gap:12px}.stats{grid-template-columns:1fr 1fr}.cg{grid-template-columns:1fr}
-  th,td{padding:8px 6px}table{font-size:11px}
+  nav{padding:12px 16px}
+  .nav-hamburger{display:block}
+  .nav-links{
+    display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;
+    background:rgba(8,8,12,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
+    padding:16px 24px;gap:0;
+  }
+  nav.open .nav-links{display:flex}
+  .nav-links li{padding:8px 0}
+  .stats{grid-template-columns:1fr 1fr;gap:10px}
+  .stat{padding:14px}
+  .stat b{font-size:20px}
+  .cg{grid-template-columns:1fr}
+  .card-b{padding:14px;overflow-x:auto}
+  th,td{padding:6px 6px;font-size:10px;white-space:nowrap}
+  .note{padding:12px 14px;font-size:12px}
+  h2{font-size:20px !important}
 }
-@media(max-width:480px){.stats{grid-template-columns:1fr}}
+@media(max-width:480px){
+  .stats{grid-template-columns:1fr 1fr;gap:8px}
+  .stat{padding:12px}
+  .stat b{font-size:18px}
+  .stat small{font-size:10px}
+}
 </style>
 </head>
 <body>
+<div class="grid-bg"></div>
 
-<nav>
+<nav id="navbar">
   <a href="index.html" class="nav-logo">
     <svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="#2563eb"/><path d="M7 14h5l3-6 3 12 3-6h5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     EmbeddingAdapters
   </a>
+  <button class="nav-hamburger" onclick="document.getElementById('navbar').classList.toggle('open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
   <ul class="nav-links">
     <li><a href="index.html">Home</a></li>
     <li><a href="usecases.html">Use Cases</a></li>
@@ -80,26 +112,26 @@ h3{font-size:18px;font-weight:700;margin-bottom:6px}
 <!-- ═══ HEADER ═══ -->
 <div class="sec" style="text-align:center;padding-bottom:24px;">
   <h1 style="font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;">Benchmark Results</h1>
-  <p style="font-size:15px;color:var(--muted);max-width:640px;margin:0 auto;">Two adapted models — <span class="tag tag-m">MiniLM→TE3</span> and <span class="tag tag-q">Qwen3-0.6B→TE3</span> — evaluated on real RAG retrieval against <span class="tag tag-t">OpenAI TE3</span>.</p>
+  <p style="font-size:15px;color:var(--muted);max-width:640px;margin:0 auto;">Adapted models evaluated on real RAG retrieval against <span class="tag tag-t">OpenAI TE3</span>.</p>
 </div>
 
 <!-- ═══ KEY STATS ═══ -->
 <div class="stats">
-  <div class="stat"><b style="color:var(--green);">0.934</b><small>Qwen3→TE3 MRR@10<br>at quality=0</small></div>
-  <div class="stat"><b style="color:var(--purple);">18,000</b><small>Tokens/sec<br>MiniLM→TE3</small></div>
-  <div class="stat"><b style="color:var(--blue);">50ms</b><small>API latency<br>10 texts, local GPU</small></div>
-  <div class="stat"><b style="color:var(--green);">99.7%</b><small>Cost savings<br>vs OpenAI direct</small></div>
+  <div class="stat"><b style="color:var(--green);">97%</b><small>of provider quality<br>zero API calls</small></div>
+  <div class="stat"><b style="color:var(--purple);">99%</b><small>cost savings<br>vs provider direct</small></div>
+  <div class="stat"><b style="color:var(--blue);">50ms</b><small>query latency<br>local GPU</small></div>
+  <div class="stat"><b style="color:var(--green);">18K/s</b><small>tokens per second<br>single GPU</small></div>
 </div>
 
 <!-- ═══ OVERVIEW ═══ -->
 <div class="sec">
   <h2 style="font-size:24px;font-weight:800;margin-bottom:12px;">Overview</h2>
-  <p style="font-size:15px;color:var(--dim);line-height:1.7;margin-bottom:16px;">We benchmarked both adapters on two standard retrieval datasets — <b style="color:var(--text);">Natural Questions</b> (factoid Q&A) and <b style="color:var(--text);">HotpotQA</b> (multi-hop reasoning). In both cases, adapted queries search a corpus embedded with OpenAI text-embedding-3-large — simulating a real production RAG setup where your index was built with a commercial provider.</p>
+  <p style="font-size:15px;color:var(--dim);line-height:1.7;margin-bottom:16px;">We benchmark adapters on standard retrieval datasets — <b style="color:var(--text);">Natural Questions</b> (factoid Q&A) and <b style="color:var(--text);">HotpotQA</b> (multi-hop reasoning). Adapted queries search a corpus embedded with OpenAI text-embedding-3-large — simulating a real production RAG setup where your index was built with a commercial provider.</p>
 
   <div class="card">
     <div class="card-b" style="font-size:14px;color:var(--dim);line-height:1.7;">
-      <p><b style="color:var(--text);">The core finding:</b> Both adapters produce embeddings that retrieve nearly as well as the original provider — at a fraction of the cost and latency. On Natural Questions, Qwen3-0.6B→TE3 achieves <b style="color:var(--green);">MRR@10 of 0.934</b> at quality=0 (zero provider calls) vs OpenAI's 0.960. That's 97% of the quality at 0.3% of the cost.</p>
-      <p style="margin-top:12px;"><b style="color:var(--text);">Where adapters excel:</b> On well-formed factual queries (NQ), both adapters beat the raw MiniLM baseline at quality=0 — meaning the adapter actually <i>improves</i> retrieval over using MiniLM alone. On harder multi-hop queries (HotpotQA), the adapters start lower but the quality routing dial smoothly closes the gap.</p>
+      <p><b style="color:var(--text);">The core finding:</b> Adapters produce embeddings that retrieve nearly as well as the original provider — at a fraction of the cost and latency. On Natural Questions, Qwen3-0.6B→TE3 achieves <b style="color:var(--green);">MRR@10 of 0.934</b> at quality=0 (zero provider calls) vs OpenAI's 0.960. That's 97% of the quality at 0.3% of the cost.</p>
+      <p style="margin-top:12px;"><b style="color:var(--text);">Where adapters excel:</b> On well-formed factual queries (NQ), adapters beat the raw MiniLM baseline at quality=0 — meaning the adapter actually <i>improves</i> retrieval over using MiniLM alone. On harder multi-hop queries (HotpotQA), the adapters start lower but the quality routing dial smoothly closes the gap.</p>
       <p style="margin-top:12px;"><b style="color:var(--text);">Qwen3 vs MiniLM:</b> Qwen3-0.6B→TE3 consistently scores 1–3% higher MRR than MiniLM→TE3, and reaches provider parity at much lower quality thresholds. The tradeoff is speed — MiniLM runs at 18K tok/s vs Qwen3's 1.2K tok/s. Choose MiniLM for throughput, Qwen3 for accuracy.</p>
     </div>
   </div>
@@ -141,8 +173,8 @@ h3{font-size:18px;font-weight:700;margin-bottom:6px}
   <p style="font-size:14px;color:var(--muted);margin-bottom:20px;">100 queries × 1,000 passages — factoid Q&A from Google search</p>
 
   <div class="cg">
-    <div class="cc"><img src="img/nq_mrr.png" alt="NQ MRR"><div class="cap"><h4>MRR@10 vs Quality Threshold</h4><p>Both adapters beat MiniLM raw (red dashed, 0.843) at quality=0 with zero provider calls. The curves show how MRR improves as you route more queries to OpenAI. Qwen3 reaches the TE3 line at q=40; MiniLM at q=90.</p></div></div>
-    <div class="cc"><img src="img/nq_recall.png" alt="NQ Recall"><div class="cap"><h4>R@1 and R@10 at Key Thresholds</h4><p>R@10 (is the answer in the top 10?) stays above 0.97 for both adapters even at q=0 — nearly matching OpenAI's 0.98. R@1 (exact top hit) climbs from 0.90/0.91 at q=0 to 0.94 at q=100.</p></div></div>
+    <div class="cc"><img src="img/nq_mrr.png" alt="NQ MRR"><div class="cap"><h4>MRR@10 vs Quality Threshold</h4><p>Adapters beat MiniLM raw (red dashed, 0.843) at quality=0 with zero provider calls. The curves show how MRR improves as you route more queries to OpenAI. Qwen3 reaches the TE3 line at q=40; MiniLM at q=90.</p></div></div>
+    <div class="cc"><img src="img/nq_recall.png" alt="NQ Recall"><div class="cap"><h4>R@1 and R@10 at Key Thresholds</h4><p>R@10 (is the answer in the top 10?) stays above 0.97 for adapters even at q=0 — nearly matching OpenAI's 0.98. R@1 (exact top hit) climbs from 0.90/0.91 at q=0 to 0.94 at q=100.</p></div></div>
   </div>
   <div class="cg">
     <div class="cc"><img src="img/nq_routing.png" alt="NQ Routing"><div class="cap"><h4>% Routed to Provider</h4><p>Shows what fraction of queries the quality head sends to OpenAI at each threshold. At q=30, MiniLM routes just 8% while Qwen3 routes 21% — Qwen3's quality head is stricter but achieves higher accuracy at each level.</p></div></div>
@@ -176,7 +208,7 @@ h3{font-size:18px;font-weight:700;margin-bottom:6px}
   </div>
 
   <div class="note">
-    <b>NQ takeaway:</b> This is where adapters shine brightest. Both models beat the MiniLM baseline at quality=0 — the adapter doesn't just translate, it <i>improves</i> retrieval. Qwen3 matches TE3 at q=40, meaning you can get OpenAI-level quality while keeping 62% of queries local. For most production RAG applications on well-formed queries, quality=0 or quality=30 is the sweet spot.
+    <b>NQ takeaway:</b> This is where adapters shine brightest. Adapters beat the MiniLM baseline at quality=0 — the adapter doesn't just translate, it <i>improves</i> retrieval. Qwen3 matches TE3 at q=40, meaning you can get OpenAI-level quality while keeping 62% of queries local. For most production RAG applications on well-formed queries, quality=0 or quality=30 is the sweet spot.
   </div>
 </div>
 
@@ -186,7 +218,7 @@ h3{font-size:18px;font-weight:700;margin-bottom:6px}
   <p style="font-size:14px;color:var(--muted);margin-bottom:20px;">100 multi-hop queries × 1,190 passages — requires reasoning across multiple documents</p>
 
   <div class="cg">
-    <div class="cc"><img src="img/hotpotqa_mrr.png" alt="HotpotQA MRR"><div class="cap"><h4>MRR@10 vs Quality Threshold</h4><p>A harder test. Both adapters start below MiniLM raw at q=0 — multi-hop queries challenge the adapter's translation fidelity. But quality routing fixes this: Qwen3 crosses the MiniLM line at q=30 and reaches TE3 at q=60.</p></div></div>
+    <div class="cc"><img src="img/hotpotqa_mrr.png" alt="HotpotQA MRR"><div class="cap"><h4>MRR@10 vs Quality Threshold</h4><p>A harder test. Adapters start below MiniLM raw at q=0 — multi-hop queries challenge the adapter's translation fidelity. But quality routing fixes this: Qwen3 crosses the MiniLM line at q=30 and reaches TE3 at q=60.</p></div></div>
     <div class="cc"><img src="img/hotpotqa_recall.png" alt="HotpotQA Recall"><div class="cap"><h4>R@1 and R@10 at Key Thresholds</h4><p>Qwen3 achieves perfect R@10 (1.000) at every quality level — the correct answer is always in the top 10. R@1 climbs from 0.74 at q=0 to 0.86 at q=100, matching TE3.</p></div></div>
   </div>
   <div class="cg">
@@ -235,7 +267,7 @@ h3{font-size:18px;font-weight:700;margin-bottom:6px}
           <tr class="hi"><td style="color:var(--text);font-weight:600;">Beats source model</td><td>NQ</td><td class="p">q=0 (0%)</td><td class="g">q=0 (0%)</td><td style="font-size:11px;">Adapter improves over raw MiniLM with zero routing</td></tr>
           <tr><td style="color:var(--text);font-weight:600;">Beats source model</td><td>HotpotQA</td><td class="p">q=60 (63%)</td><td class="g">q=30 (40%)</td><td style="font-size:11px;">Harder dataset needs some routing to beat source</td></tr>
           <tr class="hi"><td style="color:var(--text);font-weight:600;">Matches TE3 (±1%)</td><td>NQ</td><td class="p">q=90 (81%)</td><td class="g">q=40 (38%)</td><td style="font-size:11px;">Qwen3 hits parity with 62% of queries still local</td></tr>
-          <tr><td style="color:var(--text);font-weight:600;">Matches TE3 (±1%)</td><td>HotpotQA</td><td class="p">q=80 (90%)</td><td class="g">q=60 (85%)</td><td style="font-size:11px;">Both models reach parity at 98%+ savings</td></tr>
+          <tr><td style="color:var(--text);font-weight:600;">Matches TE3 (±1%)</td><td>HotpotQA</td><td class="p">q=80 (90%)</td><td class="g">q=60 (85%)</td><td style="font-size:11px;">Adapters reach parity at 98%+ savings</td></tr>
         </tbody>
       </table>
     </div>

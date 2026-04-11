@@ -97,7 +97,7 @@
       "name": "How fast are embedding adapters?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "MiniLM→TE3 processes 18,000 tokens per second on a laptop GPU. API latency is 50ms for 10 texts, 450ms for 500 texts. Qwen3-0.6B→TE3 runs at 1,200 tok/s with higher accuracy. Both models handle 4-16 concurrent users on a single RTX 3060."
+        "text": "MiniLM→TE3 processes 18,000 tokens per second on a laptop GPU. API latency is 50ms for 10 texts, 450ms for 500 texts. Qwen3-0.6B→TE3 runs at 1,200 tok/s with higher accuracy. Adapters handle concurrent users on a single GPU."
       }
     },
     {
@@ -364,15 +364,11 @@ nav.nav-open .nav-hamburger span:nth-child(3) {
   font-weight: 700;
   line-height: 1.10;
   letter-spacing: -0.03em;
-  max-width: 800px;
+  max-width: 700px;
   margin-bottom: 0;
   animation: fadeInUp 0.8s ease 0.1s both;
   position: relative;
   z-index: 3;
-}
-
-@media(min-width:769px) {
-  .hero h1 { white-space: nowrap; }
 }
 
 .hero h1 strong {
@@ -385,7 +381,7 @@ nav.nav-open .nav-hamburger span:nth-child(3) {
 
 .hero-tagline {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--text-muted);
   max-width: 500px;
   line-height: 1.6;
   text-align: center;
@@ -557,6 +553,14 @@ nav.nav-open .nav-hamburger span:nth-child(3) {
   text-align: center;
 }
 
+/* ═══ ADAPTER QUALITY ═══ */
+.aq-visual { display:flex; align-items:center; justify-content:center; gap:0; margin:20px 0 24px; font-family:var(--font-mono); font-size:13px; }
+.aq-node { text-align:center; padding:12px 20px; flex:1; min-width:0; }
+.aq-label { font-size:11px; color:var(--text-muted); margin-bottom:4px; }
+.aq-value { font-size:20px; font-weight:700; }
+.aq-arrow { padding:8px 10px; color:var(--text-muted); font-size:16px; flex-shrink:0; }
+.aq-cases { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+
 /* ═══ INSTALL BAR ═══ */
 .install-section {
   position: relative;
@@ -678,8 +682,8 @@ nav.nav-open .nav-hamburger span:nth-child(3) {
   font-size: 13px;
   line-height: 1.7;
   color: var(--code-text);
-  white-space: pre-wrap;
-  word-break: break-word;
+  overflow-x: auto;
+  white-space: pre;
 }
 
 .example-code .prompt {
@@ -1574,8 +1578,8 @@ footer {
 
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
 }
 
 .reveal.visible {
@@ -1658,6 +1662,20 @@ footer {
   .hero-visual { height: 300px; }
   .hero-visual canvas { height: 300px; }
   #heroModelPair { font-size: 10px !important; bottom: 8px !important; }
+
+  /* Adapter quality section */
+  .aq-card { padding: 20px !important; }
+  .aq-visual { flex-wrap: nowrap; gap: 0; }
+  .aq-node { padding: 10px 12px !important; }
+  .aq-value { font-size: 16px !important; }
+  .aq-arrow { padding: 4px 6px !important; font-size: 14px !important; }
+  .aq-cases { grid-template-columns: 1fr; gap: 12px; }
+
+  /* Benchmark chart grid */
+  .bench-chart-grid { grid-template-columns: 1fr !important; }
+
+  /* Value prop cards */
+  .value-prop-grid { grid-template-columns: 1fr !important; }
 }
 
 @media (max-width: 480px) {
@@ -1671,6 +1689,15 @@ footer {
   .hero-visual canvas { height: 250px; }
   .install-bar { flex-direction: column; text-align: center; gap: 8px; }
   .hero-labels { padding: 12px 16px 0; flex-direction: column; gap: 4px; align-items: center; }
+
+  /* Adapter quality tighter */
+  .aq-card { padding: 16px !important; }
+  .aq-node { padding: 8px 8px !important; }
+  .aq-label { font-size: 10px !important; }
+  .aq-value { font-size: 14px !important; }
+  .aq-arrow { padding: 2px 4px !important; font-size: 12px !important; }
+  .aq-card h3 { font-size: 17px !important; }
+  .aq-card p { font-size: 13px !important; }
 }
 </style>
 </head>
@@ -1699,6 +1726,7 @@ footer {
     <li><a href="usecases.html">Use Cases</a></li>
     <li><a href="how.html">How It Works</a></li>
     <li><a href="benchmarks.html">Benchmarks</a></li>
+    <li><a href="docs.html">API Docs</a></li>
     <li><a href="https://github.com/PotentiallyARobot/EmbeddingAdapters" target="_blank">GitHub</a></li>
     <li><a href="commercial.html">Enterprise</a></li>
     <li><a href="dashboard.html" class="nav-cta">Dashboard →</a></li>
@@ -1712,15 +1740,15 @@ footer {
     <canvas id="heroCanvas"></canvas>
   </div>
   <!-- Text overlay -->
-  <div class="hero-badge">~98–99% lower embedding cost &middot; Provider-compatible retrieval &middot; Local-first</div>
-  <h1>Provider-compatible embeddings, locally</h1>
+  <div class="hero-badge">~98–99% lower embedding cost &middot; Provider-grade retrieval &middot; Local-first</div>
+  <h1>Provider-grade embeddings, locally</h1>
   <div class="hero-gradient-line" style="font-family:var(--font-display); font-size:clamp(28px, 3.2vw, 40px); font-weight:700; line-height:1.10; letter-spacing:-0.03em; color:#3b82f6; margin-bottom:14px; position:relative; z-index:3; animation:fadeInUp 0.8s ease 0.12s both;">200× faster. 70× cheaper.</div>
-  <p style="font-size:14px; color:var(--text-primary); margin-bottom:14px; position:relative; z-index:3; animation:fadeInUp 0.8s ease 0.15s both;">Query across embedding spaces without re-indexing</p>
+  <p style="font-size:14px; color:var(--text-primary); margin-bottom:14px; position:relative; z-index:3; animation:fadeInUp 0.8s ease 0.15s both;">Query across embedding spaces</p>
   <div id="heroRotateWrap" style="position:relative; height:24px; margin-bottom:14px; z-index:3; width:100%; overflow:hidden;">
     <div id="heroA" style="font-size:15px; color:var(--accent-light); font-weight:500; line-height:24px; text-align:center; transition:opacity 1.5s ease; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
     <div id="heroB" style="font-size:15px; color:var(--accent-light); font-weight:500; line-height:24px; text-align:center; transition:opacity 1.5s ease; position:absolute; top:0; left:0; right:0; opacity:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
   </div>
-  <p class="hero-tagline">Universal embedding-space translation library. Plug-and-play adapters that map one model's vector space into another — locally, instantly, for free. <a href="#adapter-quality" class="hero-learn-more">Learn more →</a></p>
+  <p class="hero-tagline">Universal embedding-space translation library. Plug-and-play adapters that map one model's vector space into another — locally, instantly, for free. <a href="how.html" class="hero-learn-more">Learn more →</a></p>
   <div style="font-size:12px; color:var(--text-muted); margin-bottom:18px; position:relative; z-index:3;">Works with Pinecone, Weaviate, Qdrant, pgvector, and FAISS</div>
   <div class="hero-actions">
     <a href="dashboard.html" class="btn-primary">
@@ -1729,6 +1757,7 @@ footer {
     </a>
     <a href="benchmarks.html" class="btn-secondary">See benchmarks →</a>
   </div>
+  <div style="margin-top:12px; font-size:12px; color:var(--text-muted); position:relative; z-index:3; font-family:var(--font-mono);">Matches OpenAI text-embedding-3-large on benchmark runs at ~98% lower cost</div>
   <div id="heroModelPair" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:12px;color:var(--text-muted);letter-spacing:0.01em;transition:opacity 0.5s;z-index:3;white-space:nowrap;">
     <span id="heroPairText"></span>
   </div>
@@ -1753,33 +1782,33 @@ footer {
 </section>
 
 <!-- ═══ ADAPTER QUALITY ═══ -->
-<section id="adapter-quality" style="position:relative; z-index:1; padding:40px 24px 48px;">
-  <div class="container" style="max-width:800px;">
-    <div style="background:rgba(13,13,18,0.85); border:1px solid var(--border); border-radius:16px; padding:32px; position:relative; overflow:hidden; backdrop-filter:blur(12px);">
+<section style="position:relative; z-index:1; padding:40px 24px 48px;">
+  <div class="container reveal" style="max-width:800px;">
+    <div class="aq-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:32px; position:relative; overflow:hidden;">
       <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #3b82f6, #10b981);"></div>
       <h3 style="font-size:20px; font-weight:700; margin-bottom:12px;">Adapters typically recover >90% of the target model's retrieval accuracy</h3>
       <p style="font-size:14px; color:var(--text-dim); line-height:1.7; margin-bottom:16px;">Embedding adapters are lightweight neural networks trained to translate one model's vector space into another. On high-confidence queries, the adapted embedding performs similarly to the target — recovering over 90% of its retrieval accuracy with zero API calls.</p>
       <p style="font-size:14px; color:var(--text-dim); line-height:1.7; margin-bottom:16px;">But not every query translates equally well. Some texts are harder to map across embedding spaces. That's where <strong style="color:var(--text);">confidence routing</strong> comes in.</p>
 
       <!-- Visual anchor -->
-      <div style="display:flex; align-items:center; justify-content:center; gap:0; margin:20px 0 24px; font-family:var(--font-mono); font-size:13px;">
-        <div style="text-align:center; padding:12px 20px; background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.15); border-radius:10px 0 0 10px;">
-          <div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">Source model</div>
-          <div style="font-size:20px; font-weight:700; color:#6366f1;">~82%</div>
+      <div class="aq-visual">
+        <div class="aq-node" style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.15); border-radius:10px 0 0 10px;">
+          <div class="aq-label">Source model</div>
+          <div class="aq-value" style="color:#6366f1;">~82%</div>
         </div>
-        <div style="padding:8px 14px; color:var(--text-muted); font-size:16px;">→</div>
-        <div style="text-align:center; padding:12px 20px; background:rgba(37,99,235,0.08); border:1px solid rgba(37,99,235,0.15); border-top:2px solid #3b82f6;">
-          <div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">Adapter</div>
-          <div style="font-size:20px; font-weight:700; color:#3b82f6;">~93%</div>
+        <div class="aq-arrow">→</div>
+        <div class="aq-node" style="background:rgba(37,99,235,0.08); border:1px solid rgba(37,99,235,0.15); border-top:2px solid #3b82f6; border-radius:0;">
+          <div class="aq-label">Adapter</div>
+          <div class="aq-value" style="color:#3b82f6;">~93%</div>
         </div>
-        <div style="padding:8px 14px; color:var(--text-muted); font-size:16px;">→</div>
-        <div style="text-align:center; padding:12px 20px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.15); border-radius:0 10px 10px 0;">
-          <div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">Target model</div>
-          <div style="font-size:20px; font-weight:700; color:#10b981;">96%</div>
+        <div class="aq-arrow">→</div>
+        <div class="aq-node" style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.15); border-radius:0 10px 10px 0;">
+          <div class="aq-label">Target model</div>
+          <div class="aq-value" style="color:#10b981;">96%</div>
         </div>
       </div>
 
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:16px;">
+      <div class="aq-cases">
         <div style="padding:16px; border-radius:10px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.12);">
           <div style="font-size:13px; font-weight:700; color:#10b981; margin-bottom:6px;">✓ Best case (most queries)</div>
           <p style="font-size:13px; color:var(--text-dim); line-height:1.55;">Retrieval matches the target model. Cost: <strong style="color:var(--text);">$0</strong> — everything stays local.</p>
@@ -1795,203 +1824,63 @@ footer {
   </div>
 </section>
 
-<!-- ═══ INSTALL ═══ -->
-
-
-<!-- ═══ AT A GLANCE ═══ -->
-<section class="bench-section" id="at-a-glance" style="padding:56px 24px;">
-  <div class="container reveal" style="max-width:800px;">
-
-    <!-- Retrieval Quality -->
-    <div style="margin-bottom:40px;">
-      <div style="font-family:var(--font-mono); font-size:11px; font-weight:600; color:rgba(255,255,255,0.4); letter-spacing:0.06em; margin-bottom:16px;">RETRIEVAL QUALITY — MRR@10 on Natural Questions</div>
-
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">
-        <div style="width:140px; font-size:13px; color:rgba(255,255,255,0.6); text-align:right;">Qwen3→TE3 <span style="color:#10b981;">q=0</span></div>
-        <div style="flex:1; height:32px; background:rgba(255,255,255,0.03); border-radius:6px; overflow:hidden; position:relative;">
-          <div style="height:100%; width:97.3%; background:linear-gradient(90deg,#10b981,#34d399); border-radius:6px; display:flex; align-items:center; justify-content:flex-end; padding-right:12px;">
-            <span style="font:700 14px var(--font-mono); color:#fff;">0.934</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">
-        <div style="width:140px; font-size:13px; color:rgba(255,255,255,0.6); text-align:right;">MiniLM→TE3 <span style="color:#6366f1;">q=0</span></div>
-        <div style="flex:1; height:32px; background:rgba(255,255,255,0.03); border-radius:6px; overflow:hidden; position:relative;">
-          <div style="height:100%; width:96.5%; background:linear-gradient(90deg,#6366f1,#8b5cf6); border-radius:6px; display:flex; align-items:center; justify-content:flex-end; padding-right:12px;">
-            <span style="font:700 14px var(--font-mono); color:#fff;">0.926</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">
-        <div style="width:140px; font-size:13px; color:rgba(255,255,255,0.6); text-align:right;">OpenAI TE3</div>
-        <div style="flex:1; height:32px; background:rgba(255,255,255,0.03); border-radius:6px; overflow:hidden; position:relative;">
-          <div style="height:100%; width:100%; background:linear-gradient(90deg,#52525b,#71717a); border-radius:6px; display:flex; align-items:center; justify-content:flex-end; padding-right:12px;">
-            <span style="font:700 14px var(--font-mono); color:#fff;">0.960</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="text-align:right; font-size:12px; color:rgba(255,255,255,0.25); margin-top:6px;">Zero provider API calls. 97% of OpenAI quality.</div>
+<!-- ═══ BENCHMARK PROOF ═══ -->
+<section style="position:relative; z-index:1; padding:0 24px 48px;">
+  <div class="container reveal" style="max-width:1000px;">
+    <div style="text-align:center; margin-bottom:28px;">
+      <span style="font-family:var(--font-mono); font-size:11px; font-weight:600; color:var(--accent); letter-spacing:0.08em; text-transform:uppercase;">Proven on real retrieval benchmarks</span>
     </div>
 
-    <!-- Cost per 100 queries -->
-    <div style="margin-bottom:40px;">
-      <div style="font-family:var(--font-mono); font-size:11px; font-weight:600; color:rgba(255,255,255,0.4); letter-spacing:0.06em; margin-bottom:16px;">COST PER 100 QUERIES</div>
+    <div class="bench-chart-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start;">
 
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">
-        <div style="width:140px; font-size:13px; color:rgba(255,255,255,0.6); text-align:right;">Qwen3→TE3 <span style="color:#10b981;">q=0</span></div>
-        <div style="flex:1; height:32px; background:rgba(255,255,255,0.03); border-radius:6px; overflow:hidden; position:relative;">
-          <div style="height:100%; width:0.33%; min-width:80px; background:linear-gradient(90deg,#10b981,#34d399); border-radius:6px; display:flex; align-items:center; padding-left:12px;">
-            <span style="font:700 14px var(--font-mono); color:#fff; white-space:nowrap;">$0.00005</span>
-          </div>
+      <!-- HotpotQA chart -->
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="height:280px; overflow:hidden;"><img src="img/hotpotqa_mrr.png" alt="HotpotQA MRR@10 vs Quality Threshold" style="width:100%; height:100%; object-fit:cover; object-position:center top; display:block;"></div>
+        <div style="padding:12px 16px;">
+          <div style="font-size:13px; font-weight:600; color:var(--text-primary);">HotpotQA — quality routing closes the gap to OpenAI</div>
         </div>
       </div>
 
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">
-        <div style="width:140px; font-size:13px; color:rgba(255,255,255,0.6); text-align:right;">MiniLM→TE3 <span style="color:#6366f1;">q=0</span></div>
-        <div style="flex:1; height:32px; background:rgba(255,255,255,0.03); border-radius:6px; overflow:hidden; position:relative;">
-          <div style="height:100%; width:0.54%; min-width:80px; background:linear-gradient(90deg,#6366f1,#8b5cf6); border-radius:6px; display:flex; align-items:center; padding-left:12px;">
-            <span style="font:700 14px var(--font-mono); color:#fff; white-space:nowrap;">$0.00008</span>
-          </div>
+      <!-- NQ chart -->
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="height:280px; overflow:hidden;"><img src="img/nq_recall.png" alt="Natural Questions R@1 and R@10" style="width:100%; height:100%; object-fit:cover; object-position:center top; display:block;"></div>
+        <div style="padding:12px 16px;">
+          <div style="font-size:13px; font-weight:600; color:var(--text-primary);">Natural Questions — 0.97 R@10 vs OpenAI's 0.98</div>
         </div>
       </div>
 
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">
-        <div style="width:140px; font-size:13px; color:rgba(255,255,255,0.6); text-align:right;">OpenAI TE3</div>
-        <div style="flex:1; height:32px; background:rgba(255,255,255,0.03); border-radius:6px; overflow:hidden; position:relative;">
-          <div style="height:100%; width:100%; background:linear-gradient(90deg,#ef4444,#f87171); border-radius:6px; display:flex; align-items:center; justify-content:flex-end; padding-right:12px;">
-            <span style="font:700 14px var(--font-mono); color:#fff;">$0.01408</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="text-align:right; font-size:12px; color:rgba(255,255,255,0.25); margin-top:6px;">Adapters are nearly invisible at this scale. <span style="color:#10b981; font-weight:600;">176× cheaper.</span></div>
     </div>
 
-    <!-- Latency -->
-    <div style="margin-bottom:24px;">
-      <div style="font-family:var(--font-mono); font-size:11px; font-weight:600; color:rgba(255,255,255,0.4); letter-spacing:0.06em; margin-bottom:16px;">LATENCY — 10 TEXTS</div>
-
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">
-        <div style="width:140px; font-size:13px; color:rgba(255,255,255,0.6); text-align:right;">MiniLM→TE3</div>
-        <div style="flex:1; height:32px; background:rgba(255,255,255,0.03); border-radius:6px; overflow:hidden; position:relative;">
-          <div style="height:100%; width:5%; min-width:70px; background:linear-gradient(90deg,#6366f1,#8b5cf6); border-radius:6px; display:flex; align-items:center; padding-left:12px;">
-            <span style="font:700 14px var(--font-mono); color:#fff; white-space:nowrap;">50ms</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">
-        <div style="width:140px; font-size:13px; color:rgba(255,255,255,0.6); text-align:right;">Qwen3→TE3</div>
-        <div style="flex:1; height:32px; background:rgba(255,255,255,0.03); border-radius:6px; overflow:hidden; position:relative;">
-          <div style="height:100%; width:14%; min-width:70px; background:linear-gradient(90deg,#10b981,#34d399); border-radius:6px; display:flex; align-items:center; padding-left:12px;">
-            <span style="font:700 14px var(--font-mono); color:#fff; white-space:nowrap;">142ms</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">
-        <div style="width:140px; font-size:13px; color:rgba(255,255,255,0.6); text-align:right;">OpenAI API</div>
-        <div style="flex:1; height:32px; background:rgba(255,255,255,0.03); border-radius:6px; overflow:hidden; position:relative;">
-          <div style="height:100%; width:100%; background:linear-gradient(90deg,#ef4444,#f87171); border-radius:6px; display:flex; align-items:center; justify-content:flex-end; padding-right:12px;">
-            <span style="font:700 14px var(--font-mono); color:#fff;">~800–1200ms</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="text-align:right; font-size:12px; color:rgba(255,255,255,0.25); margin-top:6px;">Local inference. No network. No rate limits. <span style="color:#6366f1; font-weight:600;">16× faster.</span></div>
-    </div>
-
-    <div style="text-align:center; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06);">
-      <a href="benchmarks.html" style="color:#60a5fa; font-size:14px; font-weight:600; text-decoration:none;">Full benchmark results on HotpotQA + Natural Questions →</a>
-    </div>
-
-  </div>
-</section>
-
-
-<!-- ═══ HOW IT WORKS ═══ -->
-<section class="how-section" id="how">
-  <div class="container reveal">
-    <span class="section-label">How it works</span>
-    <h2 class="section-title">Embed locally. Score confidence.<br>Route intelligently.</h2>
-    <p class="section-desc" style="margin: 16px auto 0;">Each adapter is a lightweight neural network trained on millions of text pairs. A built-in quality head scores every query individually — high-confidence embeddings stay local, low-confidence ones route to the provider. You control the threshold.</p>
-
-    <div class="how-flow">
-      <div class="how-step">
-        <div class="how-step-num">1</div>
-        <h4>Encode locally</h4>
-        <p>Your text hits a fast local model (MiniLM at 18K tok/s or Qwen3-0.6B for higher accuracy). No network call, no rate limits.</p>
-        <div class="how-arrow">→</div>
-      </div>
-      <div class="how-step">
-        <div class="how-step-num">2</div>
-        <h4>Adapt + score</h4>
-        <p>The adapter transforms the embedding into provider-compatible space and scores confidence in the same forward pass. One number tells you how reliable this translation is.</p>
-        <div class="how-arrow">→</div>
-      </div>
-      <div class="how-step">
-        <div class="how-step-num">3</div>
-        <h4>Route intelligently</h4>
-        <p>High-confidence queries go straight to your index at $0. Low-confidence queries re-embed via the provider — one API call, only when needed.</p>
-      </div>
+    <div style="text-align:center; margin-top:20px;">
+      <a href="benchmarks.html" style="font-size:13px; font-weight:600; color:var(--accent-light); text-decoration:none;">See full benchmark results →</a>
     </div>
   </div>
 </section>
 
 
+<!-- ═══ VALUE PROPS ═══ -->
+<section style="position:relative; z-index:1; padding:0 24px 56px;">
+  <div class="container reveal" style="max-width:1000px;">
+    <div class="value-prop-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px;">
 
-<!-- ═══ FEATURES ═══ -->
-<section id="features">
-  <div class="container reveal">
-    <span class="section-label">Why teams switch</span>
-    <h2 class="section-title">Provider-compatible quality.<br>Local-grade speed.</h2>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:32px 28px; text-align:center;">
+        <div style="font-size:32px; margin-bottom:12px;">⚡</div>
+        <div style="font-size:17px; font-weight:700; color:var(--text-primary); margin-bottom:8px;">Embed millions of documents in minutes</div>
+        <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">18,000 tokens/second on a single GPU. Process your entire corpus locally without waiting on API rate limits or paying per-token.</p>
+      </div>
 
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">🏎️</div>
-        <div>
-          <h4>Extreme throughput</h4>
-          <p>MiniLM→TE3: 18,000 tok/s, 50ms for 10 texts, 8,192 texts in under 6 seconds — on a single laptop GPU. 16 concurrent users, 1,520 texts/second peak. No batching queues, no cold starts.</p>
-        </div>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:32px 28px; text-align:center;">
+        <div style="font-size:32px; margin-bottom:12px;">🎯</div>
+        <div style="font-size:17px; font-weight:700; color:var(--text-primary); margin-bottom:8px;">Use confidence scores for intelligent routing</div>
+        <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">Every text gets a quality score. High-confidence embeddings stay local. Low-confidence ones route to the provider. You control the threshold per-request.</p>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">🎛️</div>
-        <div>
-          <h4>A router, not a replacement</h4>
-          <p>quality=0 runs everything locally. quality=50 routes the bottom half to the provider. quality=100 sends everything upstream. One parameter, infinite flexibility. The quality head decides per-text, not per-batch.</p>
-        </div>
+
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:32px 28px; text-align:center;">
+        <div style="font-size:32px; margin-bottom:12px;">🧠</div>
+        <div style="font-size:17px; font-weight:700; color:var(--text-primary); margin-bottom:8px;">Train your own adapters for better retrieval</div>
+        <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">Base adapters not perfect for your domain? Create a custom LoRA that learns from provider fallbacks. Accuracy improves over time, routing costs drop.</p>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">🌐</div>
-        <div>
-          <h4>Multi-provider</h4>
-          <p>OpenAI text-embedding-3-large today. Cohere, Voyage, Jina, and more on the roadmap. Same adapter architecture, same API, same quality routing. Your index never changes.</p>
-        </div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <div>
-          <h4>Calibrate before you commit</h4>
-          <p>The <a href="docs.html#calibrate_doc" style="color:#60a5fa;">/v1/quality/calibrate</a> endpoint analyzes your data and tells you: quality grade, routing breakdown at every level, and the exact setting to use. No guessing.</p>
-        </div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🧠</div>
-        <div>
-          <h4>Two source models</h4>
-          <p>MiniLM→TE3 for raw speed (22M params, 18K tok/s). Qwen3-0.6B→TE3 for higher accuracy (600M params, reaches provider parity at lower thresholds). Same API, same output dimensions.</p>
-        </div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🔧</div>
-        <div>
-          <h4>Custom domain adapters</h4>
-          <p>Base adapter scoring poorly on your data? Create a LoRA that auto-learns from provider fallbacks. Every routed query becomes a training signal. Accuracy improves, routing decreases, costs drop.</p>
-        </div>
-      </div>
+
     </div>
   </div>
 </section>
@@ -2000,7 +1889,7 @@ footer {
 <section class="cta-section">
   <div class="cta-box reveal">
     <h2>Stop paying per-query for embeddings</h2>
-    <p>Run provider-compatible embeddings locally at 18,000 tok/s. Smart routing handles the edge cases. Your index stays exactly the same.</p>
+    <p>Run provider-grade embeddings locally at 18,000 tok/s. Smart routing handles the edge cases. Your index stays exactly the same.</p>
     <div class="cta-actions">
       <a href="dashboard.html" class="btn-primary">
         Try the API
@@ -2020,16 +1909,16 @@ footer {
     <div class="enterprise-card">
       <div class="enterprise-content">
         <span class="enterprise-label">For teams & enterprises</span>
-        <h3>Custom adapters trained on your data</h3>
-        <p>Base adapters handle general text at 97% of provider quality. But your domain — legal, medical, code, multilingual — has its own embedding geometry. A custom LoRA adapter trained on your corpus pushes accuracy higher and routes fewer queries to the provider, cutting costs further.</p>
+        <h3>Custom adapters for your domain and provider</h3>
+        <p>The base adapters handle general text at 97% of provider quality. But specialized domains — legal, medical, code, multilingual — deserve custom training. A domain-specific LoRA adapter pushes accuracy higher and routes fewer queries to the provider, cutting costs further.</p>
         <ul class="enterprise-list">
           <li>Custom LoRA training on your corpus</li>
-          <li>Any source model → any target provider</li>
-          <li>Self-hosted or managed API with SLA</li>
-          <li>Dedicated deployment &amp; priority support</li>
+          <li>Support for any target provider</li>
+          <li>Dedicated deployment & SLA</li>
+          <li>Self-hosted or managed API</li>
         </ul>
         <a href="commercial.html" class="btn-enterprise">
-          Talk to us
+          Commercial inquiries
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4l-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
       </div>
@@ -2081,6 +1970,7 @@ footer {
         <a href="how.html">How It Works</a>
         <a href="benchmarks.html">Benchmarks</a>
         <a href="dashboard.html">API Dashboard</a>
+        <a href="docs.html">API Documentation</a>
       </div>
       <div class="footer-col">
         <h4>Resources</h4>
@@ -2144,18 +2034,6 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.15 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-// Immediately reveal elements already in viewport on load, with stagger
-requestAnimationFrame(() => {
-  let delay = 600; // start after hero animations finish
-  document.querySelectorAll('.reveal:not(.visible)').forEach(el => {
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight) {
-      setTimeout(() => el.classList.add('visible'), delay);
-      delay += 120;
-    }
-  });
-});
 
 // ═══ CONTACT FORM (FormSubmit.co AJAX) ═══
 document.getElementById('contactForm').addEventListener('submit', async function(e) {
