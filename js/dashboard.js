@@ -67,6 +67,7 @@ function renderSidebar() {
   const sb = $("#sidebar");
   const tabs = [
     { id: "overview", icon: "◈", label: "Overview" },
+    { id: "apidocs", icon: "↗", label: "API Docs" },
     { id: "keys", icon: "⚿", label: "API Keys" },
     { id: "billing", icon: "◎", label: "Billing" },
     { id: "models", icon: "◇", label: "Models" },
@@ -86,9 +87,6 @@ function renderSidebar() {
           <span class="icon">${t.icon}</span> ${t.label}
         </button>
       `).join("")}
-      <a href="docs.html" class="sidebar-item" style="text-decoration:none;">
-        <span class="icon">◆</span> Documentation
-      </a>
       <a href="benchmarks.html" class="sidebar-item" style="text-decoration:none;">
         <span class="icon">▦</span> Benchmarks
       </a>
@@ -105,6 +103,7 @@ function renderTab() {
   main.className = "main-content fade-in";
   switch (currentTab) {
     case "overview": renderOverview(main); break;
+    case "apidocs": renderApiDocs(main); break;
     case "keys": renderKeys(main); break;
     case "billing": renderBilling(main); break;
     case "models": renderModels(main); break;
@@ -566,6 +565,299 @@ async function subscribeModel(modelId, stripePriceId) {
   } catch (e) {
     alert("Failed to start checkout. Please try again.");
   }
+}
+
+// ── API Docs ──
+function renderApiDocs(el) {
+  const key = userData?.api_key || "YOUR_API_KEY";
+  const base = API_BASE;
+
+  el.innerHTML = `
+    <h2 style="font-size:22px; font-weight:800; margin-bottom:8px;">API Documentation</h2>
+    <p style="font-size:14px; color:#a1a1aa; margin-bottom:24px; line-height:1.6;">Your API key is pre-filled in all examples below. Copy and run.</p>
+
+    <div class="card" style="margin-bottom:20px; border-color:#3b82f630;">
+      <div class="card-header" style="border-color:#3b82f620;"><h3>POST /v1/embed</h3></div>
+      <div class="card-body">
+        <p style="font-size:13px; color:#a1a1aa; line-height:1.6; margin-bottom:16px;">
+          Send texts (or pre-computed embeddings for reverse adapters), receive base64-encoded float32 vectors.
+        </p>
+        <table class="table mono" style="font-size:12px; margin-bottom:16px;">
+          <thead><tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="green">texts</td><td>string[]</td><td>—</td><td>Texts to embed. Required for forward adapters.</td></tr>
+            <tr><td class="green">model</td><td>string</td><td>minilm-te3-adapted</td><td>Model ID (see below).</td></tr>
+            <tr><td class="green">quality</td><td>int</td><td>0</td><td>0–100. Quality routing threshold.</td></tr>
+            <tr><td class="green">embeddings_b64</td><td>string</td><td>—</td><td>Base64 float32 embeddings. Required for reverse adapters.</td></tr>
+            <tr><td class="green">include_quality</td><td>bool</td><td>false</td><td>Return per-text quality scores.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>minilm-te3-adapted</h3></div>
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <div style="font-size:15px; font-weight:700;">sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large</div>
+            <div style="font-size:12px; color:#71717a;">384d → 3072d · 18,000 tok/s · $0.065/1M tokens</div>
+          </div>
+        </div>
+        ${tabbedCodeBlock([
+          { lang:"python", label:"Python", code: `import requests, base64, numpy as np
+
+resp = requests.post("${base}/v1/embed",
+    headers={"Authorization": "Bearer ${key}"},
+    json={
+        "texts": ["NASA discovers new exoplanet", "Help me find my keys"],
+        "model": "minilm-te3-adapted",
+        "quality": 0,
+    })
+
+data = resp.json()
+embs = np.frombuffer(
+    base64.b64decode(data["embeddings_b64"]),
+    dtype=np.float32
+).reshape(data["n"], data["dim"])
+
+print(f"Shape: {embs.shape}")         # (2, 3072)
+print(f"Cost:  \${data['usage']['cost']}")` },
+          { lang:"bash", label:"cURL", code: `curl -X POST ${base}/v1/embed \\
+  -H "Authorization: Bearer ${key}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"texts": ["NASA discovers new exoplanet"], "model": "minilm-te3-adapted", "quality": 0}'` },
+        ])}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>qwen06b-te3-adapted</h3></div>
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <div style="font-size:15px; font-weight:700;">Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large</div>
+            <div style="font-size:12px; color:#71717a;">1024d → 3072d · 1,200 tok/s · $0.040/1M tokens · Higher accuracy</div>
+          </div>
+        </div>
+        ${tabbedCodeBlock([
+          { lang:"python", label:"Python", code: `import requests, base64, numpy as np
+
+resp = requests.post("${base}/v1/embed",
+    headers={"Authorization": "Bearer ${key}"},
+    json={
+        "texts": ["Quantum computing uses qubits for parallel computation"],
+        "model": "qwen06b-te3-adapted",
+        "quality": 30,   # route 30% lowest-confidence to OpenAI
+    })
+
+data = resp.json()
+embs = np.frombuffer(
+    base64.b64decode(data["embeddings_b64"]),
+    dtype=np.float32
+).reshape(data["n"], data["dim"])
+
+print(f"Shape: {embs.shape}")  # (1, 3072)
+print(f"Adapted: {data['usage']['adapted']}, Routed: {data['usage']['reembedded']}")` },
+          { lang:"bash", label:"cURL", code: `curl -X POST ${base}/v1/embed \\
+  -H "Authorization: Bearer ${key}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"texts": ["Quantum computing uses qubits"], "model": "qwen06b-te3-adapted", "quality": 30}'` },
+        ])}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>te3-qwen3-8b-adapted</h3></div>
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <div style="font-size:15px; font-weight:700;">openai/text-embedding-3-large → Qwen/Qwen3-Embedding-8B</div>
+            <div style="font-size:12px; color:#71717a;">3072d → 4096d · Reverse adapter · Send embeddings_b64 instead of texts</div>
+          </div>
+        </div>
+        ${tabbedCodeBlock([
+          { lang:"python", label:"Python", code: `import requests, base64, numpy as np
+
+# You already have TE3 embeddings (e.g. from OpenAI)
+te3_embs = np.random.randn(3, 3072).astype(np.float32)
+
+resp = requests.post("${base}/v1/embed",
+    headers={"Authorization": "Bearer ${key}"},
+    json={
+        "model": "te3-qwen3-8b-adapted",
+        "embeddings_b64": base64.b64encode(te3_embs.tobytes()).decode(),
+        "texts": ["query 1", "query 2", "query 3"],  # optional, for quality routing
+        "quality": 30,
+    })
+
+data = resp.json()
+qwen_embs = np.frombuffer(
+    base64.b64decode(data["embeddings_b64"]),
+    dtype=np.float32
+).reshape(data["n"], data["dim"])
+
+print(f"Shape: {qwen_embs.shape}")  # (3, 4096)` },
+          { lang:"bash", label:"cURL", code: `curl -X POST ${base}/v1/embed \\
+  -H "Authorization: Bearer ${key}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"model": "te3-qwen3-8b-adapted", "embeddings_b64": "<base64>", "quality": 30}'` },
+        ])}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>all-MiniLM-L6-v2 (raw)</h3></div>
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <div style="font-size:15px; font-weight:700;">sentence-transformers/all-MiniLM-L6-v2 — No adapter</div>
+            <div style="font-size:12px; color:#71717a;">384d · $0.010/1M tokens · Not TE3-compatible · For prototyping</div>
+          </div>
+        </div>
+        ${codeBlock("bash", `curl -X POST ${base}/v1/embed \\
+  -H "Authorization: Bearer ${key}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"texts": ["Hello world"], "model": "all-MiniLM-L6-v2"}'`)}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px; border-color:#3b82f630;">
+      <div class="card-header" style="border-color:#3b82f620;"><h3>Python SDK — Local Inference</h3></div>
+      <div class="card-body">
+        <p style="font-size:13px; color:#a1a1aa; line-height:1.6; margin-bottom:16px;">
+          Run adapters on your own GPU. No API calls after license validation (cached 24hrs).
+        </p>
+        ${codeBlock("bash", `pip install embedding-adapters
+embedding-adapters login   # paste your API key: ${key.slice(0, 12)}...`)}
+
+        <div style="font-size:13px; font-weight:700; color:#a1a1aa; margin:16px 0 8px;">v2: MiniLM → openai/text-embedding-3-large ($10/month)</div>
+        ${codeBlock("python", `from sentence_transformers import SentenceTransformer
+from embedding_adapters import EmbeddingAdapter
+
+src = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+
+adapter = EmbeddingAdapter.from_registry(
+    source="sentence-transformers/all-MiniLM-L6-v2",
+    target="openai/text-embedding-3-large",
+    flavor="v2",
+    device="cuda",
+)
+
+embs = src.encode(["Hello world"], normalize_embeddings=True)
+translated = adapter.encode_embeddings(embs)
+print(translated.shape)  # (1, 3072)
+
+# Built-in quality head
+_, quality = adapter.score_v2(embs)
+print(quality)  # [0.74]`)}
+
+        <div style="font-size:13px; font-weight:700; color:#a1a1aa; margin:16px 0 8px;">v1: MiniLM → openai/text-embedding-3-small (free)</div>
+        ${codeBlock("python", `adapter = EmbeddingAdapter.from_registry(
+    source="sentence-transformers/all-MiniLM-L6-v2",
+    target="openai/text-embedding-3-small",
+    flavor="large",
+    device="cuda",
+)
+
+translated = adapter.encode_embeddings(embs)
+print(translated.shape)  # (1, 1536)`)}
+
+        <div style="font-size:13px; font-weight:700; color:#a1a1aa; margin:16px 0 8px;">v1: E5-base-v2 → openai/text-embedding-3-small (free)</div>
+        ${codeBlock("python", `from sentence_transformers import SentenceTransformer
+from embedding_adapters import EmbeddingAdapter
+
+src = SentenceTransformer("intfloat/e5-base-v2")
+adapter = EmbeddingAdapter.from_registry(
+    source="intfloat/e5-base-v2",
+    target="openai/text-embedding-3-small",
+    flavor="small",
+    device="cuda",
+)
+
+embs = src.encode(["Hello world"], normalize_embeddings=True)
+translated = adapter.encode_embeddings(embs)
+print(translated.shape)  # (1, 1536)`)}
+
+        <div style="font-size:13px; font-weight:700; color:#a1a1aa; margin:16px 0 8px;">v1: MiniLM → intfloat/e5-base-v2 (free)</div>
+        ${codeBlock("python", `adapter = EmbeddingAdapter.from_registry(
+    source="sentence-transformers/all-MiniLM-L6-v2",
+    target="intfloat/e5-base-v2",
+    flavor="large",
+    device="cuda",
+)
+
+translated = adapter.encode_embeddings(embs)
+print(translated.shape)  # (1, 768)`)}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>Quality Routing</h3></div>
+      <div class="card-body">
+        <p style="font-size:13px; color:#a1a1aa; line-height:1.6; margin-bottom:12px;">
+          The <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">quality</code> parameter controls how aggressively low-confidence texts get re-embedded by the provider.
+        </p>
+        <table class="table mono" style="font-size:12px; margin-bottom:12px;">
+          <thead><tr><th>quality</th><th>Behavior</th></tr></thead>
+          <tbody>
+            <tr><td class="green">0</td><td>Everything local. Zero provider calls. Cheapest.</td></tr>
+            <tr><td class="green">30</td><td>~8-21% routed to provider. Good balance.</td></tr>
+            <tr><td class="green">50</td><td>~17-56% routed. Higher quality.</td></tr>
+            <tr><td class="green">70</td><td>~44-82% routed. Near-provider quality.</td></tr>
+            <tr><td class="green">100</td><td>Everything routed to provider.</td></tr>
+          </tbody>
+        </table>
+        ${codeBlock("python", `resp = requests.post("${base}/v1/embed",
+    headers={"Authorization": "Bearer ${key}"},
+    json={
+        "texts": ["complex medical terminology query"],
+        "model": "qwen06b-te3-adapted",
+        "quality": 50,
+        "include_quality": True,
+    })
+
+data = resp.json()
+print(data["quality_scores"])  # [0.42] — this one was routed to OpenAI`)}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>Decode Response</h3></div>
+      <div class="card-body">
+        ${codeBlock("python", `import base64, numpy as np
+
+# Response contains base64-encoded float32 vectors
+data = resp.json()
+embs = np.frombuffer(
+    base64.b64decode(data["embeddings_b64"]),
+    dtype=np.float32
+).reshape(data["n"], data["dim"])
+
+print(f"Shape: {embs.shape}")              # (N, 3072) or (N, 4096)
+print(f"Tokens: {data['usage']['tokens']}")
+print(f"Cost: \${data['usage']['cost']}")
+print(f"Adapted: {data['usage']['adapted']}")
+print(f"Routed: {data['usage']['reembedded']}")`)}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Errors</h3></div>
+      <div class="card-body">
+        <table class="table mono" style="font-size:12px;">
+          <thead><tr><th>Status</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td style="color:#f59e0b;">401</td><td style="color:#ef4444;">authentication</td><td>Missing or invalid API key</td></tr>
+            <tr><td style="color:#f59e0b;">402</td><td style="color:#ef4444;">insufficient_balance</td><td>Add credits in Billing tab</td></tr>
+            <tr><td style="color:#f59e0b;">400</td><td style="color:#ef4444;">validation</td><td>Invalid request body (empty texts, bad model, etc.)</td></tr>
+            <tr><td style="color:#f59e0b;">429</td><td style="color:#ef4444;">rate_limit</td><td>Too many requests. Slow down.</td></tr>
+            <tr><td style="color:#f59e0b;">500</td><td style="color:#ef4444;">internal</td><td>Server error. Try again.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
 }
 
 // ── Adapters ──
