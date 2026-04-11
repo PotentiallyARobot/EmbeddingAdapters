@@ -213,8 +213,8 @@ print(f"Shape: {qwen_embs.shape}")  # (3, 4096) — Qwen3-8B-compatible`)}
           <tbody>
             <tr><td class="green">minilm-te3-adapted</td><td>MiniLM → TE3</td><td>3072d</td><td>18K tok/s</td><td>texts</td></tr>
             <tr><td class="green">qwen06b-te3-adapted</td><td>Qwen3-0.6B → TE3</td><td>3072d</td><td>1.2K tok/s</td><td>texts</td></tr>
-            <tr><td class="green">te3-qwen3-8b-adapted</td><td>TE3 → Qwen3-8B</td><td>4096d</td><td>—</td><td>embeddings_b64</td></tr>
-            <tr><td class="green">all-MiniLM-L6-v2</td><td>Raw (no adapter)</td><td>384d</td><td>18K tok/s</td><td>texts</td></tr>
+            <tr><td class="green">te3-qwen3-8b-adapted</td><td>openai/text-embedding-3-large → Qwen/Qwen3-Embedding-8B</td><td>4096d</td><td>—</td><td>embeddings_b64</td></tr>
+            <tr><td class="green">sentence-transformers/all-MiniLM-L6-v2</td><td>Raw (no adapter)</td><td>384d</td><td>18K tok/s</td><td>texts</td></tr>
           </tbody>
         </table>
         <p style="font-size:12px; color:#52525b; margin-top:8px;">See <a href="#" onclick="switchDoc('models_ref'); return false;" style="color:#3b82f6;">Models Reference</a> for full details.</p>
@@ -521,16 +521,16 @@ function renderDocPaths() {
         <table class="table mono" style="font-size:12px;">
           <thead><tr><th>From</th><th></th><th>To</th><th>Flavors</th><th>Access</th></tr></thead>
           <tbody>
-            <tr><td style="color:#6366f1;">MiniLM-L6-v2</td><td>→</td><td style="color:#3b82f6;">OpenAI TE3-small</td><td>medium, large, vlarge, generic</td><td>Public</td></tr>
-            <tr><td style="color:#6366f1;">MiniLM-L6-v2</td><td>→</td><td style="color:#ef4444;">OpenAI TE3-large</td><td>adapted (API)</td><td>Public</td></tr>
-            <tr><td style="color:#6366f1;">MiniLM-L6-v2</td><td>→</td><td style="color:#10b981;">E5-base-v2</td><td>large</td><td>Public</td></tr>
-            <tr><td style="color:#6366f1;">MiniLM-L6-v2</td><td>→</td><td style="color:#8b5cf6;">Gemini TE-004</td><td>generic</td><td style="color:#3b82f6;">PRO</td></tr>
-            <tr style="border-top:1px solid #1c1c26;"><td style="color:#10b981;">E5-base-v2</td><td>→</td><td style="color:#3b82f6;">OpenAI TE3-small</td><td>small, linear, large, generic</td><td>Mixed</td></tr>
-            <tr><td style="color:#10b981;">E5-base-v2</td><td>→</td><td style="color:#8b5cf6;">Gemini TE-004</td><td>generic</td><td style="color:#3b82f6;">PRO</td></tr>
-            <tr style="border-top:1px solid #1c1c26;"><td style="color:#f59e0b;">Qwen3-0.6B</td><td>→</td><td style="color:#ef4444;">OpenAI TE3-large</td><td>adapted (API)</td><td>Public</td></tr>
-            <tr style="border-top:1px solid #1c1c26;"><td style="color:#3b82f6;">OpenAI TE3-small</td><td>→</td><td style="color:#8b5cf6;">Gemini TE-004</td><td>generic</td><td style="color:#3b82f6;">PRO</td></tr>
-            <tr><td style="color:#ef4444;">OpenAI TE3-large</td><td>→</td><td style="color:#ec4899;">Qwen3-Embed-8B</td><td>adapted (API)</td><td>Public</td></tr>
-            <tr><td style="color:#8b5cf6;">Gemini TE-004</td><td>→</td><td style="color:#10b981;">E5-base-v2</td><td>generic</td><td style="color:#3b82f6;">PRO</td></tr>
+            <tr><td style="color:#6366f1;">sentence-transformers/all-MiniLM-L6-v2</td><td>→</td><td style="color:#3b82f6;">openai/text-embedding-3-small</td><td>medium, large, vlarge, generic</td><td>Public</td></tr>
+            <tr><td style="color:#6366f1;">sentence-transformers/all-MiniLM-L6-v2</td><td>→</td><td style="color:#ef4444;">openai/text-embedding-3-large</td><td>adapted (API)</td><td>Public</td></tr>
+            <tr><td style="color:#6366f1;">sentence-transformers/all-MiniLM-L6-v2</td><td>→</td><td style="color:#10b981;">intfloat/e5-base-v2</td><td>large</td><td>Public</td></tr>
+            <tr><td style="color:#6366f1;">sentence-transformers/all-MiniLM-L6-v2</td><td>→</td><td style="color:#8b5cf6;">google/text-embedding-004</td><td>generic</td><td style="color:#3b82f6;">PRO</td></tr>
+            <tr style="border-top:1px solid #1c1c26;"><td style="color:#10b981;">intfloat/e5-base-v2</td><td>→</td><td style="color:#3b82f6;">openai/text-embedding-3-small</td><td>small, linear, large, generic</td><td>Mixed</td></tr>
+            <tr><td style="color:#10b981;">intfloat/e5-base-v2</td><td>→</td><td style="color:#8b5cf6;">google/text-embedding-004</td><td>generic</td><td style="color:#3b82f6;">PRO</td></tr>
+            <tr style="border-top:1px solid #1c1c26;"><td style="color:#f59e0b;">Qwen/Qwen3-Embedding-0.6B</td><td>→</td><td style="color:#ef4444;">openai/text-embedding-3-large</td><td>adapted (API)</td><td>Public</td></tr>
+            <tr style="border-top:1px solid #1c1c26;"><td style="color:#3b82f6;">openai/text-embedding-3-small</td><td>→</td><td style="color:#8b5cf6;">google/text-embedding-004</td><td>generic</td><td style="color:#3b82f6;">PRO</td></tr>
+            <tr><td style="color:#ef4444;">openai/text-embedding-3-large</td><td>→</td><td style="color:#ec4899;">Qwen/Qwen3-Embedding-8B</td><td>adapted (API)</td><td>Public</td></tr>
+            <tr><td style="color:#8b5cf6;">google/text-embedding-004</td><td>→</td><td style="color:#10b981;">intfloat/e5-base-v2</td><td>generic</td><td style="color:#3b82f6;">PRO</td></tr>
           </tbody>
         </table>
       </div>
@@ -584,7 +584,7 @@ print(te3_embs.shape)  # (1, 1536) — OpenAI TE3-small compatible`)}
           </div>
           <div style="display:flex; gap:12px; margin-bottom:12px; align-items:flex-start;">
             <div style="min-width:24px; height:24px; border-radius:50%; background:#3b82f620; color:#3b82f6; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">3</div>
-            <div><strong style="color:#d4d4d8;">Already have provider embeddings?</strong> Use a reverse/cross-provider adapter. TE3-large → Qwen3-8B, OpenAI → Gemini, etc.</div>
+            <div><strong style="color:#d4d4d8;">Already have provider embeddings?</strong> Use a reverse/cross-provider adapter. openai/text-embedding-3-large → Qwen/Qwen3-Embedding-8B, openai → google/text-embedding-004, etc.</div>
           </div>
           <div style="display:flex; gap:12px; align-items:flex-start;">
             <div style="min-width:24px; height:24px; border-radius:50%; background:#3b82f620; color:#3b82f6; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">4</div>
@@ -617,7 +617,7 @@ function renderDocRegistry() {
     </div>
 
     <div class="card" style="margin-bottom:20px;">
-      <div class="card-header"><h3>MiniLM → OpenAI TE3-small</h3></div>
+      <div class="card-header"><h3>sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-small</h3></div>
       <div class="card-body">
         <p style="font-size:13px; color:#71717a; margin-bottom:12px;">Translate sentence-transformers/all-MiniLM-L6-v2 (384d) → openai/text-embedding-3-small (1536d)</p>
         <table class="table mono" style="font-size:12px; margin-bottom:12px;">
@@ -639,7 +639,7 @@ function renderDocRegistry() {
     </div>
 
     <div class="card" style="margin-bottom:20px;">
-      <div class="card-header"><h3>E5-base-v2 → OpenAI TE3-small</h3></div>
+      <div class="card-header"><h3>intfloat/e5-base-v2 → openai/text-embedding-3-small</h3></div>
       <div class="card-body">
         <p style="font-size:13px; color:#71717a; margin-bottom:12px;">Translate intfloat/e5-base-v2 (768d) → openai/text-embedding-3-small (1536d)</p>
         <table class="table mono" style="font-size:12px; margin-bottom:12px;">
@@ -661,7 +661,7 @@ function renderDocRegistry() {
     </div>
 
     <div class="card" style="margin-bottom:20px;">
-      <div class="card-header"><h3>MiniLM → E5-base-v2</h3></div>
+      <div class="card-header"><h3>sentence-transformers/all-MiniLM-L6-v2 → intfloat/e5-base-v2</h3></div>
       <div class="card-body">
         <p style="font-size:13px; color:#71717a; margin-bottom:12px;">Translate sentence-transformers/all-MiniLM-L6-v2 (384d) → intfloat/e5-base-v2 (768d)</p>
         <table class="table mono" style="font-size:12px; margin-bottom:12px;">
@@ -719,9 +719,9 @@ function renderDocRegistry() {
         <table class="table mono" style="font-size:12px; margin-bottom:12px;">
           <thead><tr><th>Source → Target</th><th>Slug</th><th>Type</th></tr></thead>
           <tbody>
-            <tr><td class="green">OpenAI TE3-small → Gemini</td><td>emb_adapter_openai_text_embedding_3_small_to_gemini_text_embedding_004_linear_v1</td><td><span style="color:#3b82f6; font-weight:600;">PRO</span></td></tr>
-            <tr><td class="green">Gemini → OpenAI TE3-small</td><td>emb_adapter_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1</td><td><span style="color:#3b82f6; font-weight:600;">PRO</span></td></tr>
-            <tr><td class="green">Gemini → E5-base-v2</td><td>emb_adapter_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1</td><td><span style="color:#3b82f6; font-weight:600;">PRO</span></td></tr>
+            <tr><td class="green">openai/text-embedding-3-small → google/text-embedding-004</td><td>emb_adapter_openai_text_embedding_3_small_to_gemini_text_embedding_004_linear_v1</td><td><span style="color:#3b82f6; font-weight:600;">PRO</span></td></tr>
+            <tr><td class="green">google/text-embedding-004 → openai/text-embedding-3-small</td><td>emb_adapter_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1</td><td><span style="color:#3b82f6; font-weight:600;">PRO</span></td></tr>
+            <tr><td class="green">google/text-embedding-004 → intfloat/e5-base-v2</td><td>emb_adapter_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1</td><td><span style="color:#3b82f6; font-weight:600;">PRO</span></td></tr>
           </tbody>
         </table>
         ${codeBlock("python", `# Translate OpenAI embeddings into Gemini's space
@@ -744,12 +744,12 @@ translated = adapter.encode_embeddings(openai_embs)  # → Gemini-compatible`)}
         <table class="table mono" style="font-size:11px;">
           <thead><tr><th>Source</th><th>Target</th><th>Flavor</th><th>Type</th></tr></thead>
           <tbody>
-            <tr><td>all-MiniLM-L6-v2</td><td>openai/te3-small</td><td>medium</td><td>Public</td></tr>
-            <tr><td>all-MiniLM-L6-v2</td><td>openai/te3-small</td><td>large</td><td>Public</td></tr>
-            <tr><td>all-MiniLM-L6-v2</td><td>openai/te3-small</td><td>vlarge</td><td>Public</td></tr>
-            <tr><td>all-MiniLM-L6-v2</td><td>openai/te3-small</td><td>generic</td><td>Public</td></tr>
-            <tr><td>all-MiniLM-L6-v2</td><td>intfloat/e5-base-v2</td><td>large</td><td>Public</td></tr>
-            <tr><td>all-MiniLM-L6-v2</td><td>gemini/te-004</td><td>generic</td><td style="color:#3b82f6;">PRO</td></tr>
+            <tr><td>sentence-transformers/all-MiniLM-L6-v2</td><td>openai/te3-small</td><td>medium</td><td>Public</td></tr>
+            <tr><td>sentence-transformers/all-MiniLM-L6-v2</td><td>openai/te3-small</td><td>large</td><td>Public</td></tr>
+            <tr><td>sentence-transformers/all-MiniLM-L6-v2</td><td>openai/te3-small</td><td>vlarge</td><td>Public</td></tr>
+            <tr><td>sentence-transformers/all-MiniLM-L6-v2</td><td>openai/te3-small</td><td>generic</td><td>Public</td></tr>
+            <tr><td>sentence-transformers/all-MiniLM-L6-v2</td><td>intfloat/e5-base-v2</td><td>large</td><td>Public</td></tr>
+            <tr><td>sentence-transformers/all-MiniLM-L6-v2</td><td>gemini/te-004</td><td>generic</td><td style="color:#3b82f6;">PRO</td></tr>
             <tr><td>intfloat/e5-base-v2</td><td>openai/te3-small</td><td>small</td><td>Public</td></tr>
             <tr><td>intfloat/e5-base-v2</td><td>openai/te3-small</td><td>linear</td><td>Public</td></tr>
             <tr><td>intfloat/e5-base-v2</td><td>openai/te3-small</td><td>large</td><td style="color:#3b82f6;">PRO</td></tr>
@@ -832,7 +832,7 @@ function renderDocEmbed() {
             <tr><td class="green">model</td><td>string</td><td>Model used</td></tr>
             <tr><td class="green">embeddings_b64</td><td>string</td><td>Base64-encoded float32 array (n × dim)</td></tr>
             <tr><td class="green">n</td><td>integer</td><td>Number of embeddings returned</td></tr>
-            <tr><td class="green">dim</td><td>integer</td><td>Embedding dimensions (3072 for TE3-adapted, 4096 for Qwen3-8B-adapted, 384 for raw MiniLM)</td></tr>
+            <tr><td class="green">dim</td><td>integer</td><td>Embedding dimensions (3072 for text-embedding-3-large adapted, 4096 for Qwen3-Embedding-8B adapted, 384 for raw MiniLM)</td></tr>
             <tr><td class="green">quality_scores</td><td>float[]</td><td>Per-text confidence (only if include_quality=true)</td></tr>
             <tr><td class="green">usage.tokens</td><td>integer</td><td>Tokens consumed</td></tr>
             <tr><td class="green">usage.adapted</td><td>integer</td><td>Texts handled by local adapter</td></tr>
@@ -1099,147 +1099,229 @@ adapter_id = resp.json()["id"]`)}
 function renderDocModelsRef() {
   return `
     <h2 style="font-size:22px; font-weight:800; margin-bottom:6px;">Models Reference</h2>
-    <p style="font-size:14px; color:#52525b; margin-bottom:24px;">Available models and their specifications.</p>
+    <p style="font-size:14px; color:#52525b; margin-bottom:24px;">Every adapter available — API server models and Python SDK registry adapters.</p>
 
-    <div class="card" style="margin-bottom:20px;">
-      <div class="card-header"><h3>Forward Adapters — Source → TE3</h3></div>
-      <div class="card-body">
-        <p style="font-size:13px; color:#71717a; line-height:1.6; margin-bottom:16px;">Run a local model, get TE3-compatible embeddings. Send <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">texts</code> and receive 3072-d vectors that drop into any TE3 index.</p>
-      </div>
-    </div>
+    <!-- ═══ V2: API SERVER MODELS ═══ -->
+    <div style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; color:#3b82f6; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:12px; padding-top:8px;">v2 — API Server Models</div>
+    <p style="font-size:13px; color:#71717a; line-height:1.6; margin-bottom:20px;">Run via the hosted API or local <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">main.py</code> server. Use <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">POST /v1/embed</code> with the model ID.</p>
 
     <div class="card" style="margin-bottom:20px;">
       <div class="card-header"><h3>minilm-te3-adapted</h3></div>
       <div class="card-body">
-        <div class="flex justify-between items-center" style="margin-bottom:12px;">
-          <div style="font-size:16px; font-weight:700;">MiniLM → TE3</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div style="font-size:16px; font-weight:700;">sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large</div>
           <div class="mono" style="color:#3b82f6; font-weight:700;">$0.065 /1M tokens</div>
         </div>
         <table class="table mono" style="font-size:12px; margin-bottom:12px;">
           <tbody>
             <tr><td style="color:#52525b; width:140px;">Source</td><td>all-MiniLM-L6-v2 (22M params, 384d)</td></tr>
             <tr><td style="color:#52525b;">Target</td><td>text-embedding-3-large (3072d)</td></tr>
-            <tr><td style="color:#52525b;">Adapter</td><td>27M param LoRA projection</td></tr>
-            <tr><td style="color:#52525b;">Speed</td><td>18,000 tok/s on a single GPU</td></tr>
+            <tr><td style="color:#52525b;">Speed</td><td>18,000 tok/s</td></tr>
             <tr><td style="color:#52525b;">Quality</td><td>93-97% of native TE3</td></tr>
-            <tr><td style="color:#52525b;">Output dim</td><td>3072</td></tr>
+            <tr><td style="color:#52525b;">Output</td><td>3072d</td></tr>
             <tr><td style="color:#52525b;">Input</td><td><code>texts</code></td></tr>
+            <tr><td style="color:#52525b;">Routing</td><td>Low-confidence → OpenAI TE3</td></tr>
           </tbody>
         </table>
-        <p style="font-size:13px; color:#71717a; line-height:1.6;">Fastest adapted model. Best for high-throughput indexing, RAG retrieval, classification, and clustering.</p>
-        ${codeBlock("bash", \`curl \${API_DOCS_BASE}/v1/embed \\\\
-  -H "Authorization: Bearer YOUR_KEY" \\\\
-  -d '{"texts": ["your query"], "model": "minilm-te3-adapted", "quality": 0}'\`)}
+        ${codeBlock("bash", \`curl /v1/embed -d '{"texts":["query"],"model":"minilm-te3-adapted","quality":0}'\`)}
       </div>
     </div>
 
     <div class="card" style="margin-bottom:20px;">
       <div class="card-header"><h3>qwen06b-te3-adapted</h3></div>
       <div class="card-body">
-        <div class="flex justify-between items-center" style="margin-bottom:12px;">
-          <div style="font-size:16px; font-weight:700;">Qwen3-0.6B → TE3</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div style="font-size:16px; font-weight:700;">Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large</div>
           <div class="mono" style="color:#3b82f6; font-weight:700;">$0.040 /1M tokens</div>
         </div>
         <table class="table mono" style="font-size:12px; margin-bottom:12px;">
           <tbody>
             <tr><td style="color:#52525b; width:140px;">Source</td><td>Qwen3-Embedding-0.6B (600M params, 1024d)</td></tr>
             <tr><td style="color:#52525b;">Target</td><td>text-embedding-3-large (3072d)</td></tr>
-            <tr><td style="color:#52525b;">Speed</td><td>1,200 tok/s on a single GPU</td></tr>
+            <tr><td style="color:#52525b;">Speed</td><td>1,200 tok/s</td></tr>
             <tr><td style="color:#52525b;">Quality</td><td>95-98% of native TE3</td></tr>
-            <tr><td style="color:#52525b;">Output dim</td><td>3072</td></tr>
+            <tr><td style="color:#52525b;">Output</td><td>3072d</td></tr>
             <tr><td style="color:#52525b;">Input</td><td><code>texts</code></td></tr>
+            <tr><td style="color:#52525b;">Routing</td><td>Low-confidence → OpenAI TE3</td></tr>
           </tbody>
         </table>
-        <p style="font-size:13px; color:#71717a; line-height:1.6;">Higher-fidelity adapted model. Richer semantics, longer contexts, multilingual. Ideal for complex document retrieval, legal/medical search, and cross-lingual embedding.</p>
-        ${codeBlock("bash", \`curl \${API_DOCS_BASE}/v1/embed \\\\
-  -H "Authorization: Bearer YOUR_KEY" \\\\
-  -d '{"texts": ["your query"], "model": "qwen06b-te3-adapted", "quality": 30}'\`)}
-      </div>
-    </div>
-
-    <div class="card" style="margin-bottom:20px; border-color:#3b82f630;">
-      <div class="card-header" style="border-color:#3b82f620;"><h3>Reverse Adapters — TE3 → Target</h3></div>
-      <div class="card-body">
-        <p style="font-size:13px; color:#71717a; line-height:1.6; margin-bottom:8px;">You already have TE3 embeddings. Send them to the adapter to translate into a different model's vector space. This lets you search a corpus indexed with a different model without re-embedding.</p>
-        <p style="font-size:13px; color:#71717a; line-height:1.6;">Reverse adapters accept <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">embeddings_b64</code> (base64-encoded float32 TE3 3072d vectors) instead of <code>texts</code>. Optionally include <code>texts</code> for quality routing to a local fallback model.</p>
+        ${codeBlock("bash", \`curl /v1/embed -d '{"texts":["query"],"model":"qwen06b-te3-adapted","quality":30}'\`)}
       </div>
     </div>
 
     <div class="card" style="margin-bottom:20px;">
       <div class="card-header"><h3>te3-qwen3-8b-adapted</h3></div>
       <div class="card-body">
-        <div class="flex justify-between items-center" style="margin-bottom:12px;">
-          <div style="font-size:16px; font-weight:700;">TE3 → Qwen3-Embedding-8B</div>
-          <div class="mono" style="color:#3b82f6; font-weight:700;">$0.080 /1M tokens</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div style="font-size:16px; font-weight:700;">OpenAI TE3-large → Qwen3-Embedding-8B</div>
+          <div class="mono" style="color:#f59e0b; font-weight:700;">Reverse adapter</div>
         </div>
         <table class="table mono" style="font-size:12px; margin-bottom:12px;">
           <tbody>
             <tr><td style="color:#52525b; width:140px;">Source</td><td>text-embedding-3-large (3072d)</td></tr>
             <tr><td style="color:#52525b;">Target</td><td>Qwen3-Embedding-8B (4096d)</td></tr>
-            <tr><td style="color:#52525b;">Adapter</td><td>TylerF/text-embedding-3-large-to-qwen3-embedding-8b</td></tr>
-            <tr><td style="color:#52525b;">Quality routing</td><td>Falls back to local quantized Qwen3-8B (4-bit)</td></tr>
-            <tr><td style="color:#52525b;">Output dim</td><td>4096</td></tr>
-            <tr><td style="color:#52525b;">Input</td><td><code>embeddings_b64</code> (required) + <code>texts</code> (optional, for routing)</td></tr>
+            <tr><td style="color:#52525b;">Output</td><td>4096d</td></tr>
+            <tr><td style="color:#52525b;">Input</td><td><code>embeddings_b64</code> (required) + <code>texts</code> (optional)</td></tr>
+            <tr><td style="color:#52525b;">Routing</td><td>Low-confidence → local quantized Qwen3-8B</td></tr>
           </tbody>
         </table>
-        <p style="font-size:13px; color:#71717a; line-height:1.6; margin-bottom:12px;">Reverse adapter. Translates pre-computed TE3 embeddings into Qwen3-8B's vector space. Use this when your corpus is indexed with Qwen3-8B and you want to query it using TE3 embeddings.</p>
-        <p style="font-size:13px; color:#71717a; line-height:1.6; margin-bottom:12px;">If you include <code>texts</code> and set <code>quality > 0</code>, low-confidence texts are re-embedded with a local quantized Qwen3-8B instead of routing to an external API.</p>
-
-        ${tabbedCodeBlock([
-          { lang:"python", label:"Python", code: \`import requests, base64, numpy as np
-
-# You already have TE3 embeddings (e.g. from OpenAI)
-te3_embeddings = np.random.randn(5, 3072).astype(np.float32)
-
-resp = requests.post("\${API_DOCS_BASE}/v1/embed",
-    headers={"Authorization": "Bearer YOUR_KEY"},
-    json={
-        "model": "te3-qwen3-8b-adapted",
-        "embeddings_b64": base64.b64encode(te3_embeddings.tobytes()).decode(),
-        # Optional: include texts for quality routing to local Qwen3-8B
-        "texts": ["query 1", "query 2", "query 3", "query 4", "query 5"],
-        "quality": 30,
-    })
-
-data = resp.json()
-qwen_embs = np.frombuffer(
-    base64.b64decode(data["embeddings_b64"]),
-    dtype=np.float32
-).reshape(data["n"], data["dim"])
-
-print(f"Shape: {qwen_embs.shape}")  # (5, 4096)\` },
-          { lang:"bash", label:"cURL", code: \`# First base64-encode your TE3 embeddings
-# Then send them to the adapter
-
-curl \${API_DOCS_BASE}/v1/embed \\\\
-  -H "Authorization: Bearer YOUR_KEY" \\\\
-  -H "Content-Type: application/json" \\\\
-  -d '{
+        ${codeBlock("python", \`resp = requests.post("/v1/embed", json={
     "model": "te3-qwen3-8b-adapted",
-    "embeddings_b64": "<base64-encoded float32 TE3 3072d vectors>",
-    "texts": ["optional texts for routing"],
-    "quality": 30
-  }'\` },
-        ])}
+    "embeddings_b64": base64.b64encode(te3_embs.tobytes()).decode(),
+    "texts": ["optional for routing"], "quality": 30,
+})\`)}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:32px;">
+      <div class="card-header"><h3>all-MiniLM-L6-v2</h3></div>
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div style="font-size:16px; font-weight:700;">MiniLM Raw (no adapter)</div>
+          <div class="mono" style="color:#3b82f6; font-weight:700;">$0.010 /1M tokens</div>
+        </div>
+        <table class="table mono" style="font-size:12px;">
+          <tbody>
+            <tr><td style="color:#52525b; width:140px;">Model</td><td>all-MiniLM-L6-v2 (22M params)</td></tr>
+            <tr><td style="color:#52525b;">Output</td><td>384d</td></tr>
+            <tr><td style="color:#52525b;">Note</td><td>Not compatible with TE3 indexes. For prototyping.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ V1: PYTHON SDK REGISTRY ADAPTERS ═══ -->
+    <div style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; color:#10b981; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:12px; padding-top:8px;">v1 — Python SDK Registry Adapters</div>
+    <p style="font-size:13px; color:#71717a; line-height:1.6; margin-bottom:20px;">Run locally via <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">pip install embedding-adapters</code>. Load with <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">EmbeddingAdapter.from_registry()</code>. No API server needed.</p>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-small</h3></div>
+      <div class="card-body">
+        <p style="font-size:12px; color:#52525b; margin-bottom:8px;">sentence-transformers/all-MiniLM-L6-v2 (384d) → openai/text-embedding-3-small (1536d)</p>
+        <table class="table mono" style="font-size:11px; margin-bottom:12px;">
+          <thead><tr><th>Flavor</th><th>Slug</th><th>Access</th></tr></thead>
+          <tbody>
+            <tr><td class="green">medium</td><td>emb_adapter_minilm_to_openai_text-embedding-3-medium_v1</td><td>Public</td></tr>
+            <tr><td class="green">large</td><td>emb_adapter_minilm_to_openai_text-embedding-3-large_v1</td><td>Public</td></tr>
+            <tr><td class="green">vlarge</td><td>emb_adapter_minilm_to_openai_text-embedding-3-vlarge_v1</td><td>Public</td></tr>
+            <tr><td class="green">generic</td><td>emb_adapter_all-MiniLM-L6-v2_to_openai_text_embedding_3_medium</td><td>Public</td></tr>
+          </tbody>
+        </table>
+        ${codeBlock("python", \`adapter = EmbeddingAdapter.from_registry(
+    source="sentence-transformers/all-MiniLM-L6-v2",
+    target="openai/text-embedding-3-small",
+    flavor="large", device=device)\`)}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>intfloat/e5-base-v2 → openai/text-embedding-3-small</h3></div>
+      <div class="card-body">
+        <p style="font-size:12px; color:#52525b; margin-bottom:8px;">intfloat/e5-base-v2 (768d) → openai/text-embedding-3-small (1536d)</p>
+        <table class="table mono" style="font-size:11px; margin-bottom:12px;">
+          <thead><tr><th>Flavor</th><th>Slug</th><th>Access</th></tr></thead>
+          <tbody>
+            <tr><td class="green">small</td><td>emb_adapter_e5-base-v2-to-openai_text_embedding_3_small_v1</td><td>Public</td></tr>
+            <tr><td class="green">linear</td><td>emb_adapter_e5-base-v2-to-openai_text_embedding_3_small_v1 (linear)</td><td>Public</td></tr>
+            <tr><td class="green">large</td><td>emb_adapter_e5-base-v2-to-openai_text_embedding_3_large_v2</td><td style="color:#3b82f6;">PRO</td></tr>
+            <tr><td class="green">generic</td><td>emb_adapter_e5-base-v2_to_text-embedding-3-small-v_0_1_fp16</td><td style="color:#3b82f6;">PRO</td></tr>
+          </tbody>
+        </table>
+        ${codeBlock("python", \`adapter = EmbeddingAdapter.from_registry(
+    source="intfloat/e5-base-v2",
+    target="openai/text-embedding-3-small",
+    flavor="small", device=device)\`)}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>sentence-transformers/all-MiniLM-L6-v2 → intfloat/e5-base-v2</h3></div>
+      <div class="card-body">
+        <p style="font-size:12px; color:#52525b; margin-bottom:8px;">sentence-transformers/all-MiniLM-L6-v2 (384d) → intfloat/e5-base-v2 (768d)</p>
+        <table class="table mono" style="font-size:11px; margin-bottom:12px;">
+          <thead><tr><th>Flavor</th><th>Slug</th><th>Access</th></tr></thead>
+          <tbody>
+            <tr><td class="green">large</td><td>emb_adapter_minilm_L6_v2-to-e5-base-v2_large_v1</td><td>Public</td></tr>
+          </tbody>
+        </table>
+        ${codeBlock("python", \`adapter = EmbeddingAdapter.from_registry(
+    source="sentence-transformers/all-MiniLM-L6-v2",
+    target="intfloat/e5-base-v2",
+    flavor="large", device=device)\`)}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>sentence-transformers/all-MiniLM-L6-v2 → google/text-embedding-004</h3></div>
+      <div class="card-body">
+        <p style="font-size:12px; color:#52525b; margin-bottom:8px;">sentence-transformers/all-MiniLM-L6-v2 (384d) → gemini/text-embedding-004 (768d)</p>
+        <table class="table mono" style="font-size:11px; margin-bottom:12px;">
+          <thead><tr><th>Flavor</th><th>Slug</th><th>Access</th></tr></thead>
+          <tbody>
+            <tr><td class="green">generic</td><td>emb_adapter_all-MiniLM-L6-v2_to_gemini_text_embedding_004_small_v1</td><td style="color:#3b82f6;">PRO</td></tr>
+          </tbody>
+        </table>
+        ${codeBlock("python", \`adapter = EmbeddingAdapter.from_registry(
+    source="sentence-transformers/all-MiniLM-L6-v2",
+    target="gemini/text-embedding-004",
+    flavor="generic", device=device,
+    huggingface_token=os.environ["HUGGINGFACE_TOKEN"])\`)}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>intfloat/e5-base-v2 → google/text-embedding-004</h3></div>
+      <div class="card-body">
+        <p style="font-size:12px; color:#52525b; margin-bottom:8px;">intfloat/e5-base-v2 (768d) → gemini/text-embedding-004 (768d)</p>
+        <table class="table mono" style="font-size:11px; margin-bottom:12px;">
+          <thead><tr><th>Flavor</th><th>Slug</th><th>Access</th></tr></thead>
+          <tbody>
+            <tr><td class="green">generic</td><td>emb_adapter_e5-base-v2_to_gemini_text_embedding_004_small_v1</td><td style="color:#3b82f6;">PRO</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>Cross-Provider Adapters</h3></div>
+      <div class="card-body">
+        <p style="font-size:12px; color:#52525b; margin-bottom:8px;">Translate between provider embedding spaces directly — no local encoder needed.</p>
+        <table class="table mono" style="font-size:11px; margin-bottom:12px;">
+          <thead><tr><th>Source → Target</th><th>Slug</th><th>Access</th></tr></thead>
+          <tbody>
+            <tr><td class="green">OpenAI TE3-small → Gemini TE-004</td><td>emb_adapter_openai_text_embedding_3_small_to_gemini_..._v1</td><td style="color:#3b82f6;">PRO</td></tr>
+            <tr><td class="green">Gemini TE-004 → E5-base-v2</td><td>emb_adapter_gemini_text_embedding_004_to_e5-base-v2-to_linear_v1</td><td style="color:#3b82f6;">PRO</td></tr>
+          </tbody>
+        </table>
+        ${codeBlock("python", \`# Translate OpenAI embeddings → Gemini space
+adapter = EmbeddingAdapter.from_registry(
+    source="openai/text-embedding-3-small",
+    target="gemini/text-embedding-004",
+    flavor="generic", device=device,
+    huggingface_token=os.environ["HUGGINGFACE_TOKEN"])
+
+translated = adapter.encode_embeddings(openai_embs)\`)}
       </div>
     </div>
 
     <div class="card">
-      <div class="card-header"><h3>all-MiniLM-L6-v2</h3></div>
-      <div class="card-body">
-        <div class="flex justify-between items-center" style="margin-bottom:12px;">
-          <div style="font-size:16px; font-weight:700;">MiniLM Raw</div>
-          <div class="mono" style="color:#3b82f6; font-weight:700;">$0.010 /1M tokens</div>
-        </div>
-        <table class="table mono" style="font-size:12px; margin-bottom:12px;">
+      <div class="card-header"><h3>Complete Adapter Matrix</h3></div>
+      <div class="card-body" style="overflow-x:auto;">
+        <table class="table mono" style="font-size:11px;">
+          <thead><tr><th>Version</th><th>Source</th><th>Target</th><th>Flavors</th><th>Access</th><th>Usage</th></tr></thead>
           <tbody>
-            <tr><td style="color:#52525b; width:140px;">Source</td><td>all-MiniLM-L6-v2 (22M params, 384d)</td></tr>
-            <tr><td style="color:#52525b;">Target</td><td>— (no adapter)</td></tr>
-            <tr><td style="color:#52525b;">Output dim</td><td>384</td></tr>
-            <tr><td style="color:#52525b;">Input</td><td><code>texts</code></td></tr>
+            <tr style="background:rgba(37,99,235,0.04);"><td style="color:#3b82f6;">v2</td><td>sentence-transformers/all-MiniLM-L6-v2</td><td>openai/text-embedding-3-large</td><td>—</td><td>Public</td><td>API / Server</td></tr>
+            <tr style="background:rgba(37,99,235,0.04);"><td style="color:#3b82f6;">v2</td><td>Qwen/Qwen3-Embedding-0.6B</td><td>openai/text-embedding-3-large</td><td>—</td><td>Public</td><td>API / Server</td></tr>
+            <tr style="background:rgba(37,99,235,0.04);"><td style="color:#3b82f6;">v2</td><td>openai/text-embedding-3-large</td><td>Qwen/Qwen3-Embedding-8B</td><td>—</td><td>Public</td><td>API / Server</td></tr>
+            <tr><td style="color:#10b981;">v1</td><td>sentence-transformers/all-MiniLM-L6-v2</td><td>openai/text-embedding-3-small</td><td>med, lg, vlg, gen</td><td>Public</td><td>Python SDK</td></tr>
+            <tr><td style="color:#10b981;">v1</td><td>sentence-transformers/all-MiniLM-L6-v2</td><td>intfloat/e5-base-v2</td><td>large</td><td>Public</td><td>Python SDK</td></tr>
+            <tr><td style="color:#10b981;">v1</td><td>sentence-transformers/all-MiniLM-L6-v2</td><td>google/text-embedding-004</td><td>generic</td><td style="color:#3b82f6;">PRO</td><td>Python SDK</td></tr>
+            <tr><td style="color:#10b981;">v1</td><td>intfloat/e5-base-v2</td><td>openai/text-embedding-3-small</td><td>sm, lin, lg, gen</td><td>Mixed</td><td>Python SDK</td></tr>
+            <tr><td style="color:#10b981;">v1</td><td>intfloat/e5-base-v2</td><td>google/text-embedding-004</td><td>generic</td><td style="color:#3b82f6;">PRO</td><td>Python SDK</td></tr>
+            <tr><td style="color:#10b981;">v1</td><td>openai/text-embedding-3-small</td><td>google/text-embedding-004</td><td>generic</td><td style="color:#3b82f6;">PRO</td><td>Python SDK</td></tr>
+            <tr><td style="color:#10b981;">v1</td><td>google/text-embedding-004</td><td>intfloat/e5-base-v2</td><td>generic</td><td style="color:#3b82f6;">PRO</td><td>Python SDK</td></tr>
           </tbody>
         </table>
-        <p style="font-size:13px; color:#71717a; line-height:1.6;">Raw 384-d embeddings, no adapter. Not TE3-compatible. Cheapest option for prototyping.</p>
       </div>
     </div>
   `;
