@@ -59,7 +59,7 @@ function tabbedCodeBlock(tabs) {
           <span class="mono code-lang">${t.lang}</span>
           <button class="btn-copy" onclick="copyToClipboard(document.getElementById('${pid}').textContent, this)">Copy</button>
         </div>
-        <pre class="code-block" id="${pid}">${escHtml(t.code)}</pre>
+        <pre class="code-block" id="${pid}">${highlightCode(t.code, t.lang)}</pre>
       </div>
     </div>`;
   }).join("");
@@ -72,4 +72,31 @@ function tabbedCodeBlock(tabs) {
 function switchCodeTab(gid, idx, btn) {
   btn.parentElement.querySelectorAll('.code-tab').forEach((b, i) => b.classList.toggle('active', i === idx));
   document.querySelectorAll(`[data-tcb="${gid}"]`).forEach((p, i) => p.classList.toggle('hidden', i !== idx));
+}
+
+function highlightCode(code, lang) {
+  let h = escHtml(code);
+  if (lang === "python" || lang === "py") {
+    h = h.replace(/(#.*)/g, '<span style="color:#6b7280;">$1</span>');
+    h = h.replace(/\b(import|from|as|def|class|return|if|else|elif|for|in|while|with|try|except|raise|not|and|or|is|None|True|False|print|async|await)\b/g, '<span style="color:#c084fc;">$1</span>');
+    h = h.replace(/(["'])(?:(?!\1).)*?\1/g, '<span style="color:#34d399;">$&</span>');
+    h = h.replace(/\b(\d+\.?\d*)\b/g, '<span style="color:#fbbf24;">$1</span>');
+    h = h.replace(/\b(np|requests|base64|torch|os|time|json)\b/g, '<span style="color:#60a5fa;">$1</span>');
+  } else if (lang === "bash" || lang === "sh") {
+    h = h.replace(/(#.*)/g, '<span style="color:#6b7280;">$1</span>');
+    h = h.replace(/(["'])(?:(?!\1).)*?\1/g, '<span style="color:#34d399;">$&</span>');
+    h = h.replace(/\b(curl|pip|git|cd|export|python|set)\b/g, '<span style="color:#c084fc;">$1</span>');
+    h = h.replace(/(--?\w[\w-]*)/g, '<span style="color:#60a5fa;">$1</span>');
+  } else if (lang === "javascript" || lang === "js") {
+    h = h.replace(/(\/\/.*)/g, '<span style="color:#6b7280;">$1</span>');
+    h = h.replace(/\b(const|let|var|function|return|if|else|for|while|await|async|new|true|false|null|undefined)\b/g, '<span style="color:#c084fc;">$1</span>');
+    h = h.replace(/(["'`])(?:(?!\1).)*?\1/g, '<span style="color:#34d399;">$&</span>');
+    h = h.replace(/\b(\d+\.?\d*)\b/g, '<span style="color:#fbbf24;">$1</span>');
+  } else if (lang === "json") {
+    h = h.replace(/(["'])(\w+)\1\s*:/g, '<span style="color:#60a5fa;">$&</span>');
+    h = h.replace(/:\s*(["'])(?:(?!\1).)*?\1/g, '<span style="color:#34d399;">$&</span>');
+    h = h.replace(/:\s*(\d+\.?\d*)/g, ': <span style="color:#fbbf24;">$1</span>');
+    h = h.replace(/\b(true|false|null)\b/g, '<span style="color:#c084fc;">$1</span>');
+  }
+  return h;
 }

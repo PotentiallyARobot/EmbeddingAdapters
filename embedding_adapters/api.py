@@ -13,6 +13,7 @@ from huggingface_hub import snapshot_download
 
 from .utils.decrypt_helper import decrypt_if_needed
 from .adapter_core import ResidualMLPAdapterDeep
+from .model_v2 import EmbeddingAdapter as V2EmbeddingAdapter
 from .loader import (
     load_registry,
     find_adapter,
@@ -177,20 +178,28 @@ class EmbeddingAdapter:
         *,
         load_source_encoder: bool = False,
         huggingface_token: str = None,
-        entry:AdapterEntry = None
+        entry: AdapterEntry = None
     ) -> "EmbeddingAdapter":
         """Load an adapter from a local directory.
 
-        Expected files:
-
-        - adapter_config.json
-        - adapter.pt           (state_dict)
-        - [optional] adapter_quality_stats.npz
+        Auto-detects architecture:
+          - v2: config has 'source_dim' + 'quality_hidden' → model_v2.EmbeddingAdapter
+          - v1: config has 'in_dim' + 'arch' → adapter_core.ResidualMLPAdapterDeep
         """
         adapter_dir = Path(adapter_dir)
-        cfg_path = adapter_dir / entry.primary.get("config_file")
-        weights_path = adapter_dir / entry.primary.get('weights_file')
-        stats_path = adapter_dir / entry.primary.get('scoring_file')
+
+        # Resolve file names from entry or defaults
+        config_name = "config.json"
+        weights_name = "adapter.pt"
+        stats_name = "adapter_quality_stats.npz"
+        if entry is not None and isinstance(entry.primary, dict):
+            config_name = entry.primary.get("config_file", config_name)
+            weights_name = entry.primary.get("weights_file", weights_name)
+            stats_name = entry.primary.get("scoring_file", stats_name)
+
+        cfg_path = adapter_dir / config_name
+        weights_path = adapter_dir / weights_name
+        stats_path = adapter_dir / stats_name
 
         if not cfg_path.exists():
             raise FileNotFoundError(f"Config not found: {cfg_path}")
@@ -200,18 +209,118 @@ class EmbeddingAdapter:
         with open(cfg_path, "r", encoding="utf-8") as f:
             cfg = json.load(f)
 
+        # ── Detect architecture version ──
+        is_v2 = "source_dim" in cfg and "quality_hidden" in cfg
+
+        if is_v2:
+            return cls._load_v2(
+                cfg, weights_path, stats_path, device,
+                load_source_encoder=load_source_encoder,
+                huggingface_token=huggingface_token,
+                entry=entry,
+            )
+        else:
+            return cls._load_v1(
+                cfg, weights_path, stats_path, device,
+                load_source_encoder=load_source_encoder,
+                huggingface_token=huggingface_token,
+                entry=entry,
+            )
+
+    @classmethod
+    def _load_v2(
+        cls, cfg, weights_path, stats_path, device, *,
+        load_source_encoder, huggingface_token, entry
+    ):
+        """Load a v2 adapter (model_v2.py — MLP + skip + SELU + quality head)."""
+        in_dim = int(cfg["source_dim"])
+        out_dim = int(cfg["target_dim"])
+        normalize = bool(cfg.get("normalize", True))
+
+        raw_model = V2EmbeddingAdapter(
+            source_dim=in_dim,
+            target_dim=out_dim,
+            hidden_dim=int(cfg.get("hidden_dim", 1024)),
+            num_layers=int(cfg.get("num_layers", 3)),
+            dropout=float(cfg.get("dropout", 0.1)),
+            use_skip=bool(cfg.get("use_skip", True)),
+            quality_hidden=int(cfg.get("quality_hidden", 256)),
+            activation=str(cfg.get("activation", "gelu")),
+        )
+
+        # Load weights
+        state = torch.load(weights_path, map_location=device, weights_only=False)
+        if isinstance(state, dict) and "model" in state:
+            state = state["model"]
+        if any(k.startswith("module.") for k in state.keys()):
+            state = {k.replace("module.", "", 1): v
+                     for k, v in state.items() if k != "n_averaged"}
+
+        missing, unexpected = raw_model.load_state_dict(state, strict=False)
+        if missing:
+            print(f"[EmbeddingAdapter] v2 missing keys: {sorted(missing)}")
+        if unexpected:
+            print(f"[EmbeddingAdapter] v2 unexpected keys: {sorted(unexpected)}")
+
+        # Wrap v2 so forward() returns just embedding (not the quality tuple).
+        # This keeps __call__, encode(), encode_embeddings() working unchanged.
+        class _V2Wrapper(torch.nn.Module):
+            def __init__(self, m):
+                super().__init__()
+                self.inner = m
+            def forward(self, x):
+                emb, _ = self.inner(x)
+                return emb
+
+        model = _V2Wrapper(raw_model)
+
+        metadata = AdapterMetadata(
+            in_dim=in_dim,
+            out_dim=out_dim,
+            arch=f"v2_mlp_h{cfg.get('hidden_dim', 1024)}_l{cfg.get('num_layers', 3)}_{cfg.get('activation', 'gelu')}",
+            normalize=normalize,
+            source_model=cfg.get("source_model"),
+            target_model=cfg.get("target_model"),
+            extra={k: v for k, v in cfg.items()
+                   if k not in {"source_dim", "target_dim", "normalize",
+                                "source_model", "target_model"}},
+        )
+
+        quality = None
+        if stats_path.exists():
+            try:
+                quality = QualityModel(stats_path, device=device or "cpu")
+                print(f"[EmbeddingAdapter] Loaded quality stats from {stats_path}")
+            except Exception as e:
+                print(f"[EmbeddingAdapter] Quality stats failed ({stats_path}): {e}")
+
+        adapter = cls(
+            model=model, metadata=metadata, device=device, quality=quality,
+            load_source_encoder=load_source_encoder,
+            huggingface_token=huggingface_token,
+        )
+        # Attach raw v2 model for direct quality head access via score_v2()
+        adapter._v2_model = raw_model
+        print(f"[EmbeddingAdapter] Loaded v2 adapter: {in_dim}d → {out_dim}d "
+              f"({cfg.get('activation', 'gelu')}, {cfg.get('num_layers', 3)} layers, "
+              f"skip={cfg.get('use_skip', True)})")
+        return adapter
+
+    @classmethod
+    def _load_v1(
+        cls, cfg, weights_path, stats_path, device, *,
+        load_source_encoder, huggingface_token, entry
+    ):
+        """Load a v1 adapter (adapter_core.py — ResidualMLPAdapterDeep / GEGLU)."""
         in_dim = int(cfg["in_dim"])
         out_dim = int(cfg["out_dim"])
         arch = cfg.get("arch", "resmlp")
         normalize = bool(cfg.get("normalize", True))
 
-        # For now we only support ResidualMLPAdapterDeep. We infer width/depth
-        # from the arch string if present, otherwise we fall back to safe defaults.
         width = out_dim
         depth = 8
         if arch.startswith("resmlp_w") and "_d" in arch:
             try:
-                # e.g. resmlp_w1536_d8_dp0.1_dpr0.1_ls0.0005
                 parts = arch.split("_")
                 for p in parts:
                     if p.startswith("w") and p[1:].isdigit():
@@ -222,38 +331,21 @@ class EmbeddingAdapter:
                 pass
 
         model = ResidualMLPAdapterDeep(
-            in_dim=in_dim,
-            out_dim=out_dim,
-            width=width,
-            depth=depth,
-            dropout=0.1,
-            ls_init=5e-4,
-            drop_path_rate=0.10,
+            in_dim=in_dim, out_dim=out_dim, width=width, depth=depth,
+            dropout=0.1, ls_init=5e-4, drop_path_rate=0.10,
         )
 
-        # ----- Load weights -----
-        # If decrypt_if_needed already decrypted into memory, reuse it.
-        if entry is not None and isinstance(entry.primary, dict) and "state_dict" in entry.primary:
+        # Load weights
+        if entry is not None and isinstance(entry.primary, dict) \
+                and "state_dict" in entry.primary:
             state = entry.primary["state_dict"]
-            print(
-                f"[EmbeddingAdapter] Loaded state_dict for '{entry.slug}'."
-            )
         else:
-            # For PyTorch 2.6+, weights_only=True is stricter and can fail on older
-            # checkpoints. This checkpoint is trusted (your own model), so we allow
-            # full unpickling with weights_only=False.
             state = torch.load(
-                weights_path,
-                map_location=device,
-                weights_only=False,
-            )
+                weights_path, map_location=device, weights_only=False)
 
-        # Handle AveragedModel / EMA-style checkpoints where parameters
-        # are under "module." and there may be an "n_averaged" key.
         if isinstance(state, dict) and not any(
             k.startswith("module.") for k in state.keys()
         ) and "model" in state:
-            # in case we accidentally saved a dict with {"model": state_dict, ...}
             state = state["model"]
 
         if any(k.startswith("module.") for k in state.keys()):
@@ -262,54 +354,37 @@ class EmbeddingAdapter:
                 if k == "n_averaged":
                     continue
                 if k.startswith("module."):
-                    k = k[len("module.") :]
+                    k = k[len("module."):]
                 cleaned[k] = v
             state = cleaned
 
         missing, unexpected = model.load_state_dict(state, strict=False)
         if missing:
-            print(f"[EmbeddingAdapter] Warning: missing keys in state_dict: {sorted(missing)}")
+            print(f"[EmbeddingAdapter] v1 missing keys: {sorted(missing)}")
         if unexpected:
-            print(f"[EmbeddingAdapter] Warning: unexpected keys in state_dict: {sorted(unexpected)}")
+            print(f"[EmbeddingAdapter] v1 unexpected keys: {sorted(unexpected)}")
 
         metadata = AdapterMetadata(
-            in_dim=in_dim,
-            out_dim=out_dim,
-            arch=arch,
-            normalize=normalize,
+            in_dim=in_dim, out_dim=out_dim, arch=arch, normalize=normalize,
             source_model=cfg.get("source_model"),
             target_model=cfg.get("target_model"),
-            extra={
-                k: v
-                for k, v in cfg.items()
-                if k
-                not in {
-                    "in_dim",
-                    "out_dim",
-                    "arch",
-                    "normalize",
-                    "source_model",
-                    "target_model",
-                }
-            },
+            extra={k: v for k, v in cfg.items()
+                   if k not in {"in_dim", "out_dim", "arch", "normalize",
+                                "source_model", "target_model"}},
         )
 
-        # ----- Optional quality model -----
         quality = None
         if stats_path.exists():
             try:
                 quality = QualityModel(stats_path, device=device or "cpu")
                 print(f"[EmbeddingAdapter] Loaded quality stats from {stats_path}")
             except Exception as e:
-                print(f"[EmbeddingAdapter] Failed to load quality stats ({stats_path}): {e}")
+                print(f"[EmbeddingAdapter] Quality stats failed: {e}")
 
         return cls(
-            model=model,
-            metadata=metadata,
-            device=device,
-            quality=quality,
+            model=model, metadata=metadata, device=device, quality=quality,
             load_source_encoder=load_source_encoder,
-            huggingface_token=huggingface_token
+            huggingface_token=huggingface_token,
         )
 
     @classmethod
@@ -321,15 +396,20 @@ class EmbeddingAdapter:
         device: Optional[str] = None,
         *,
         load_source_encoder: bool = False,
-        huggingface_token: str =None,
-        slug: Optional[str] = None
+        huggingface_token: str = None,
+        slug: Optional[str] = None,
+        api_key: Optional[str] = None,
     ) -> "EmbeddingAdapter":
         """Load an adapter by (source, target, flavor) from the registry.
 
-        For v0, this uses an AdapterEntry with mode='local' and (possibly)
-        an encrypted HF model that decrypts into a local directory.
+        Adapters tagged with 'subscription' require an active license
+        ($10/month). The SDK validates once, then caches for 24 hours.
 
-        In the future, 'remote' / 'service' modes can be added here.
+        Parameters
+        ----------
+        api_key : str, optional
+            API key for license validation. If not provided, uses saved key
+            from ``embedding-adapters login``.
         """
         entry = find_adapter(source, target, flavor=flavor, slug=slug)
 
@@ -338,6 +418,14 @@ class EmbeddingAdapter:
                 f"Adapter mode '{entry.mode}' is not implemented yet. "
                 "Use mode='local' for now."
             )
+
+        # ── DRM: license validation for subscription adapters ──
+        if "subscription" in (entry.tags or []):
+            from .auth import validate_license, _load_saved_key
+            license_key = api_key or _load_saved_key()
+            print(f"[embedding_adapters] Validating license for '{entry.slug}'...")
+            validate_license(entry.slug, api_key=license_key)
+            print(f"[embedding_adapters] ✓ License valid for '{entry.slug}'")
 
         device = device or ("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -682,7 +770,40 @@ class EmbeddingAdapter:
         return pooled
 
     # ----------------------------
-    # Quality scoring
+    # v2 quality head access
+    # ----------------------------
+    @property
+    def is_v2(self) -> bool:
+        """True if this adapter uses the v2 architecture with built-in quality head."""
+        return hasattr(self, '_v2_model') and self._v2_model is not None
+
+    def score_v2(self, x: ArrayLike):
+        """Get quality scores from the v2 model's built-in quality head.
+
+        Returns (embeddings_np, quality_np) where quality is (B,) in [0,1].
+        Only works if this adapter was loaded from a v2 config.
+
+        Usage:
+            embs, quality = adapter.score_v2(source_embeddings)
+            # quality[i] = confidence that embs[i] faithfully replicates target
+        """
+        if not self.is_v2:
+            raise RuntimeError(
+                "score_v2() is only available for v2 adapters "
+                "(config must have 'source_dim' and 'quality_hidden')"
+            )
+
+        if isinstance(x, np.ndarray):
+            x = torch.from_numpy(x.astype("float32"))
+        x = x.to(self.device)
+
+        self._v2_model.eval()
+        with torch.no_grad():
+            emb, quality = self._v2_model(x)
+        return emb.cpu().numpy(), quality.cpu().numpy()
+
+    # ----------------------------
+    # Quality scoring (external stats file)
     # ----------------------------
     @property
     def has_quality(self) -> bool:

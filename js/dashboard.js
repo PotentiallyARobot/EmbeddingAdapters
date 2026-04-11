@@ -17,12 +17,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await loadUserData();
 
-  // Check for Stripe redirect (after loadUserData so we have api_key)
+  // Check for Stripe redirect — billing top-up
   const sid = params.get("session_id");
   if (sid && userData && userData.api_key) {
     await apiFetch("POST", "/v1/billing/confirm", { session_id: sid }, userData.api_key).catch(() => {});
     window.history.replaceState({}, "", window.location.pathname);
-    await loadUserData(); // reload balance
+    await loadUserData();
+  }
+
+  // Check for model purchase redirect
+  const purchaseSuccess = params.get("purchase_success");
+  if (purchaseSuccess && session) {
+    await apiFetch("POST", "/v1/models/confirm", { model_id: purchaseSuccess }, session.session_token).catch(() => {});
+    window.history.replaceState({}, "", window.location.pathname);
+    await loadUserData();
+    currentTab = "models";
   }
 
   renderSidebar();
@@ -33,6 +42,14 @@ async function loadUserData() {
   const me = await apiFetch("GET", "/auth/me", null, session.session_token);
   if (me.error) { clearSession(); window.location.href = "subscribe.html"; return; }
   userData = me;
+
+  // Load purchased models
+  try {
+    const purchases = await apiFetch("GET", "/v1/models/purchased", null, session.session_token);
+    userData.purchased_models = (purchases.models || []).map(m => m.model_id);
+  } catch (e) {
+    userData.purchased_models = [];
+  }
 }
 
 function logout() {
@@ -177,10 +194,10 @@ function renderOverview(el) {
     </div>
 
     <div class="card fade-up delay-4">
-      <div class="card-header"><h3>Quick Start</h3></div>
+      <div class="card-header"><h3>Quick Start — API</h3></div>
       <div class="card-body">
-        <p style="font-size:14px; color:#71717a; line-height:1.6; margin-bottom:16px;">
-          Send texts, get TE3-compatible embeddings. Your API key is pre-filled — copy and run.
+        <p style="font-size:14px; color:#a1a1aa; line-height:1.6; margin-bottom:16px;">
+          Your API key is pre-filled — copy and run:
         </p>
         ${tabbedCodeBlock([
           { lang:"python", label:"Python", code: `import requests, base64, numpy as np
@@ -189,8 +206,8 @@ resp = requests.post("${API_BASE}/v1/embed",
     headers={"Authorization": "Bearer ${userData.api_key}"},
     json={
         "texts": ["Hello world", "Embedding adapters are great"],
-        "model": "minilm-te3-adapted",
-        "quality": 0,
+        "model": "qwen06b-te3-adapted",
+        "quality": 0,   # 0 = fully local, no provider calls
     })
 
 data = resp.json()
@@ -201,30 +218,41 @@ embs = np.frombuffer(
 
 print(f"Shape: {embs.shape}")         # (2, 3072)
 print(f"Cost:  \${data['usage']['cost']}")` },
-          { lang:"javascript", label:"JavaScript", code: `const resp = await fetch("${API_BASE}/v1/embed", {
-  method: "POST",
-  headers: {
-    "Authorization": "Bearer ${userData.api_key}",
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    texts: ["Hello world", "Embedding adapters are great"],
-    model: "minilm-te3-adapted",
-    quality: 0,
-  }),
-});
-
-const data = await resp.json();
-console.log(data.n, data.dim);  // 2, 3072` },
           { lang:"bash", label:"cURL", code: `curl ${API_BASE}/v1/embed \\
   -H "Authorization: Bearer ${userData.api_key}" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "texts": ["Hello world", "Embedding adapters are great"],
-    "model": "minilm-te3-adapted",
+    "texts": ["Hello world"],
+    "model": "qwen06b-te3-adapted",
     "quality": 0
   }'` },
         ])}
+      </div>
+    </div>
+
+    <div class="card fade-up delay-5" style="margin-top:16px;">
+      <div class="card-header"><h3>Quick Start — Local Python Package</h3></div>
+      <div class="card-body">
+        <p style="font-size:14px; color:#a1a1aa; line-height:1.6; margin-bottom:16px;">
+          Run adapters locally without the API server:
+        </p>
+        ${codeBlock("bash", `pip install embedding-adapters`)}
+        ${codeBlock("python", `from sentence_transformers import SentenceTransformer
+from embedding_adapters import EmbeddingAdapter
+
+# Load source model + adapter
+src = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+adapter = EmbeddingAdapter.from_registry(
+    source="sentence-transformers/all-MiniLM-L6-v2",
+    target="openai/text-embedding-3-small",
+    flavor="large",
+    device="cuda",
+)
+
+# Embed and translate
+src_embs = src.encode(["Hello world"], normalize_embeddings=True)
+translated = adapter.encode_embeddings(src_embs)
+print(translated.shape)  # (1, 1536) — openai/text-embedding-3-small compatible`)}
       </div>
     </div>
   `;
@@ -442,43 +470,102 @@ async function submitDeposit() {
 // ── Models ──
 function renderModels(el) {
   const models = [
-    { id:"minilm-te3-adapted", name:"MiniLM → TE3", src:"all-MiniLM-L6-v2 (22M, 384d)", tgt:"text-embedding-3-large (3072d)", rate:"$0.065", save:"50%", desc:"Fastest adapted model. Tiny 22M-param MiniLM encoder with a 27M-param LoRA adapter projects into TE3's 3072-d space. Best when you need high throughput at low cost and TE3-level compatibility.", quality:"93-97% of TE3", useCases:["Semantic search over large corpora","RAG retrieval pipelines","Near-real-time classification","Clustering & deduplication"] },
-    { id:"qwen06b-te3-adapted", name:"Qwen3-0.6B → TE3", src:"Qwen3-Embedding-0.6B (600M, 1024d)", tgt:"text-embedding-3-large (3072d)", rate:"$0.040", save:"69%", desc:"Higher-fidelity adapted model. The 600M-param Qwen3 encoder captures richer semantics — longer contexts, nuanced meaning, multilingual text — then projects to TE3-compatible 3072-d vectors. Ideal when quality matters more than latency.", quality:"95-98% of TE3", useCases:["Complex document retrieval & legal/medical search","Multilingual & cross-lingual embedding","Fine-grained similarity (paraphrase detection, plagiarism)","High-stakes classification where accuracy is critical"] },
-    { id:"all-MiniLM-L6-v2", name:"MiniLM Raw", src:"all-MiniLM-L6-v2 (22M, 384d)", tgt:"—", rate:"$0.010", save:"92%", desc:"Raw 384-d MiniLM embeddings with no adapter projection. Cheapest option by far. Use when you don't need TE3 compatibility and just want fast, good-enough embeddings.", quality:"MiniLM native (384d)", useCases:["Prototyping & experimentation","Internal tools with cost constraints","Simple keyword-level similarity","Lightweight recommendations"] },
+    { id:"minilm-te3-adapted", name:"sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large", shortName:"MiniLM → TE3-large", src:"384d → 3072d", speed:"18,000 tok/s", quality:"93-97%", price:10, period:"month", stripe_price:"price_minilm_te3_monthly", desc:"Fastest adapter. 18K tok/s throughput. Best for high-volume indexing and RAG.", paid:true },
+    { id:"qwen06b-te3-adapted", name:"Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large", shortName:"Qwen3-0.6B → TE3-large", src:"1024d → 3072d", speed:"1,200 tok/s", quality:"95-98%", price:10, period:"month", stripe_price:"price_qwen06_te3_monthly", desc:"Higher accuracy. Richer semantics, multilingual, longer contexts.", paid:true },
+    { id:"all-MiniLM-L6-v2", name:"sentence-transformers/all-MiniLM-L6-v2 (raw)", shortName:"MiniLM Raw", src:"384d", speed:"18,000 tok/s", quality:"Native", price:0, period:null, stripe_price:null, desc:"Raw MiniLM embeddings. No adapter. Free forever.", paid:false },
   ];
+
+  // Check which models user has active subscriptions for
+  const purchased = userData.purchased_models || [];
+  models.forEach(m => {
+    if (!m.paid || purchased.includes(m.id)) m.active = true;
+    else m.active = false;
+  });
 
   el.innerHTML = `
     <h2 style="font-size:22px; font-weight:800; margin-bottom:8px;">Models</h2>
-    <p style="font-size:14px; color:#71717a; margin-bottom:24px; line-height:1.6;">All adapted models output TE3-compatible 3072-d vectors — drop-in replacements for OpenAI <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">text-embedding-3-large</code>.</p>
+    <p style="font-size:14px; color:#a1a1aa; margin-bottom:24px; line-height:1.6;">Subscribe to adapter models for local inference via the Python SDK. Cancel anytime.</p>
+
     ${models.map((m, i) => `
-      <div class="card fade-up delay-${i + 1}" style="margin-bottom:16px;">
+      <div class="card fade-up delay-${i + 1}" style="margin-bottom:16px; ${m.active ? 'border-color:#3b82f630;' : ''}">
         <div class="card-body">
-          <div class="flex justify-between" style="align-items:flex-start; margin-bottom:12px;">
-            <div>
-              <div style="font-size:16px; font-weight:700; margin-bottom:4px;">${m.name}</div>
-              <div class="mono" style="font-size:12px; color:#52525b;">${m.id}</div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:200px;">
+              <div style="font-size:15px; font-weight:700; margin-bottom:2px;">${m.shortName}</div>
+              <div class="mono" style="font-size:11px; color:#71717a; margin-bottom:8px; word-break:break-all;">${m.name}</div>
+              <p style="font-size:13px; color:#a1a1aa; line-height:1.5; margin-bottom:10px;">${m.desc}</p>
+              <div style="display:flex; gap:16px; font-size:12px; color:#71717a; flex-wrap:wrap;">
+                <span>Dims: <span style="color:#a1a1aa;">${m.src}</span></span>
+                <span>Speed: <span style="color:#a1a1aa;">${m.speed}</span></span>
+                <span>Quality: <span style="color:#a1a1aa;">${m.quality}</span></span>
+              </div>
             </div>
-            <div style="text-align:right;">
-              <div class="mono" style="font-size:14px; color:#3b82f6; font-weight:700;">${m.rate} /1M</div>
-              <div style="font-size:12px; color:#3b82f6;">${m.save} cheaper</div>
+            <div style="text-align:right; min-width:130px;">
+              ${m.active ? `
+                <div style="color:#10b981; font-weight:700; font-size:14px; margin-bottom:4px;">✓ ${m.paid ? 'Subscribed' : 'Free'}</div>
+                ${m.paid ? `<div style="font-size:11px; color:#71717a; margin-bottom:8px;">$${m.price}/month · auto-renews</div>` : ''}
+                <div style="font-size:12px; color:#71717a; margin-top:4px;">Ready to use in SDK</div>
+              ` : `
+                <div class="mono" style="font-size:22px; font-weight:800; color:#e4e4e7; margin-bottom:2px;">$${m.price}</div>
+                <div style="font-size:11px; color:#71717a; margin-bottom:10px;">per month · cancel anytime</div>
+                <button class="btn btn-primary" style="font-size:13px; padding:8px 20px;" onclick="subscribeModel('${m.id}', '${m.stripe_price}')">Subscribe</button>
+              `}
             </div>
-          </div>
-          <p style="font-size:13px; color:#a1a1aa; line-height:1.6; margin-bottom:14px;">${m.desc}</p>
-          <div style="margin-bottom:14px;">
-            <div style="font-size:12px; font-weight:700; color:#52525b; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">Best for</div>
-            <div style="display:flex; flex-wrap:wrap; gap:6px;">
-              ${m.useCases.map(u => `<span style="font-size:12px; padding:4px 10px; border-radius:6px; background:#3b82f610; color:#3b82f6; border:1px solid #3b82f625;">${u}</span>`).join("")}
-            </div>
-          </div>
-          <div class="flex gap-16" style="font-size:12px; color:#52525b;">
-            <span>Source: <span style="color:#71717a;">${m.src}</span></span>
-            <span>Target: <span style="color:#71717a;">${m.tgt}</span></span>
-            <span>Quality: <span style="color:#71717a;">${m.quality}</span></span>
           </div>
         </div>
       </div>
     `).join("")}
+
+    <div class="card fade-up delay-4" style="margin-top:8px;">
+      <div class="card-header"><h3>How it works</h3></div>
+      <div class="card-body" style="font-size:13px; color:#a1a1aa; line-height:1.7;">
+        <div style="margin-bottom:8px;"><strong style="color:#d4d4d8;">1.</strong> Subscribe to an adapter above</div>
+        <div style="margin-bottom:8px;"><strong style="color:#d4d4d8;">2.</strong> Log in with your API key: <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">embedding-adapters login</code></div>
+        <div style="margin-bottom:8px;"><strong style="color:#d4d4d8;">3.</strong> Load the adapter — the SDK validates your license automatically (cached 24hrs)</div>
+        <div style="margin-bottom:8px;"><strong style="color:#d4d4d8;">4.</strong> Run completely offline after validation. No per-token metering.</div>
+        <div style="color:#71717a; margin-top:12px;">Cancel anytime from Stripe. Adapter stops loading when the subscription expires.</div>
+      </div>
+    </div>
+
+    <div class="card fade-up delay-5" style="margin-top:16px;">
+      <div class="card-header"><h3>Usage</h3></div>
+      <div class="card-body">
+        ${codeBlock("bash", `pip install embedding-adapters
+embedding-adapters login  # paste your API key`)}
+        ${codeBlock("python", `from sentence_transformers import SentenceTransformer
+from embedding_adapters import EmbeddingAdapter
+
+src = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+adapter = EmbeddingAdapter.from_registry(
+    source="sentence-transformers/all-MiniLM-L6-v2",
+    target="openai/text-embedding-3-large",
+    flavor="large",
+    device="cuda",
+)
+# License validated automatically — runs offline for 24hrs
+
+embs = src.encode(["your text"], normalize_embeddings=True)
+translated = adapter.encode_embeddings(embs)
+print(translated.shape)  # (1, 3072)`)}
+      </div>
+    </div>
   `;
+}
+
+async function subscribeModel(modelId, stripePriceId) {
+  try {
+    const resp = await apiFetch("POST", "/v1/models/purchase", {
+      model_id: modelId,
+      price_id: stripePriceId,
+    }, session.session_token);
+
+    if (resp.error) { alert(resp.error.message); return; }
+    if (resp.checkout_url) {
+      window.location.href = resp.checkout_url;
+    }
+  } catch (e) {
+    alert("Failed to start checkout. Please try again.");
+  }
 }
 
 // ── Adapters ──
@@ -536,7 +623,7 @@ function codeBlock(lang, code) {
         <span class="mono code-lang">${lang}</span>
         <button class="btn-copy" onclick="copyToClipboard(document.getElementById('${id}').textContent, this)">Copy</button>
       </div>
-      <pre class="code-block" id="${id}">${escHtml(code)}</pre>
+      <pre class="code-block" id="${id}">${highlightCode(code, lang)}</pre>
     </div>
   `;
 }

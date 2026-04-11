@@ -92,7 +92,7 @@ function codeBlock(lang, code) {
         <span class="mono code-lang">${lang}</span>
         <button class="btn-copy" onclick="copyToClipboard(document.getElementById('${id}').textContent, this)">Copy</button>
       </div>
-      <pre class="code-block" id="${id}">${escHtml(code)}</pre>
+      <pre class="code-block" id="${id}">${highlightCode(code, lang)}</pre>
     </div>
   `;
 }
