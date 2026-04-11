@@ -9,79 +9,80 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#08080c; --bg-card:#0d0d12; --bg-surface:#111118; --border:#1c1c26;
-  --text:#d4d4d8; --text-dim:#a1a1aa; --text-muted:#52525b;
-  --accent:#2563eb; --accent-light:#3b82f6; --green:#10b981; --purple:#6366f1;
+  --bg:#08080c; --card:#0d0d12; --border:#1c1c26;
+  --text:#d4d4d8; --dim:#a1a1aa; --muted:#52525b;
+  --accent:#2563eb; --blue:#3b82f6;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;position:relative}
-
-.grid-bg{position:fixed;inset:0;background:linear-gradient(180deg,#0c1a30 0%,#0a1222 25%,#08080c 55%);pointer-events:none;z-index:0}
-.grid-bg::before{content:'';position:absolute;inset:-50% -50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(37,99,235,0.18) 0%,transparent 40%),radial-gradient(ellipse at 70% 30%,rgba(139,92,246,0.12) 0%,transparent 40%),radial-gradient(ellipse at 50% 10%,rgba(16,185,129,0.10) 0%,transparent 40%);animation:glowDrift 25s ease-in-out infinite}
-@keyframes glowDrift{0%,100%{transform:translate(0%,0%)}25%{transform:translate(-8%,3%)}50%{transform:translate(5%,-5%)}75%{transform:translate(-3%,-2%)}}
-.grid-bg::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(37,99,235,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,0.07) 1px,transparent 1px);background-size:60px 60px}
-
-a{color:var(--accent-light);text-decoration:none}a:hover{text-decoration:underline}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .mono{font-family:'JetBrains Mono',monospace}
 
-nav{display:flex;justify-content:space-between;align-items:center;padding:16px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:rgba(8,8,12,0.85);backdrop-filter:blur(12px)}
+.grid-bg{position:fixed;inset:0;background:linear-gradient(180deg,#0c1a30 0%,#0a1222 25%,#08080c 55%);pointer-events:none;z-index:0}
+.grid-bg::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(37,99,235,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,0.07) 1px,transparent 1px);background-size:60px 60px}
+
+nav{display:flex;justify-content:space-between;align-items:center;padding:16px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:rgba(8,8,12,0.6);backdrop-filter:blur(12px)}
 .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-weight:600;font-size:17px}
 .nav-logo svg{width:28px;height:28px}
 .nav-links{display:flex;gap:24px;list-style:none}
-.nav-links a{color:var(--text-dim);font-size:14px;font-weight:500}
+.nav-links a{color:var(--dim);font-size:14px;font-weight:500}
 .nav-links a:hover{color:var(--text);text-decoration:none}
 .nav-hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px}
 .nav-hamburger span{display:block;width:22px;height:2px;background:var(--text);margin:5px 0;transition:0.3s}
 
-.container{max-width:1000px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+.wrap{max-width:900px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
 
-/* Hero */
-.uc-hero{position:relative;overflow:hidden;padding:80px 24px 60px;text-align:center;z-index:1}
-.uc-hero-bg{position:absolute;inset:0;z-index:0}
-.uc-hero-bg img{width:100%;height:100%;object-fit:cover;opacity:0.25}
-.uc-hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,12,0.3) 0%,var(--bg) 100%)}
-.uc-hero-content{position:relative;z-index:1}
-.uc-hero h1{font-size:clamp(32px,5vw,48px);font-weight:800;letter-spacing:-0.03em;margin-bottom:12px}
-.uc-hero p{font-size:17px;color:var(--text-dim);max-width:600px;margin:0 auto;line-height:1.6}
+/* Header */
+.header{text-align:center;padding:48px 0 32px}
+.header h1{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-0.03em;margin-bottom:8px}
+.header p{font-size:15px;color:var(--muted);max-width:520px;margin:0 auto}
 
 /* Use case cards */
-.uc-section{padding:64px 0;border-top:1px solid rgba(28,28,38,0.6);position:relative;z-index:1}
-.uc-card{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
-.uc-card.reverse{direction:rtl}
-.uc-card.reverse>*{direction:ltr}
-.uc-img{border-radius:16px;overflow:hidden;border:1px solid var(--border)}
-.uc-img img{width:100%;display:block}
-.uc-content{}
-.uc-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;margin-bottom:12px;letter-spacing:0.04em}
-.uc-content h2{font-size:clamp(22px,3vw,30px);font-weight:700;letter-spacing:-0.02em;margin-bottom:10px;line-height:1.2}
-.uc-content>p{font-size:15px;color:var(--text-dim);line-height:1.65;margin-bottom:16px}
-.uc-stats{display:flex;gap:24px;margin-bottom:16px;flex-wrap:wrap}
-.uc-stat{text-align:center}
-.uc-stat-val{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700}
-.uc-stat-label{font-size:11px;color:var(--text-muted)}
-.uc-bullets{list-style:none;margin-bottom:16px}
-.uc-bullets li{font-size:14px;color:var(--text-dim);padding:4px 0 4px 20px;position:relative}
-.uc-bullets li::before{content:'→';position:absolute;left:0;color:var(--accent-light);font-weight:700}
-.uc-cta{display:inline-block;font-size:13px;font-weight:600;color:var(--accent-light)}
+.uc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-bottom:48px}
+.uc{background:rgba(13,13,18,0.85);border:1px solid var(--border);border-radius:14px;padding:24px;backdrop-filter:blur(8px);position:relative;overflow:hidden}
+.uc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.uc-img{width:100%;height:140px;object-fit:cover;border-radius:8px;margin-bottom:12px;opacity:0.7}
+.uc-tag{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px}
+.uc h3{font-size:17px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.uc p{font-size:13px;color:var(--dim);line-height:1.6;margin-bottom:12px}
+.uc-stats{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+.uc-stat-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700}
+.uc-stat-label{font-size:10px;color:var(--muted)}
+.uc-bullets{list-style:none;margin-bottom:12px}
+.uc-bullets li{font-size:12px;color:var(--dim);padding:2px 0 2px 16px;position:relative}
+.uc-bullets li::before{content:'→';position:absolute;left:0;color:var(--blue);font-weight:700;font-size:11px}
 
-/* Bottom CTA */
-.bottom-cta{text-align:center;padding:64px 24px;border-top:1px solid rgba(28,28,38,0.6);position:relative;z-index:1}
+/* Colors per card */
+.uc.defense::before{background:linear-gradient(90deg,#ef4444,#dc2626)}
+.uc.defense .uc-tag{color:#ef4444}
+.uc.finance::before{background:linear-gradient(90deg,#10b981,#059669)}
+.uc.finance .uc-tag{color:#10b981}
+.uc.rag::before{background:linear-gradient(90deg,#6366f1,#4f46e5)}
+.uc.rag .uc-tag{color:#6366f1}
+.uc.airgap::before{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.uc.airgap .uc-tag{color:#f59e0b}
+.uc.mobile::before{background:linear-gradient(90deg,#3b82f6,#2563eb)}
+.uc.mobile .uc-tag{color:#3b82f6}
+.uc.health::before{background:linear-gradient(90deg,#10b981,#059669)}
+.uc.health .uc-tag{color:#10b981}
+.uc.legal::before{background:linear-gradient(90deg,#a78bfa,#8b5cf6)}
+.uc.legal .uc-tag{color:#a78bfa}
+
+/* Full-width card */
+.uc.full{grid-column:1/-1}
+
+/* CTA */
+.cta{text-align:center;padding:32px 0 56px;position:relative;z-index:1}
+.cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none}
 
 @media(max-width:768px){
   nav{padding:12px 16px}
   .nav-hamburger{display:block}
-  .nav-links{
-    display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;
-    background:rgba(8,8,12,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
-    padding:16px 24px;gap:0;
-  }
+  .nav-links{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:rgba(8,8,12,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:16px 24px;gap:0}
   nav.open .nav-links{display:flex}
   .nav-links li{padding:8px 0}
-  .uc-hero{padding:60px 16px 40px}
-  .uc-card,.uc-card.reverse{grid-template-columns:1fr;direction:ltr;gap:24px}
-  .uc-card.reverse>*{direction:ltr}
-  .uc-section{padding:40px 0}
-  .uc-stats{gap:16px}
+  .uc-grid{grid-template-columns:1fr;gap:16px}
+  .header{padding:32px 0 24px}
 }
 </style>
 </head>
@@ -99,191 +100,128 @@ nav{display:flex;justify-content:space-between;align-items:center;padding:16px 4
   <ul class="nav-links">
     <li><a href="index.html">Home</a></li>
     <li><a href="benchmarks.html">Benchmarks</a></li>
-    <li><a href="docs.html">API Docs</a></li>
     <li><a href="dashboard.html">Dashboard</a></li>
   </ul>
 </nav>
 
-<!-- Hero -->
-<section class="uc-hero">
-  <div class="uc-hero-bg"><img src="img/usecases/hero.png" alt=""></div>
-  <div class="uc-hero-content">
-    <h1>Where EmbeddingAdapters<br>changes the game</h1>
-    <p>Provider-grade embeddings running locally at 18,000 tok/s. From defense systems to consumer mobile apps — anywhere you need fast, private, cheap retrieval without sacrificing quality.</p>
+<div class="wrap">
+
+<div class="header">
+  <h1>Use Cases</h1>
+  <p>Anywhere you need fast, private, cheap embeddings without sacrificing retrieval quality.</p>
+</div>
+
+<div class="uc-grid">
+
+  <div class="uc defense">
+    <img src="img/usecases/defense.png" alt="" class="uc-img">
+    <div class="uc-tag">Defense & Intelligence</div>
+    <h3>Secure RAG on air-gapped networks</h3>
+    <p>Defense analysts search thousands of sensitive documents on networks with zero external connectivity. EmbeddingAdapters runs entirely on-device, producing embeddings compatible with indexes built by commercial providers.</p>
+    <div class="uc-stats">
+      <div><div class="uc-stat-val" style="color:#ef4444;">0</div><div class="uc-stat-label">API calls</div></div>
+      <div><div class="uc-stat-val" style="color:#ef4444;">50ms</div><div class="uc-stat-label">Latency</div></div>
+      <div><div class="uc-stat-val" style="color:#ef4444;">Air-gapped</div><div class="uc-stat-label">Deployment</div></div>
+    </div>
+    <ul class="uc-bullets">
+      <li>Run on secure facilities with zero external connectivity</li>
+      <li>Index during initial setup, query locally in the field</li>
+      <li>Quality routing disabled — everything stays on device</li>
+    </ul>
   </div>
-</section>
 
-<div class="container">
+  <div class="uc finance">
+    <img src="img/usecases/finance.png" alt="" class="uc-img">
+    <div class="uc-tag">Finance & Trading</div>
+    <h3>Real-time market intelligence at trading speed</h3>
+    <p>Quantitative trading desks search earnings calls, SEC filings, and analyst reports in milliseconds. Every millisecond of API latency is money left on the table.</p>
+    <div class="uc-stats">
+      <div><div class="uc-stat-val" style="color:#10b981;">50ms</div><div class="uc-stat-label">vs 800ms API</div></div>
+      <div><div class="uc-stat-val" style="color:#10b981;">18K/s</div><div class="uc-stat-label">Tokens</div></div>
+      <div><div class="uc-stat-val" style="color:#10b981;">99%</div><div class="uc-stat-label">Cost cut</div></div>
+    </div>
+    <ul class="uc-bullets">
+      <li>Ingest earnings transcripts in real-time</li>
+      <li>No rate limits during market hours</li>
+      <li>Proprietary signals stay off third-party servers</li>
+    </ul>
+  </div>
 
-<!-- ═══ DEFENSE & INTELLIGENCE ═══ -->
-<section class="uc-section">
-  <div class="uc-card">
-    <div class="uc-img"><img src="img/usecases/defense.png" alt="Defense and Intelligence"></div>
-    <div class="uc-content">
-      <div class="uc-tag" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);">DEFENSE & INTELLIGENCE</div>
-      <h2>Secure RAG on air-gapped networks</h2>
-      <p>Defense analysts need to search thousands of defense documents instantly. But secure networks can't call external embedding APIs. EmbeddingAdapters runs entirely on-device — no internet required — while producing embeddings compatible with indexes originally built with commercial providers.</p>
-      <div class="uc-stats">
-        <div class="uc-stat"><div class="uc-stat-val" style="color:#ef4444;">0</div><div class="uc-stat-label">External API calls</div></div>
-        <div class="uc-stat"><div class="uc-stat-val" style="color:#ef4444;">50ms</div><div class="uc-stat-label">Query latency</div></div>
-        <div class="uc-stat"><div class="uc-stat-val" style="color:#ef4444;">Air-gapped</div><div class="uc-stat-label">Deployment</div></div>
-      </div>
-      <ul class="uc-bullets">
-        <li>Run on SCIFs and secure networks with zero external connectivity</li>
-        <li>Index documents with a provider during uninitial prep, query locally in the field</li>
-        <li>Quality routing disabled (quality=0) — everything stays on the device</li>
-        <li>Embed entire document databases in hours, not days</li>
-      </ul>
-      <a href="commercial.html" class="uc-cta">Talk to our defense team →</a>
+  <div class="uc rag full">
+    <img src="img/usecases/rag_speed.png" alt="" class="uc-img">
+    <div class="uc-tag">High-Throughput RAG</div>
+    <h3>Embed millions of documents in minutes, not hours</h3>
+    <p>Large-scale RAG pipelines bottleneck on embedding API throughput. Rate limits, network latency, and per-token costs make bulk indexing painful. EmbeddingAdapters processes 18,000 tokens/second on a single GPU — embed your entire corpus locally, then query with provider-compatible vectors.</p>
+    <div class="uc-stats">
+      <div><div class="uc-stat-val" style="color:#6366f1;">18,000</div><div class="uc-stat-label">Tokens/sec</div></div>
+      <div><div class="uc-stat-val" style="color:#6366f1;">0</div><div class="uc-stat-label">Rate limits</div></div>
+      <div><div class="uc-stat-val" style="color:#6366f1;">$0</div><div class="uc-stat-label">Re-index cost</div></div>
+      <div><div class="uc-stat-val" style="color:#6366f1;">16</div><div class="uc-stat-label">Concurrent users</div></div>
     </div>
   </div>
-</section>
 
-<!-- ═══ FINANCE & TRADING ═══ -->
-<section class="uc-section">
-  <div class="uc-card reverse">
-    <div class="uc-img"><img src="img/usecases/finance.png" alt="Finance and Trading"></div>
-    <div class="uc-content">
-      <div class="uc-tag" style="background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.2);">FINANCE & TRADING</div>
-      <h2>Real-time market intelligence at trading speed</h2>
-      <p>Quantitative trading desks need to search earnings calls, SEC filings, analyst reports, and news in milliseconds — not seconds. Every millisecond of API latency is money left on the table. Local adapters deliver embeddings in 50ms with zero network dependency.</p>
-      <div class="uc-stats">
-        <div class="uc-stat"><div class="uc-stat-val" style="color:var(--green);">50ms</div><div class="uc-stat-label">vs 800ms+ API</div></div>
-        <div class="uc-stat"><div class="uc-stat-val" style="color:var(--green);">18K/s</div><div class="uc-stat-label">Tokens processed</div></div>
-        <div class="uc-stat"><div class="uc-stat-val" style="color:var(--green);">99%</div><div class="uc-stat-label">Cost reduction</div></div>
-      </div>
-      <ul class="uc-bullets">
-        <li>Ingest and embed earnings transcripts in real-time as they're released</li>
-        <li>Search millions of SEC filings with sub-100ms retrieval</li>
-        <li>No rate limits during market hours — process unlimited queries locally</li>
-        <li>Keep proprietary trading signals off third-party API servers</li>
-      </ul>
-      <a href="benchmarks.html" class="uc-cta">See retrieval benchmarks →</a>
+  <div class="uc airgap">
+    <img src="img/usecases/airgapped.png" alt="" class="uc-img">
+    <div class="uc-tag">High Security</div>
+    <h3>Provider quality without data leaving your network</h3>
+    <p>Healthcare, government, and regulated industries can't send sensitive data to third-party embedding APIs. EmbeddingAdapters delivers 97% of provider quality entirely on-premise.</p>
+    <div class="uc-stats">
+      <div><div class="uc-stat-val" style="color:#f59e0b;">0.934</div><div class="uc-stat-label">MRR@10 local</div></div>
+      <div><div class="uc-stat-val" style="color:#f59e0b;">HIPAA</div><div class="uc-stat-label">Compatible</div></div>
     </div>
+    <ul class="uc-bullets">
+      <li>Deploy inside your VPC or on-prem data center</li>
+      <li>Patient records and PII never touch external servers</li>
+      <li>Same format as provider indexes — migrate without re-indexing</li>
+    </ul>
   </div>
-</section>
 
-<!-- ═══ HIGH-SPEED RAG ═══ -->
-<section class="uc-section">
-  <div class="uc-card">
-    <div class="uc-img"><img src="img/usecases/rag_speed.png" alt="High-speed RAG"></div>
-    <div class="uc-content">
-      <div class="uc-tag" style="background:rgba(99,102,241,0.1);color:#6366f1;border:1px solid rgba(99,102,241,0.2);">HIGH-THROUGHPUT RAG</div>
-      <h2>Embed millions of documents in minutes, not hours</h2>
-      <p>Large-scale RAG pipelines bottleneck on embedding API throughput. Rate limits, network latency, and per-token costs make bulk indexing painful. EmbeddingAdapters processes 18,000 tokens/second on a single GPU — embed your entire corpus locally, then query it with provider-compatible vectors.</p>
-      <div class="uc-stats">
-        <div class="uc-stat"><div class="uc-stat-val" style="color:var(--purple);">18,000</div><div class="uc-stat-label">Tokens/sec (MiniLM)</div></div>
-        <div class="uc-stat"><div class="uc-stat-val" style="color:var(--purple);">8,192</div><div class="uc-stat-label">Texts in 5.9 seconds</div></div>
-        <div class="uc-stat"><div class="uc-stat-val" style="color:var(--purple);">16</div><div class="uc-stat-label">Concurrent users</div></div>
-      </div>
-      <ul class="uc-bullets">
-        <li>Bulk-embed entire document collections without hitting rate limits</li>
-        <li>Re-index nightly with zero marginal cost</li>
-        <li>Serve real-time queries while background indexing continues</li>
-        <li>Scale horizontally — each GPU handles 18K tok/s independently</li>
-      </ul>
-      <a href="benchmarks.html#performance" class="uc-cta">See throughput benchmarks →</a>
+  <div class="uc mobile">
+    <img src="img/usecases/mobile.png" alt="" class="uc-img">
+    <div class="uc-tag">Mobile & Edge</div>
+    <h3>Millions of users, millions of questions</h3>
+    <p>Consumer apps with AI search generate massive embedding volume. At $0.13/M tokens with OpenAI, costs explode. EmbeddingAdapters drops that to $0.001/M with the same retrieval quality.</p>
+    <div class="uc-stats">
+      <div><div class="uc-stat-val" style="color:#3b82f6;">130×</div><div class="uc-stat-label">Cheaper</div></div>
+      <div><div class="uc-stat-val" style="color:#3b82f6;">∞</div><div class="uc-stat-label">Queries/mo</div></div>
     </div>
+    <ul class="uc-bullets">
+      <li>Serve 10M+ queries/month at a fraction of cost</li>
+      <li>No rate limits — handle traffic spikes</li>
+      <li>Backend fits on a single $0.50/hr GPU</li>
+    </ul>
   </div>
-</section>
 
-<!-- ═══ AIR-GAPPED / HIGH SECURITY ═══ -->
-<section class="uc-section">
-  <div class="uc-card reverse">
-    <div class="uc-img"><img src="img/usecases/airgapped.png" alt="Air-gapped security"></div>
-    <div class="uc-content">
-      <div class="uc-tag" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.2);">HIGH SECURITY</div>
-      <h2>Provider quality without data leaving your network</h2>
-      <p>Healthcare, government, and regulated industries can't send sensitive data to third-party embedding APIs. But they still need state-of-the-art retrieval. EmbeddingAdapters delivers 97% of OpenAI's quality entirely on-premise — your data never leaves your infrastructure.</p>
-      <div class="uc-stats">
-        <div class="uc-stat"><div class="uc-stat-val" style="color:#f59e0b;">0.934</div><div class="uc-stat-label">MRR@10 (local only)</div></div>
-        <div class="uc-stat"><div class="uc-stat-val" style="color:#f59e0b;">0%</div><div class="uc-stat-label">Data exfiltration risk</div></div>
-        <div class="uc-stat"><div class="uc-stat-val" style="color:#f59e0b;">HIPAA</div><div class="uc-stat-label">Compatible</div></div>
-      </div>
-      <ul class="uc-bullets">
-        <li>Deploy inside your VPC, on-prem data center, or edge device</li>
-        <li>Patient records, legal documents, and PII never touch external servers</li>
-        <li>Same embedding format as provider indexes — migrate without re-indexing</li>
-        <li>Audit trail: every embedding generated locally, fully traceable</li>
-      </ul>
-      <a href="commercial.html" class="uc-cta">Discuss enterprise deployment →</a>
-    </div>
+  <div class="uc health">
+    <img src="img/usecases/healthcare.png" alt="" class="uc-img">
+    <div class="uc-tag">Healthcare & Research</div>
+    <h3>Search patient records without sending PHI to the cloud</h3>
+    <p>Medical RAG systems search clinical notes, research databases, and drug interaction data. HIPAA compliance means patient data stays on the hospital network.</p>
+    <ul class="uc-bullets">
+      <li>Embed clinical notes, radiology reports, lab results on-site</li>
+      <li>Cross-reference against PubMed without re-embedding</li>
+      <li>Train domain-specific adapters on medical terminology</li>
+    </ul>
   </div>
-</section>
 
-<!-- ═══ MOBILE & EDGE ═══ -->
-<section class="uc-section">
-  <div class="uc-card">
-    <div class="uc-img"><img src="img/usecases/mobile.png" alt="Mobile applications"></div>
-    <div class="uc-content">
-      <div class="uc-tag" style="background:rgba(37,99,235,0.1);color:#3b82f6;border:1px solid rgba(37,99,235,0.2);">MOBILE & EDGE</div>
-      <h2>Millions of users asking millions of questions</h2>
-      <p>Consumer apps with AI search — recipe finders, study assistants, shopping helpers, travel guides — generate massive embedding volume. At $0.13/M tokens with OpenAI, costs explode. EmbeddingAdapters drops that to $0.001/M while keeping the same retrieval quality users expect.</p>
-      <div class="uc-stats">
-        <div class="uc-stat"><div class="uc-stat-val" style="color:var(--accent-light);">130×</div><div class="uc-stat-label">Cheaper per query</div></div>
-        <div class="uc-stat"><div class="uc-stat-val" style="color:var(--accent-light);">0</div><div class="uc-stat-label">Rate limit errors</div></div>
-        <div class="uc-stat"><div class="uc-stat-val" style="color:var(--accent-light);">∞</div><div class="uc-stat-label">Queries/month</div></div>
-      </div>
-      <ul class="uc-bullets">
-        <li>Serve 10M+ queries/month at a fraction of provider API costs</li>
-        <li>No rate limits — handle traffic spikes without degradation</li>
-        <li>Quality routing: easy queries stay local, complex ones escalate</li>
-        <li>Backend adapter server fits on a single $0.50/hr GPU instance</li>
-      </ul>
-      <a href="dashboard.html" class="uc-cta">Get API key →</a>
-    </div>
+  <div class="uc legal">
+    <img src="img/usecases/legal.png" alt="" class="uc-img">
+    <div class="uc-tag">Legal & Compliance</div>
+    <h3>Search millions of case files in milliseconds</h3>
+    <p>Law firms manage enormous document corpora — contracts, case law, regulatory filings. Sending privileged documents to cloud APIs is a non-starter.</p>
+    <ul class="uc-bullets">
+      <li>Attorney-client privilege preserved on your servers</li>
+      <li>Semantic search across contracts and case law</li>
+      <li>Embed 100K+ documents overnight at zero API cost</li>
+    </ul>
   </div>
-</section>
-
-<!-- ═══ HEALTHCARE ═══ -->
-<section class="uc-section">
-  <div class="uc-card reverse">
-    <div class="uc-img"><img src="img/usecases/healthcare.png" alt="Healthcare"></div>
-    <div class="uc-content">
-      <div class="uc-tag" style="background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.2);">HEALTHCARE & RESEARCH</div>
-      <h2>Search patient records and research papers without sending PHI to the cloud</h2>
-      <p>Medical RAG systems need to search clinical notes, research databases, and drug interaction data. HIPAA compliance means patient data can't leave the hospital network. Run locally, get provider-grade retrieval, stay compliant.</p>
-      <ul class="uc-bullets">
-        <li>Embed and search clinical notes, radiology reports, and lab results on-site</li>
-        <li>Cross-reference against PubMed-indexed research without re-embedding</li>
-        <li>Train domain-specific LoRA adapters on medical terminology</li>
-        <li>Integrate with existing EHR systems via standard REST API</li>
-      </ul>
-      <a href="commercial.html" class="uc-cta">Discuss healthcare deployment →</a>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ LEGAL ═══ -->
-<section class="uc-section">
-  <div class="uc-card">
-    <div class="uc-img"><img src="img/usecases/legal.png" alt="Legal"></div>
-    <div class="uc-content">
-      <div class="uc-tag" style="background:rgba(139,92,246,0.1);color:#a78bfa;border:1px solid rgba(139,92,246,0.2);">LEGAL & COMPLIANCE</div>
-      <h2>Search millions of case files and contracts in milliseconds</h2>
-      <p>Law firms and compliance teams manage enormous document corpora — contracts, case law, regulatory filings, correspondence. Traditional keyword search misses semantic matches. Embedding search finds them, but sending privileged documents to cloud APIs is a non-starter.</p>
-      <ul class="uc-bullets">
-        <li>Attorney-client privilege preserved — documents stay on your servers</li>
-        <li>Semantic search across contracts, case law, and regulatory databases</li>
-        <li>Embed an entire case room (100K+ documents) overnight at zero API cost</li>
-        <li>Train custom adapters on legal language for higher precision</li>
-      </ul>
-      <a href="commercial.html" class="uc-cta">Discuss legal deployment →</a>
-    </div>
-  </div>
-</section>
 
 </div>
 
-<!-- Bottom CTA -->
-<section class="bottom-cta">
-  <h2 style="font-size:clamp(24px,3vw,32px);font-weight:700;letter-spacing:-0.02em;margin-bottom:8px;">Ready to deploy?</h2>
-  <p style="font-size:15px;color:var(--text-dim);max-width:500px;margin:0 auto 24px;">Start with the API for instant access, or talk to us about on-premise deployment for your organization.</p>
-  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-    <a href="dashboard.html" style="display:inline-block;background:var(--accent);color:#fff;padding:12px 28px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;">Get API key →</a>
-    <a href="commercial.html" style="display:inline-block;background:var(--bg-card);color:var(--text);padding:12px 28px;border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;border:1px solid var(--border);">Enterprise inquiries →</a>
-  </div>
-</section>
+<div class="cta">
+  <a href="dashboard.html" class="cta-btn">Get API key →</a>
+</div>
 
+</div>
 </body>
 </html>

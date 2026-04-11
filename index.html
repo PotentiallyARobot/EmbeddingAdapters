@@ -168,24 +168,6 @@ body {
   pointer-events: none;
   z-index: 0;
 }
-.grid-bg::before {
-  content: '';
-  position: absolute;
-  inset: -50% -50%;
-  width: 200%;
-  height: 200%;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(37,99,235,0.18) 0%, transparent 40%),
-    radial-gradient(ellipse at 70% 30%, rgba(139,92,246,0.12) 0%, transparent 40%),
-    radial-gradient(ellipse at 50% 10%, rgba(16,185,129,0.10) 0%, transparent 40%);
-  animation: glowDrift 25s ease-in-out infinite;
-}
-@keyframes glowDrift {
-  0%, 100% { transform: translate(0%, 0%); }
-  25% { transform: translate(-8%, 3%); }
-  50% { transform: translate(5%, -5%); }
-  75% { transform: translate(-3%, -2%); }
-}
 .grid-bg::after {
   content: '';
   position: absolute;
@@ -1195,14 +1177,14 @@ section {
 /* ═══ CTA ═══ */
 .cta-section {
   text-align: center;
-  padding: 120px 24px;
+  padding: 48px 24px;
 }
 
 .cta-box {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 28px;
-  padding: 72px 48px;
+  padding: 48px 36px;
   max-width: 720px;
   margin: 0 auto;
   position: relative;
@@ -1576,16 +1558,7 @@ footer {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
 
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
 
 /* ═══ RESPONSIVE ═══ */
 @media (max-width: 900px) {
@@ -1726,7 +1699,6 @@ footer {
     <li><a href="usecases.html">Use Cases</a></li>
     <li><a href="how.html">How It Works</a></li>
     <li><a href="benchmarks.html">Benchmarks</a></li>
-    <li><a href="docs.html">API Docs</a></li>
     <li><a href="https://github.com/PotentiallyARobot/EmbeddingAdapters" target="_blank">GitHub</a></li>
     <li><a href="commercial.html">Enterprise</a></li>
     <li><a href="dashboard.html" class="nav-cta">Dashboard →</a></li>
@@ -1781,7 +1753,7 @@ footer {
 
 <!-- ═══ ADAPTER QUALITY ═══ -->
 <section style="position:relative; z-index:1; padding:40px 24px 48px;">
-  <div class="container reveal" style="max-width:800px;">
+  <div class="container" style="max-width:800px;">
     <div class="aq-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:32px; position:relative; overflow:hidden;">
       <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #3b82f6, #10b981);"></div>
       <h3 style="font-size:20px; font-weight:700; margin-bottom:12px;">Adapters typically recover >90% of the target model's retrieval accuracy</h3>
@@ -1824,9 +1796,10 @@ footer {
 
 <!-- ═══ BENCHMARK PROOF ═══ -->
 <section style="position:relative; z-index:1; padding:0 24px 48px;">
-  <div class="container reveal" style="max-width:1000px;">
+  <div class="container" style="max-width:1000px;">
     <div style="text-align:center; margin-bottom:28px;">
       <span style="font-family:var(--font-mono); font-size:11px; font-weight:600; color:var(--accent); letter-spacing:0.08em; text-transform:uppercase;">Proven on real retrieval benchmarks</span>
+      <p style="font-size:14px; color:var(--text-muted); max-width:600px; margin:10px auto 0; line-height:1.6;">Tested on HotpotQA (multi-hop reasoning) and Natural Questions (factoid Q&A). Adapted queries search a corpus embedded with OpenAI text-embedding-3-large — the same setup you'd use in production.</p>
     </div>
 
     <div class="bench-chart-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start;">
@@ -1857,8 +1830,8 @@ footer {
 
 
 <!-- ═══ VALUE PROPS ═══ -->
-<section style="position:relative; z-index:1; padding:0 24px 56px;">
-  <div class="container reveal" style="max-width:1000px;">
+<section style="position:relative; z-index:1; padding:0 24px 24px;">
+  <div class="container" style="max-width:1000px;">
     <div class="value-prop-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px;">
 
       <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:32px 28px; text-align:center;">
@@ -1885,7 +1858,7 @@ footer {
 
 <!-- ═══ CTA ═══ -->
 <section class="cta-section">
-  <div class="cta-box reveal">
+  <div class="cta-box">
     <h2>Stop paying per-query for embeddings</h2>
     <p>Run provider-grade embeddings locally at 18,000 tok/s. Smart routing handles the edge cases. Your index stays exactly the same.</p>
     <div class="cta-actions">
@@ -1897,29 +1870,6 @@ footer {
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         Open-source library
       </a>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ ENTERPRISE ═══ -->
-<section id="enterprise" class="enterprise-section">
-  <div class="container reveal">
-    <div class="enterprise-card">
-      <div class="enterprise-content">
-        <span class="enterprise-label">For teams & enterprises</span>
-        <h3>Custom adapters for your domain and provider</h3>
-        <p>The base adapters handle general text at 97% of provider quality. But specialized domains — legal, medical, code, multilingual — deserve custom training. A domain-specific LoRA adapter pushes accuracy higher and routes fewer queries to the provider, cutting costs further.</p>
-        <ul class="enterprise-list">
-          <li>Custom LoRA training on your corpus</li>
-          <li>Support for any target provider</li>
-          <li>Dedicated deployment & SLA</li>
-          <li>Self-hosted or managed API</li>
-        </ul>
-        <a href="commercial.html" class="btn-enterprise">
-          Commercial inquiries
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4l-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
     </div>
   </div>
 </section>
@@ -1968,7 +1918,7 @@ footer {
         <a href="how.html">How It Works</a>
         <a href="benchmarks.html">Benchmarks</a>
         <a href="dashboard.html">API Dashboard</a>
-        <a href="docs.html">API Documentation</a>
+        <a href="dashboard.html">API Documentation</a>
       </div>
       <div class="footer-col">
         <h4>Resources</h4>
@@ -2019,19 +1969,6 @@ function copyExample(btn) {
   btn.textContent = 'Copied!'; btn.classList.add('copied');
   setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
 }
-
-// Reveal on scroll
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      e.target.querySelectorAll('.bench-bar').forEach(bar => {
-        setTimeout(() => bar.style.width = bar.getAttribute('data-width') + '%', 200);
-      });
-    }
-  });
-}, { threshold: 0.15 });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 // ═══ CONTACT FORM (FormSubmit.co AJAX) ═══
 document.getElementById('contactForm').addEventListener('submit', async function(e) {
