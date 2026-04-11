@@ -155,9 +155,84 @@ function renderOverview(el) {
   }
 
   el.innerHTML = `
-    <h2 style="font-size:22px; font-weight:800; margin-bottom:24px;">Overview</h2>
+    <h2 style="font-size:22px; font-weight:800; margin-bottom:8px;">Overview</h2>
+    <p style="font-size:14px; color:#a1a1aa; line-height:1.6; margin-bottom:20px;">
+      Generate <strong style="color:#d4d4d8;">openai/text-embedding-3-large</strong> compatible embeddings at a fraction of the cost.
+      Drop-in replacement — same 3072-d vectors, same cosine similarity, works with your existing Pinecone / Weaviate / pgvector index.
+      No OpenAI API key needed.
+    </p>
 
     <div class="card fade-up" style="margin-bottom:20px; border-color:#3b82f630;">
+      <div class="card-header" style="border-color:#3b82f620;"><h3>Try it now — your key is pre-filled</h3></div>
+      <div class="card-body">
+        ${tabbedCodeBlock([
+          { lang:"python", label:"Python", code: `import requests, base64, numpy as np
+
+resp = requests.post("${API_BASE}/v1/embed",
+    headers={"Authorization": "Bearer ${userData.api_key}"},
+    json={
+        "texts": ["How do neural networks learn?", "The cat sat on the mat"],
+        "model": "minilm-te3-adapted",
+        "quality": 0,
+    })
+
+data = resp.json()
+embs = np.frombuffer(
+    base64.b64decode(data["embeddings_b64"]),
+    dtype=np.float32
+).reshape(data["n"], data["dim"])
+
+print(f"Shape: {embs.shape}")           # (2, 3072) — openai/text-embedding-3-large compatible
+print(f"Cost:  \${data['usage']['cost']}")  # fraction of OpenAI pricing` },
+          { lang:"bash", label:"cURL", code: `curl -X POST ${API_BASE}/v1/embed \\
+  -H "Authorization: Bearer ${userData.api_key}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "texts": ["How do neural networks learn?"],
+    "model": "minilm-te3-adapted",
+    "quality": 0
+  }'
+
+# Returns base64-encoded float32 vectors (3072-d)
+# Drop directly into any openai/text-embedding-3-large index` },
+        ])}
+      </div>
+    </div>
+
+    <div class="card fade-up delay-1" style="margin-bottom:20px;">
+      <div class="card-body" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+        <div style="text-align:center;">
+          <div style="font-size:24px; font-weight:800; color:#3b82f6;">3072-d</div>
+          <div style="font-size:12px; color:#71717a;">TE3-large compatible vectors</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:24px; font-weight:800; color:#10b981;">50-69%</div>
+          <div style="font-size:12px; color:#71717a;">cheaper than OpenAI</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:24px; font-weight:800; color:#f59e0b;">0</div>
+          <div style="font-size:12px; color:#71717a;">OpenAI API calls at quality=0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card fade-up delay-2" style="margin-bottom:20px;">
+      <div class="card-header"><h3>Available API Models</h3></div>
+      <div class="card-body">
+        <table class="table mono" style="font-size:12px;">
+          <thead><tr><th>model</th><th>Source → Target</th><th>Output</th><th>Cost</th></tr></thead>
+          <tbody>
+            <tr><td class="green">minilm-te3-adapted</td><td>MiniLM-L6-v2 → openai/text-embedding-3-large</td><td>3072d</td><td>$0.065/1M tok</td></tr>
+            <tr><td class="green">qwen06b-te3-adapted</td><td>Qwen3-0.6B → openai/text-embedding-3-large</td><td>3072d</td><td>$0.040/1M tok</td></tr>
+            <tr><td class="green">te3-qwen3-8b-adapted</td><td>openai/text-embedding-3-large → Qwen3-8B</td><td>4096d</td><td>$0.080/1M tok</td></tr>
+            <tr><td class="green">all-MiniLM-L6-v2</td><td>Raw MiniLM (no adapter)</td><td>384d</td><td>$0.010/1M tok</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px; color:#52525b; margin-top:8px;">See <a href="#" onclick="switchTab('apidocs'); return false;" style="color:#3b82f6;">API Docs</a> for full examples for every model.</p>
+      </div>
+    </div>
+
+    <div class="card fade-up delay-3" style="margin-bottom:20px; border-color:#3b82f630;">
       <div class="card-header" style="border-color:#3b82f620;">
         <h3 style="color:#3b82f6;">Your API Key</h3>
         <div class="flex gap-8">
@@ -175,83 +250,44 @@ function renderOverview(el) {
     </div>
 
     <div class="grid-3" style="margin-bottom:28px;">
-      <div class="stat fade-up delay-1">
+      <div class="stat fade-up delay-4">
         <div class="stat-label">Balance</div>
         <div class="stat-value mono" style="color:#3b82f6;">$${d.balance.toFixed(4)}</div>
         <div class="stat-sub mono">Available credits</div>
       </div>
-      <div class="stat fade-up delay-2">
+      <div class="stat fade-up delay-4">
         <div class="stat-label">Total Spent</div>
         <div class="stat-value mono" style="color:#f59e0b;">$${d.total_spent.toFixed(4)}</div>
         <div class="stat-sub mono">Lifetime usage</div>
       </div>
-      <div class="stat fade-up delay-3">
+      <div class="stat fade-up delay-4">
         <div class="stat-label">Passages Embedded</div>
         <div class="stat-value mono" style="color:#6366f1;">${d.total_passages.toLocaleString()}</div>
         <div class="stat-sub mono">Total API calls</div>
       </div>
     </div>
 
-    <div class="card fade-up delay-4">
-      <div class="card-header"><h3>Quick Start — API</h3></div>
+    <div class="card fade-up delay-5">
+      <div class="card-header"><h3>Run Locally — Python SDK ($10/month)</h3></div>
       <div class="card-body">
-        <p style="font-size:14px; color:#a1a1aa; line-height:1.6; margin-bottom:16px;">
-          Your API key is pre-filled — copy and run:
+        <p style="font-size:13px; color:#a1a1aa; line-height:1.6; margin-bottom:12px;">
+          Run the adapter on your own GPU. No per-token cost. License validates once, then offline for 24 hours.
         </p>
-        ${tabbedCodeBlock([
-          { lang:"python", label:"Python", code: `import requests, base64, numpy as np
-
-resp = requests.post("${API_BASE}/v1/embed",
-    headers={"Authorization": "Bearer ${userData.api_key}"},
-    json={
-        "texts": ["Hello world", "Embedding adapters are great"],
-        "model": "qwen06b-te3-adapted",
-        "quality": 0,   # 0 = fully local, no provider calls
-    })
-
-data = resp.json()
-embs = np.frombuffer(
-    base64.b64decode(data["embeddings_b64"]),
-    dtype=np.float32
-).reshape(data["n"], data["dim"])
-
-print(f"Shape: {embs.shape}")         # (2, 3072)
-print(f"Cost:  \${data['usage']['cost']}")` },
-          { lang:"bash", label:"cURL", code: `curl ${API_BASE}/v1/embed \\
-  -H "Authorization: Bearer ${userData.api_key}" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "texts": ["Hello world"],
-    "model": "qwen06b-te3-adapted",
-    "quality": 0
-  }'` },
-        ])}
-      </div>
-    </div>
-
-    <div class="card fade-up delay-5" style="margin-top:16px;">
-      <div class="card-header"><h3>Quick Start — Local Python Package</h3></div>
-      <div class="card-body">
-        <p style="font-size:14px; color:#a1a1aa; line-height:1.6; margin-bottom:16px;">
-          Run adapters locally without the API server:
-        </p>
-        ${codeBlock("bash", `pip install embedding-adapters`)}
+        ${codeBlock("bash", `pip install embedding-adapters
+embedding-adapters login`)}
         ${codeBlock("python", `from sentence_transformers import SentenceTransformer
 from embedding_adapters import EmbeddingAdapter
 
-# Load source model + adapter
 src = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 adapter = EmbeddingAdapter.from_registry(
     source="sentence-transformers/all-MiniLM-L6-v2",
-    target="openai/text-embedding-3-small",
-    flavor="large",
-    device="cuda",
+    target="openai/text-embedding-3-large",
+    flavor="v2", device="cuda",
 )
 
-# Embed and translate
-src_embs = src.encode(["Hello world"], normalize_embeddings=True)
-translated = adapter.encode_embeddings(src_embs)
-print(translated.shape)  # (1, 1536) — openai/text-embedding-3-small compatible`)}
+embs = src.encode(["your text here"], normalize_embeddings=True)
+translated = adapter.encode_embeddings(embs)
+print(translated.shape)  # (1, 3072) — same as openai/text-embedding-3-large`)}
       </div>
     </div>
   `;
