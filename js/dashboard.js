@@ -59,8 +59,8 @@ function renderSidebar() {
   sb.innerHTML = `
     <div class="sidebar-header">
       <a href="index.html" class="nav-logo">
-        <div class="nav-logo-icon mono">E</div>
-        <span class="nav-logo-text">Embedding Adapters</span>
+        <div class="nav-logo-icon"><svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="#2563eb"/><path d="M7 14h5l3-6 3 12 3-6h5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="nav-logo-text">EmbeddingAdapters</span>
       </a>
     </div>
     <div class="sidebar-nav">
@@ -106,7 +106,7 @@ function renderOverview(el) {
           <div style="font-size:48px; margin-bottom:16px;">🔑</div>
           <h3 style="font-size:20px; font-weight:700; margin-bottom:8px;">Create your API key</h3>
           <p style="color:#71717a; line-height:1.6; margin-bottom:8px; max-width:400px; margin-left:auto; margin-right:auto;">
-            Get started with <strong style="color:#10b981;">10,000 free tokens</strong> — enough to embed ~100 texts and test every model.
+            Get started with <strong style="color:#3b82f6;">10,000 free tokens</strong> — enough to embed ~100 texts and test every model.
           </p>
           <p style="color:#52525b; font-size:13px; margin-bottom:24px;">No credit card required.</p>
           <button class="btn btn-primary" onclick="createApiKey()" id="create-key-btn" style="font-size:16px; padding:14px 32px;">
@@ -141,16 +141,16 @@ function renderOverview(el) {
   el.innerHTML = `
     <h2 style="font-size:22px; font-weight:800; margin-bottom:24px;">Overview</h2>
 
-    <div class="card fade-up" style="margin-bottom:20px; border-color:#10b98130;">
-      <div class="card-header" style="border-color:#10b98120;">
-        <h3 style="color:#10b981;">Your API Key</h3>
+    <div class="card fade-up" style="margin-bottom:20px; border-color:#3b82f630;">
+      <div class="card-header" style="border-color:#3b82f620;">
+        <h3 style="color:#3b82f6;">Your API Key</h3>
         <div class="flex gap-8">
           <button class="btn-copy" onclick="toggleKey()">${keyVisible ? "Hide" : "Reveal"}</button>
           <button class="btn-copy" onclick="copyToClipboard('${userData.api_key}', this)">Copy</button>
         </div>
       </div>
       <div class="card-body">
-        <div class="mono" style="font-size:14px; color:${keyVisible ? "#10b981" : "#3f3f46"};
+        <div class="mono" style="font-size:14px; color:${keyVisible ? "#3b82f6" : "#3f3f46"};
           word-break:break-all; user-select:${keyVisible ? "all" : "none"};
           padding:12px 16px; background:#08080c; border-radius:8px; border:1px solid #1c1c26;">
           ${keyVisible ? escHtml(userData.api_key) : userData.api_key.slice(0, 10) + "•".repeat(24) + userData.api_key.slice(-4)}
@@ -161,7 +161,7 @@ function renderOverview(el) {
     <div class="grid-3" style="margin-bottom:28px;">
       <div class="stat fade-up delay-1">
         <div class="stat-label">Balance</div>
-        <div class="stat-value mono" style="color:#10b981;">$${d.balance.toFixed(4)}</div>
+        <div class="stat-value mono" style="color:#3b82f6;">$${d.balance.toFixed(4)}</div>
         <div class="stat-sub mono">Available credits</div>
       </div>
       <div class="stat fade-up delay-2">
@@ -286,7 +286,7 @@ function renderKeys(el) {
         </div>
       </div>
       <div class="card-body">
-        <div class="mono" style="font-size:14px; color:${keyVisible ? "#10b981" : "#3f3f46"};
+        <div class="mono" style="font-size:14px; color:${keyVisible ? "#3b82f6" : "#3f3f46"};
           word-break:break-all; user-select:${keyVisible ? "all" : "none"};
           padding:12px 16px; background:#08080c; border-radius:8px; border:1px solid #1c1c26;">
           ${keyVisible ? escHtml(userData.api_key) : masked}
@@ -371,7 +371,7 @@ function renderBilling(el) {
     <div class="grid-2" style="margin-bottom:24px;">
       <div class="stat fade-up">
         <div class="stat-label">Current Balance</div>
-        <div class="stat-value mono" style="font-size:32px; color:#10b981;">$${d.balance.toFixed(4)}</div>
+        <div class="stat-value mono" style="font-size:32px; color:#3b82f6;">$${d.balance.toFixed(4)}</div>
         <div class="stat-sub mono">≈ ${tokensLeft.toLocaleString()} tokens remaining</div>
       </div>
       <div class="stat fade-up delay-1">
@@ -459,15 +459,15 @@ function renderModels(el) {
               <div class="mono" style="font-size:12px; color:#52525b;">${m.id}</div>
             </div>
             <div style="text-align:right;">
-              <div class="mono" style="font-size:14px; color:#10b981; font-weight:700;">${m.rate} /1M</div>
-              <div style="font-size:12px; color:#10b981;">${m.save} cheaper</div>
+              <div class="mono" style="font-size:14px; color:#3b82f6; font-weight:700;">${m.rate} /1M</div>
+              <div style="font-size:12px; color:#3b82f6;">${m.save} cheaper</div>
             </div>
           </div>
           <p style="font-size:13px; color:#a1a1aa; line-height:1.6; margin-bottom:14px;">${m.desc}</p>
           <div style="margin-bottom:14px;">
             <div style="font-size:12px; font-weight:700; color:#52525b; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">Best for</div>
             <div style="display:flex; flex-wrap:wrap; gap:6px;">
-              ${m.useCases.map(u => `<span style="font-size:12px; padding:4px 10px; border-radius:6px; background:#10b98110; color:#10b981; border:1px solid #10b98125;">${u}</span>`).join("")}
+              ${m.useCases.map(u => `<span style="font-size:12px; padding:4px 10px; border-radius:6px; background:#3b82f610; color:#3b82f6; border:1px solid #3b82f625;">${u}</span>`).join("")}
             </div>
           </div>
           <div class="flex gap-16" style="font-size:12px; color:#52525b;">
@@ -497,7 +497,7 @@ async function renderAdapters(el) {
           <div style="font-size:15px; font-weight:600; margin-bottom:8px;">No adapters yet</div>
           <p style="font-size:13px; color:#52525b; line-height:1.6;">
             Create a custom LoRA adapter to improve quality for your specific data.
-            <br>See the <a href="docs.html#adapters_doc" style="color:#10b981;">documentation</a>.
+            <br>See the <a href="docs.html#adapters_doc" style="color:#3b82f6;">documentation</a>.
           </p>
         </div>
       </div>
@@ -516,9 +516,9 @@ async function renderAdapters(el) {
               <div class="mono" style="font-size:12px; color:#52525b; margin-top:4px;">${escHtml(a.source_model)} → ${escHtml(a.target_model)}</div>
             </div>
             <div class="flex gap-16" style="text-align:right;">
-              <div><div class="mono" style="font-size:14px; color:#10b981; font-weight:600;">${a.n_pairs ?? 0}</div><div style="font-size:11px; color:#52525b;">pairs</div></div>
+              <div><div class="mono" style="font-size:14px; color:#3b82f6; font-weight:600;">${a.n_pairs ?? 0}</div><div style="font-size:11px; color:#52525b;">pairs</div></div>
               <div><div class="mono" style="font-size:14px; color:#6366f1; font-weight:600;">${a.lora_generation ?? 0}</div><div style="font-size:11px; color:#52525b;">gen</div></div>
-              <div><div style="font-size:14px; color:${a.calibrated ? "#10b981" : "#52525b"};">${a.calibrated ? "✓" : "—"}</div><div style="font-size:11px; color:#52525b;">calibrated</div></div>
+              <div><div style="font-size:14px; color:${a.calibrated ? "#3b82f6" : "#52525b"};">${a.calibrated ? "✓" : "—"}</div><div style="font-size:11px; color:#52525b;">calibrated</div></div>
             </div>
           </div>
         </div>

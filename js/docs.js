@@ -33,8 +33,8 @@ function renderDocsSidebar() {
   sb.innerHTML = `
     <div class="sidebar-header">
       <a href="index.html" class="nav-logo">
-        <div class="nav-logo-icon mono">E</div>
-        <span class="nav-logo-text">Embedding Adapters</span>
+        <div class="nav-logo-icon"><svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="#2563eb"/><path d="M7 14h5l3-6 3 12 3-6h5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="nav-logo-text">EmbeddingAdapters</span>
       </a>
     </div>
     <div style="padding:12px 16px 8px; font-size:11px; font-weight:700; color:#52525b; text-transform:uppercase; letter-spacing:0.06em;">Documentation</div>
@@ -116,7 +116,7 @@ function renderDocOverview() {
       <div class="card-body">
         <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:12px;">
           Embedding Adapters runs small, fast open-source encoders (MiniLM, Qwen3) and uses trained LoRA adapters
-          to project their output into OpenAI's TE3 embedding space. The result: <strong style="color:#10b981;">vectors that are directly
+          to project their output into OpenAI's TE3 embedding space. The result: <strong style="color:#3b82f6;">vectors that are directly
           compatible with your existing TE3 data</strong> at 50-92% lower cost.
         </p>
         <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:16px;">
@@ -125,7 +125,7 @@ function renderDocOverview() {
         </p>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
           <div style="background:#0a0a0f; border:1px solid #1c1c26; border-radius:10px; padding:16px; text-align:center;">
-            <div style="font-size:28px; font-weight:800; color:#10b981; margin-bottom:4px;">50-92%</div>
+            <div style="font-size:28px; font-weight:800; color:#3b82f6; margin-bottom:4px;">50-92%</div>
             <div style="font-size:12px; color:#52525b;">Cost Reduction</div>
           </div>
           <div style="background:#0a0a0f; border:1px solid #1c1c26; border-radius:10px; padding:16px; text-align:center;">
@@ -145,19 +145,19 @@ function renderDocOverview() {
       <div class="card-body">
         <div style="font-size:14px; color:#a1a1aa; line-height:1.7;">
           <div style="display:flex; gap:12px; margin-bottom:16px; align-items:flex-start;">
-            <div style="min-width:28px; height:28px; border-radius:50%; background:#10b98120; color:#10b981; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">1</div>
+            <div style="min-width:28px; height:28px; border-radius:50%; background:#3b82f620; color:#3b82f6; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">1</div>
             <div><strong style="color:#d4d4d8;">You send texts</strong> to our API with a model choice (e.g. <code class="mono" style="color:#71717a; background:#18181b; padding:2px 6px; border-radius:4px; font-size:12px;">minilm-te3-adapted</code>).</div>
           </div>
           <div style="display:flex; gap:12px; margin-bottom:16px; align-items:flex-start;">
-            <div style="min-width:28px; height:28px; border-radius:50%; background:#10b98120; color:#10b981; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">2</div>
+            <div style="min-width:28px; height:28px; border-radius:50%; background:#3b82f620; color:#3b82f6; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">2</div>
             <div><strong style="color:#d4d4d8;">We encode locally</strong> using the open-source model, then apply a trained LoRA adapter to project embeddings into TE3's 3072-d space.</div>
           </div>
           <div style="display:flex; gap:12px; margin-bottom:16px; align-items:flex-start;">
-            <div style="min-width:28px; height:28px; border-radius:50%; background:#10b98120; color:#10b981; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">3</div>
+            <div style="min-width:28px; height:28px; border-radius:50%; background:#3b82f620; color:#3b82f6; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">3</div>
             <div><strong style="color:#d4d4d8;">Quality routing</strong> (optional): a confidence head scores each text. Below your threshold, we re-embed via OpenAI for full fidelity.</div>
           </div>
           <div style="display:flex; gap:12px; align-items:flex-start;">
-            <div style="min-width:28px; height:28px; border-radius:50%; background:#10b98120; color:#10b981; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">4</div>
+            <div style="min-width:28px; height:28px; border-radius:50%; background:#3b82f620; color:#3b82f6; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">4</div>
             <div><strong style="color:#d4d4d8;">You get back</strong> base64-encoded float32 vectors that drop directly into any TE3 vector store — Pinecone, Weaviate, Qdrant, pgvector, etc.</div>
           </div>
         </div>
@@ -192,7 +192,7 @@ function renderDocOverview() {
       <div class="card-header"><h3>Quick Start</h3></div>
       <div class="card-body">
         <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:16px;">
-          Create an API key from the <a href="dashboard.html" style="color:#10b981;">dashboard</a>, then embed your first texts:
+          Create an API key from the <a href="dashboard.html" style="color:#3b82f6;">dashboard</a>, then embed your first texts:
         </p>
         ${tabbedCodeBlock([
           { lang:"python", label:"Python", code: `import requests, base64, numpy as np
@@ -575,7 +575,7 @@ function renderDocModelsRef() {
       <div class="card-body">
         <div class="flex justify-between items-center" style="margin-bottom:12px;">
           <div style="font-size:16px; font-weight:700;">MiniLM → TE3</div>
-          <div class="mono" style="color:#10b981; font-weight:700;">$0.065 /1M — 50% cheaper</div>
+          <div class="mono" style="color:#3b82f6; font-weight:700;">$0.065 /1M — 50% cheaper</div>
         </div>
         <table class="table mono" style="font-size:12px; margin-bottom:12px;">
           <tbody>
@@ -595,7 +595,7 @@ function renderDocModelsRef() {
       <div class="card-body">
         <div class="flex justify-between items-center" style="margin-bottom:12px;">
           <div style="font-size:16px; font-weight:700;">Qwen3-0.6B → TE3</div>
-          <div class="mono" style="color:#10b981; font-weight:700;">$0.040 /1M — 69% cheaper</div>
+          <div class="mono" style="color:#3b82f6; font-weight:700;">$0.040 /1M — 69% cheaper</div>
         </div>
         <table class="table mono" style="font-size:12px; margin-bottom:12px;">
           <tbody>
@@ -614,7 +614,7 @@ function renderDocModelsRef() {
       <div class="card-body">
         <div class="flex justify-between items-center" style="margin-bottom:12px;">
           <div style="font-size:16px; font-weight:700;">MiniLM Raw</div>
-          <div class="mono" style="color:#10b981; font-weight:700;">$0.010 /1M — 92% cheaper</div>
+          <div class="mono" style="color:#3b82f6; font-weight:700;">$0.010 /1M — 92% cheaper</div>
         </div>
         <table class="table mono" style="font-size:12px; margin-bottom:12px;">
           <tbody>
