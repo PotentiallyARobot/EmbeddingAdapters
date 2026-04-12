@@ -65,13 +65,14 @@ function switchTab(tab) {
 
 function renderSidebar() {
   const sb = $("#sidebar");
+  const mn = $("#mobile-nav");
   const tabs = [
-    { id: "overview", icon: "◈", label: "Overview" },
-    { id: "apidocs", icon: "↗", label: "API Docs" },
-    { id: "keys", icon: "⚿", label: "API Keys" },
-    { id: "billing", icon: "◎", label: "Billing" },
-    { id: "models", icon: "◇", label: "Models" },
-    { id: "adapters", icon: "◉", label: "Adapters" },
+    { id: "overview", icon: "◈", label: "Overview", short: "Home" },
+    { id: "apidocs", icon: "↗", label: "API Docs", short: "API" },
+    { id: "keys", icon: "⚿", label: "API Keys", short: "Keys" },
+    { id: "billing", icon: "◎", label: "Billing", short: "Billing" },
+    { id: "models", icon: "◇", label: "Models", short: "Models" },
+    { id: "adapters", icon: "◉", label: "Adapters", short: "Adapters" },
   ];
 
   sb.innerHTML = `
@@ -96,6 +97,16 @@ function renderSidebar() {
       <button class="btn-ghost" style="width:100%;" onclick="logout()">Log out</button>
     </div>
   `;
+
+  // Mobile bottom nav
+  if (mn) {
+    mn.innerHTML = tabs.map(t => `
+      <button class="mobile-nav-btn ${t.id === currentTab ? 'active' : ''}" onclick="switchTab('${t.id}')">
+        <span class="icon">${t.icon}</span>
+        ${t.short}
+      </button>
+    `).join("");
+  }
 }
 
 function renderTab() {
