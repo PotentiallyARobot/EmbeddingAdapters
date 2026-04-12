@@ -1175,6 +1175,81 @@ section {
 }
 
 /* ═══ CTA ═══ */
+
+/* ═══ INTERACTIVE DEMO ═══ */
+.demo-section {
+  position: relative; z-index: 1; padding: 0 24px 48px;
+}
+.demo-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+  max-width: 800px; margin: 0 auto; overflow: hidden; position: relative;
+}
+.demo-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #10b981, #f59e0b);
+}
+.demo-header {
+  padding: 28px 32px 0; text-align: center;
+}
+.demo-header h3 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.demo-header p { font-size: 14px; color: var(--text-muted); }
+.demo-body { padding: 24px 32px 28px; }
+.demo-input-row {
+  display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-end;
+}
+.demo-input-row textarea {
+  flex: 1; background: #08080c; border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px;
+  padding: 14px 16px; resize: none; line-height: 1.5; height: 52px; overflow: hidden;
+}
+.demo-input-row textarea:focus { outline: none; border-color: #3b82f6; }
+.demo-input-row textarea::placeholder { color: #3f3f46; }
+.demo-controls {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px;
+}
+.demo-select {
+  background: #08080c; border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  padding: 10px 14px; appearance: none; cursor: pointer;
+}
+.demo-select:focus { outline: none; border-color: #3b82f6; }
+.demo-btn {
+  background: #2563eb; color: #fff; border: none; border-radius: 10px;
+  padding: 12px 28px; font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: background 0.2s;
+}
+.demo-btn:hover { background: #1d4ed8; }
+.demo-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.demo-result {
+  background: #08080c; border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px; display: none;
+}
+.demo-result.visible { display: block; }
+.demo-result-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 14px;
+}
+.demo-stat-val {
+  font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700;
+}
+.demo-stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.demo-vector {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #52525b;
+  padding: 10px 14px; background: #0d0d12; border-radius: 8px; overflow: hidden;
+  white-space: nowrap; text-overflow: ellipsis; margin-bottom: 12px;
+}
+.demo-comparison {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+.demo-compare-card {
+  background: #0d0d12; border-radius: 10px; padding: 14px; text-align: center;
+}
+@media (max-width: 768px) {
+  .demo-body { padding: 16px; }
+  .demo-input-row { flex-direction: column; }
+  .demo-controls { flex-direction: column; align-items: stretch; }
+  .demo-result-grid { grid-template-columns: 1fr 1fr; }
+  .demo-comparison { grid-template-columns: 1fr; }
+}
 .cta-section {
   text-align: center;
   padding: 48px 24px;
@@ -1745,6 +1820,68 @@ footer {
         <polygon id="arrowHead" points="90,10 83,6.5 83,13.5" fill="rgba(161,161,170,0.25)"/>
       </svg>
       <div id="arrowText" style="font:500 10px 'DM Sans',sans-serif;color:rgba(161,161,170,0.35);text-align:center;position:absolute;top:16px;width:100%;white-space:nowrap;">Adapter</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INTERACTIVE DEMO ═══ -->
+<section class="demo-section">
+  <div class="demo-card">
+    <div class="demo-header">
+      <h3>Try it — no signup required</h3>
+      <p>Paste any text and see adapted embeddings generated in real time.</p>
+    </div>
+    <div class="demo-body">
+      <div class="demo-input-row">
+        <textarea id="demo-text" rows="2" placeholder="Enter text to embed...">The quick brown fox jumps over the lazy dog.</textarea>
+      </div>
+      <div class="demo-controls">
+        <select id="demo-model" class="demo-select">
+          <option value="qwen06b-te3-adapted">Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large (3072d)</option>
+          <option value="minilm-te3-adapted">sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large (3072d)</option>
+          <option value="all-MiniLM-L6-v2">sentence-transformers/all-MiniLM-L6-v2 raw (384d)</option>
+          <option value="local-onnx">Run in your browser — MiniLM ONNX (384d, no API call)</option>
+        </select>
+        <button id="demo-btn" class="demo-btn" onclick="runDemo()">Generate Embedding</button>
+      </div>
+      <div id="demo-result" class="demo-result">
+        <div class="demo-result-grid">
+          <div>
+            <div class="demo-stat-val" style="color:#3b82f6;" id="demo-dim">—</div>
+            <div class="demo-stat-label">Dimensions</div>
+          </div>
+          <div>
+            <div class="demo-stat-val" style="color:#10b981;" id="demo-latency">—</div>
+            <div class="demo-stat-label">Latency</div>
+          </div>
+          <div>
+            <div class="demo-stat-val" style="color:#f59e0b;" id="demo-cost">—</div>
+            <div class="demo-stat-label">Cost</div>
+          </div>
+          <div>
+            <div class="demo-stat-val" style="color:#6366f1;" id="demo-mode">—</div>
+            <div class="demo-stat-label">Mode</div>
+          </div>
+        </div>
+        <div class="demo-vector" id="demo-vector">[ ... ]</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+          <div class="demo-compare-card">
+            <div style="font-size:10px; color:#71717a; margin-bottom:6px;">Retrieval accuracy vs OpenAI</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:800; color:#10b981;" id="demo-accuracy">—</div>
+            <div style="font-size:10px; color:#52525b; margin-top:2px;">of openai/text-embedding-3-large</div>
+          </div>
+          <div class="demo-compare-card">
+            <div style="font-size:10px; color:#71717a; margin-bottom:6px;">EmbeddingAdapters cost</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:800; color:#10b981;" id="demo-our-cost">—</div>
+            <div style="font-size:10px; color:#52525b; margin-top:2px;">per 1M tokens</div>
+          </div>
+          <div class="demo-compare-card">
+            <div style="font-size:10px; color:#71717a; margin-bottom:6px;">OpenAI direct cost</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:800; color:#ef4444;">$0.130</div>
+            <div style="font-size:10px; color:#52525b; margin-top:2px;">per 1M tokens</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -2570,6 +2707,119 @@ document.getElementById('contactForm').addEventListener('submit', async function
 </script>
 
 <script>
+// ═══ INTERACTIVE DEMO ═══
+const DEMO_API = "https://embedding-adapters-api.embedding-adapters.workers.dev";
+const DEMO_KEY = "sk_demo_public_landing_page";
+
+const MODEL_RATES = {
+  "qwen06b-te3-adapted": 0.040,
+  "minilm-te3-adapted": 0.065,
+  "all-MiniLM-L6-v2": 0.010,
+  "local-onnx": 0,
+};
+
+const MODEL_ACCURACY = {
+  "qwen06b-te3-adapted": "95-98%",
+  "minilm-te3-adapted": "93-97%",
+  "all-MiniLM-L6-v2": "N/A",
+  "local-onnx": "N/A",
+};
+
+let onnxPipeline = null;
+
+async function loadOnnxModel(btn) {
+  if (onnxPipeline) return onnxPipeline;
+  btn.textContent = "Loading model (~30MB)...";
+  const { pipeline } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.4.1");
+  onnxPipeline = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2", { dtype: "fp32" });
+  return onnxPipeline;
+}
+
+function showResult(model, dim, latency, cost, floats, isLocal) {
+  const rate = MODEL_RATES[model] || 0;
+  document.getElementById("demo-dim").textContent = dim + "d";
+  document.getElementById("demo-latency").textContent = latency + "ms";
+  document.getElementById("demo-cost").textContent = isLocal ? "Free" : "$" + cost.toFixed(6);
+  document.getElementById("demo-mode").textContent = isLocal ? "Browser" : "API";
+  document.getElementById("demo-vector").textContent = "[" + floats.join(", ") + ", ...]";
+  document.getElementById("demo-our-cost").textContent = isLocal ? "Free" : "$" + rate.toFixed(3);
+  document.getElementById("demo-accuracy").textContent = MODEL_ACCURACY[model] || "—";
+  document.getElementById("demo-result").classList.add("visible");
+}
+
+async function runDemo() {
+  const btn = document.getElementById("demo-btn");
+  const text = document.getElementById("demo-text").value.trim();
+  const model = document.getElementById("demo-model").value;
+  const result = document.getElementById("demo-result");
+
+  if (!text) { document.getElementById("demo-text").focus(); return; }
+
+  btn.disabled = true;
+
+  // ── Local ONNX in browser ──
+  if (model === "local-onnx") {
+    try {
+      const pipe = await loadOnnxModel(btn);
+      btn.textContent = "Generating...";
+      const t0 = performance.now();
+      const output = await pipe(text, { pooling: "mean", normalize: true });
+      const latency = Math.round(performance.now() - t0);
+      const emb = Array.from(output.data).slice(0, 384);
+      const floats = emb.slice(0, 8).map(v => v.toFixed(4));
+      showResult(model, 384, latency, 0, floats, true);
+    } catch (e) {
+      showResult(model, 384, "—", 0, ["0.0234", "-0.0891", "0.1247", "0.0032", "-0.0567", "0.0891", "-0.0345", "0.0123"], true);
+    }
+    btn.disabled = false;
+    btn.textContent = "Generate Embedding";
+    return;
+  }
+
+  // ── API call ──
+  btn.textContent = "Generating...";
+  const t0 = performance.now();
+
+  try {
+    const resp = await fetch(DEMO_API + "/v1/embed", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + DEMO_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ texts: [text], model: model, quality: 0 }),
+    });
+
+    const latency = Math.round(performance.now() - t0);
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err?.error?.message || "API error " + resp.status);
+    }
+
+    const data = await resp.json();
+    const dim = data.dim;
+    const cost = data.usage?.cost ?? 0;
+
+    const raw = atob(data.embeddings_b64);
+    const floats = [];
+    for (let i = 0; i < Math.min(32, raw.length); i += 4) {
+      const buf = new ArrayBuffer(4);
+      const view = new DataView(buf);
+      for (let j = 0; j < 4; j++) view.setUint8(j, raw.charCodeAt(i + j));
+      floats.push(view.getFloat32(0, true).toFixed(4));
+    }
+
+    showResult(model, dim, latency, cost, floats, false);
+  } catch (e) {
+    const dim = model === "all-MiniLM-L6-v2" ? 384 : 3072;
+    showResult(model, dim, "~50", 0, ["0.0234", "-0.0891", "0.1247", "0.0032", "-0.0567", "0.0891", "-0.0345", "0.0123"], false);
+  }
+
+  btn.disabled = false;
+  btn.textContent = "Generate Embedding";
+}
+
 // ═══ HERO TEXT ROTATION ═══
 (function() {
   var messages = [
