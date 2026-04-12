@@ -152,6 +152,13 @@ img { max-width: 100%; }
 .code-tab-panel .code-wrap { margin-top: 0; }
 .code-tab-panel .code-block { border-radius: 0 10px 10px 10px; }
 
+/* ── Syntax Highlighting ── */
+.hl-kw { color: #c084fc; }
+.hl-st { color: #34d399; }
+.hl-cm { color: #6b7280; }
+.hl-nm { color: #fbbf24; }
+.hl-lb { color: #60a5fa; }
+
 /* ── Pill / Tab ── */
 .pill {
   padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
