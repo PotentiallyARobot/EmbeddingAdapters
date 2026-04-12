@@ -156,10 +156,13 @@ function renderOverview(el) {
 
   el.innerHTML = `
     <h2 style="font-size:22px; font-weight:800; margin-bottom:8px;">Overview</h2>
-    <p style="font-size:14px; color:#a1a1aa; line-height:1.6; margin-bottom:20px;">
-      Generate <strong style="color:#d4d4d8;">openai/text-embedding-3-large</strong> compatible embeddings at a fraction of the cost.
-      Drop-in replacement — same 3072-d vectors, same cosine similarity, works with your existing Pinecone / Weaviate / pgvector index.
-      No OpenAI API key needed.
+    <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:8px;">
+      <strong style="color:#d4d4d8;">EmbeddingAdapters</strong> lets you search any vector index — regardless of which model encoded it — using any other model.
+      Trained neural adapters translate between embedding spaces in real time, so you can query an OpenAI-indexed corpus with a local model, or vice versa.
+    </p>
+    <p style="font-size:14px; color:#a1a1aa; line-height:1.7; margin-bottom:20px;">
+      Generate provider-grade embeddings locally or via the API using small, extremely fast models that replicate the output of providers like OpenAI and Google.
+      No provider API key needed. Same vectors, same cosine similarity, drop-in compatible with your existing index.
     </p>
 
     <div class="card fade-up" style="margin-bottom:20px; border-color:#3b82f630;">
@@ -172,8 +175,8 @@ resp = requests.post("${API_BASE}/v1/embed",
     headers={"Authorization": "Bearer ${userData.api_key}"},
     json={
         "texts": ["How do neural networks learn?", "The cat sat on the mat"],
-        "model": "minilm-te3-adapted",
-        "quality": 0,
+        "model": "qwen06b-te3-adapted",    # Qwen3-0.6B → openai/text-embedding-3-large
+        "quality": 0,                       # 0 = fully local, no provider calls
     })
 
 data = resp.json()
@@ -182,19 +185,19 @@ embs = np.frombuffer(
     dtype=np.float32
 ).reshape(data["n"], data["dim"])
 
-print(f"Shape: {embs.shape}")           # (2, 3072) — openai/text-embedding-3-large compatible
+print(f"Shape: {embs.shape}")           # (2, 3072) — drop into any TE3-large index
 print(f"Cost:  \${data['usage']['cost']}")  # fraction of OpenAI pricing` },
           { lang:"bash", label:"cURL", code: `curl -X POST ${API_BASE}/v1/embed \\
   -H "Authorization: Bearer ${userData.api_key}" \\
   -H "Content-Type: application/json" \\
   -d '{
     "texts": ["How do neural networks learn?"],
-    "model": "minilm-te3-adapted",
+    "model": "qwen06b-te3-adapted",
     "quality": 0
   }'
 
-# Returns base64-encoded float32 vectors (3072-d)
-# Drop directly into any openai/text-embedding-3-large index` },
+# Returns 3072-d vectors compatible with openai/text-embedding-3-large
+# Drop directly into Pinecone, Weaviate, Qdrant, pgvector, etc.` },
         ])}
       </div>
     </div>
@@ -202,16 +205,16 @@ print(f"Cost:  \${data['usage']['cost']}")  # fraction of OpenAI pricing` },
     <div class="card fade-up delay-1" style="margin-bottom:20px;">
       <div class="card-body" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
         <div style="text-align:center;">
-          <div style="font-size:24px; font-weight:800; color:#3b82f6;">3072-d</div>
-          <div style="font-size:12px; color:#71717a;">TE3-large compatible vectors</div>
+          <div style="font-size:24px; font-weight:800; color:#3b82f6;">Any → Any</div>
+          <div style="font-size:12px; color:#71717a;">Cross-model translation</div>
         </div>
         <div style="text-align:center;">
           <div style="font-size:24px; font-weight:800; color:#10b981;">50-69%</div>
-          <div style="font-size:12px; color:#71717a;">cheaper than OpenAI</div>
+          <div style="font-size:12px; color:#71717a;">cheaper than providers</div>
         </div>
         <div style="text-align:center;">
-          <div style="font-size:24px; font-weight:800; color:#f59e0b;">0</div>
-          <div style="font-size:12px; color:#71717a;">OpenAI API calls at quality=0</div>
+          <div style="font-size:24px; font-weight:800; color:#f59e0b;">18K tok/s</div>
+          <div style="font-size:12px; color:#71717a;">local inference speed</div>
         </div>
       </div>
     </div>
@@ -222,10 +225,10 @@ print(f"Cost:  \${data['usage']['cost']}")  # fraction of OpenAI pricing` },
         <table class="table mono" style="font-size:12px;">
           <thead><tr><th>model</th><th>Source → Target</th><th>Output</th><th>Cost</th></tr></thead>
           <tbody>
-            <tr><td class="green">minilm-te3-adapted</td><td>MiniLM-L6-v2 → openai/text-embedding-3-large</td><td>3072d</td><td>$0.065/1M tok</td></tr>
-            <tr><td class="green">qwen06b-te3-adapted</td><td>Qwen3-0.6B → openai/text-embedding-3-large</td><td>3072d</td><td>$0.040/1M tok</td></tr>
-            <tr><td class="green">te3-qwen3-8b-adapted</td><td>openai/text-embedding-3-large → Qwen3-8B</td><td>4096d</td><td>$0.080/1M tok</td></tr>
-            <tr><td class="green">all-MiniLM-L6-v2</td><td>Raw MiniLM (no adapter)</td><td>384d</td><td>$0.010/1M tok</td></tr>
+            <tr><td class="green">qwen06b-te3-adapted</td><td>Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large</td><td>3072d</td><td>$0.040/1M tok</td></tr>
+            <tr><td class="green">minilm-te3-adapted</td><td>sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large</td><td>3072d</td><td>$0.065/1M tok</td></tr>
+            <tr><td class="green">te3-qwen3-8b-adapted</td><td>openai/text-embedding-3-large → Qwen/Qwen3-Embedding-8B</td><td>4096d</td><td>$0.080/1M tok</td></tr>
+            <tr><td class="green">all-MiniLM-L6-v2</td><td>Raw (no adapter)</td><td>384d</td><td>$0.010/1M tok</td></tr>
           </tbody>
         </table>
         <p style="font-size:12px; color:#52525b; margin-top:8px;">See <a href="#" onclick="switchTab('apidocs'); return false;" style="color:#3b82f6;">API Docs</a> for full examples for every model.</p>
@@ -622,7 +625,7 @@ function renderApiDocs(el) {
           <thead><tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
           <tbody>
             <tr><td class="green">texts</td><td>string[]</td><td>—</td><td>Texts to embed. Required for forward adapters.</td></tr>
-            <tr><td class="green">model</td><td>string</td><td>minilm-te3-adapted</td><td>Model ID (see below).</td></tr>
+            <tr><td class="green">model</td><td>string</td><td>qwen06b-te3-adapted</td><td>Model ID (see below).</td></tr>
             <tr><td class="green">quality</td><td>int</td><td>0</td><td>0–100. Quality routing threshold.</td></tr>
             <tr><td class="green">embeddings_b64</td><td>string</td><td>—</td><td>Base64 float32 embeddings. Required for reverse adapters.</td></tr>
             <tr><td class="green">include_quality</td><td>bool</td><td>false</td><td>Return per-text quality scores.</td></tr>
@@ -632,12 +635,48 @@ function renderApiDocs(el) {
     </div>
 
     <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>qwen06b-te3-adapted</h3></div>
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <div style="font-size:15px; font-weight:700;">Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large</div>
+            <div style="font-size:12px; color:#71717a;">1024d → 3072d · 1,200 tok/s · $0.040/1M tokens · Higher accuracy</div>
+          </div>
+        </div>
+        ${tabbedCodeBlock([
+          { lang:"python", label:"Python", code: `import requests, base64, numpy as np
+
+resp = requests.post("${base}/v1/embed",
+    headers={"Authorization": "Bearer ${key}"},
+    json={
+        "texts": ["Quantum computing uses qubits for parallel computation"],
+        "model": "qwen06b-te3-adapted",
+        "quality": 30,   # route lowest-confidence texts to provider
+    })
+
+data = resp.json()
+embs = np.frombuffer(
+    base64.b64decode(data["embeddings_b64"]),
+    dtype=np.float32
+).reshape(data["n"], data["dim"])
+
+print(f"Shape: {embs.shape}")  # (1, 3072)
+print(f"Adapted: {data['usage']['adapted']}, Routed: {data['usage']['reembedded']}")` },
+          { lang:"bash", label:"cURL", code: `curl -X POST ${base}/v1/embed \\
+  -H "Authorization: Bearer ${key}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"texts": ["Quantum computing uses qubits"], "model": "qwen06b-te3-adapted", "quality": 30}'` },
+        ])}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
       <div class="card-header"><h3>minilm-te3-adapted</h3></div>
       <div class="card-body">
         <div style="display:flex; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
           <div>
             <div style="font-size:15px; font-weight:700;">sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large</div>
-            <div style="font-size:12px; color:#71717a;">384d → 3072d · 18,000 tok/s · $0.065/1M tokens</div>
+            <div style="font-size:12px; color:#71717a;">384d → 3072d · 18,000 tok/s · $0.065/1M tokens · Fastest</div>
           </div>
         </div>
         ${tabbedCodeBlock([
@@ -663,42 +702,6 @@ print(f"Cost:  \${data['usage']['cost']}")` },
   -H "Authorization: Bearer ${key}" \\
   -H "Content-Type: application/json" \\
   -d '{"texts": ["NASA discovers new exoplanet"], "model": "minilm-te3-adapted", "quality": 0}'` },
-        ])}
-      </div>
-    </div>
-
-    <div class="card" style="margin-bottom:20px;">
-      <div class="card-header"><h3>qwen06b-te3-adapted</h3></div>
-      <div class="card-body">
-        <div style="display:flex; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-          <div>
-            <div style="font-size:15px; font-weight:700;">Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large</div>
-            <div style="font-size:12px; color:#71717a;">1024d → 3072d · 1,200 tok/s · $0.040/1M tokens · Higher accuracy</div>
-          </div>
-        </div>
-        ${tabbedCodeBlock([
-          { lang:"python", label:"Python", code: `import requests, base64, numpy as np
-
-resp = requests.post("${base}/v1/embed",
-    headers={"Authorization": "Bearer ${key}"},
-    json={
-        "texts": ["Quantum computing uses qubits for parallel computation"],
-        "model": "qwen06b-te3-adapted",
-        "quality": 30,   # route 30% lowest-confidence to OpenAI
-    })
-
-data = resp.json()
-embs = np.frombuffer(
-    base64.b64decode(data["embeddings_b64"]),
-    dtype=np.float32
-).reshape(data["n"], data["dim"])
-
-print(f"Shape: {embs.shape}")  # (1, 3072)
-print(f"Adapted: {data['usage']['adapted']}, Routed: {data['usage']['reembedded']}")` },
-          { lang:"bash", label:"cURL", code: `curl -X POST ${base}/v1/embed \\
-  -H "Authorization: Bearer ${key}" \\
-  -H "Content-Type: application/json" \\
-  -d '{"texts": ["Quantum computing uses qubits"], "model": "qwen06b-te3-adapted", "quality": 30}'` },
         ])}
       </div>
     </div>
