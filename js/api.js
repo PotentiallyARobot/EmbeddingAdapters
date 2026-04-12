@@ -75,39 +75,47 @@ function switchCodeTab(gid, idx, btn) {
 }
 
 function highlightCode(code, lang) {
-  let h = escHtml(code);
-  const phs = [];
-  function ph(match, cls) {
-    const i = phs.length;
-    phs.push('<span class="' + cls + '">' + match + '</span>');
-    return '<!--' + i + '-->';
-  }
+  // Escape only <, >, & for HTML safety in <pre> tags. Leave quotes unescaped.
+  var h = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  // Single-pass: one regex with alternation groups. The engine picks the first
+  // matching alternative at each position, so no group ever sees another's output.
 
   if (lang === "python" || lang === "py") {
-    h = h.replace(/(#.*)/g, function(m) { return ph(m, "hl-cm"); });
-    h = h.replace(/(["'])(?:(?!\1).)*?\1/g, function(m) { return ph(m, "hl-st"); });
-    h = h.replace(/\b(import|from|as|def|class|return|if|else|elif|for|in|while|with|try|except|raise|not|and|or|is|None|True|False|print|async|await)\b/g, function(m) { return ph(m, "hl-kw"); });
-    h = h.replace(/\b(np|requests|base64|torch|os|time|json)\b/g, function(m) { return ph(m, "hl-lb"); });
-    h = h.replace(/\b(\d+\.?\d*)\b/g, function(m) { return ph(m, "hl-nm"); });
+    h = h.replace(
+      /(#[^\n]*)|("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|\b(import|from|as|def|class|return|if|else|elif|for|in|while|with|try|except|raise|not|and|or|is|None|True|False|print|async|await)\b|\b(np|requests|base64|torch|os|time|json)\b|\b(\d+\.?\d*)\b/g,
+      function(m, cm, st, kw, lb, nm) {
+        if (cm != null && cm !== "") return '<span class="hl-cm">' + cm + '</span>';
+        if (st != null && st !== "") return '<span class="hl-st">' + st + '</span>';
+        if (kw != null && kw !== "") return '<span class="hl-kw">' + kw + '</span>';
+        if (lb != null && lb !== "") return '<span class="hl-lb">' + lb + '</span>';
+        if (nm != null && nm !== "") return '<span class="hl-nm">' + nm + '</span>';
+        return m;
+      }
+    );
   } else if (lang === "bash" || lang === "sh") {
-    h = h.replace(/(#.*)/g, function(m) { return ph(m, "hl-cm"); });
-    h = h.replace(/(["'])(?:(?!\1).)*?\1/g, function(m) { return ph(m, "hl-st"); });
-    h = h.replace(/\b(curl|pip|git|cd|export|python|set|embedding-adapters)\b/g, function(m) { return ph(m, "hl-kw"); });
-    h = h.replace(/(--?\w[\w-]*)/g, function(m) { return ph(m, "hl-lb"); });
+    h = h.replace(
+      /(#[^\n]*)|("(?:[^"\\]|\\.)*"|'[^']*')|\b(curl|pip|git|cd|export|python|set)\b|(--?\w[\w-]*)/g,
+      function(m, cm, st, kw, fl) {
+        if (cm != null && cm !== "") return '<span class="hl-cm">' + cm + '</span>';
+        if (st != null && st !== "") return '<span class="hl-st">' + st + '</span>';
+        if (kw != null && kw !== "") return '<span class="hl-kw">' + kw + '</span>';
+        if (fl != null && fl !== "") return '<span class="hl-lb">' + fl + '</span>';
+        return m;
+      }
+    );
   } else if (lang === "javascript" || lang === "js") {
-    h = h.replace(/(\/\/.*)/g, function(m) { return ph(m, "hl-cm"); });
-    h = h.replace(/(["'`])(?:(?!\1).)*?\1/g, function(m) { return ph(m, "hl-st"); });
-    h = h.replace(/\b(const|let|var|function|return|if|else|for|while|await|async|new|true|false|null|undefined)\b/g, function(m) { return ph(m, "hl-kw"); });
-    h = h.replace(/\b(\d+\.?\d*)\b/g, function(m) { return ph(m, "hl-nm"); });
-  } else if (lang === "json") {
-    h = h.replace(/(["'])(\w+)\1\s*:/g, function(m) { return ph(m, "hl-lb"); });
-    h = h.replace(/:\s*(["'])(?:(?!\1).)*?\1/g, function(m) { return ph(m, "hl-st"); });
-    h = h.replace(/:\s*(\d+\.?\d*)/g, function(m) { return ph(m, "hl-nm"); });
-    h = h.replace(/\b(true|false|null)\b/g, function(m) { return ph(m, "hl-kw"); });
+    h = h.replace(
+      /(\/\/[^\n]*)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|\b(const|let|var|function|return|if|else|for|while|await|async|new|true|false|null|undefined)\b|\b(\d+\.?\d*)\b/g,
+      function(m, cm, st, kw, nm) {
+        if (cm != null && cm !== "") return '<span class="hl-cm">' + cm + '</span>';
+        if (st != null && st !== "") return '<span class="hl-st">' + st + '</span>';
+        if (kw != null && kw !== "") return '<span class="hl-kw">' + kw + '</span>';
+        if (nm != null && nm !== "") return '<span class="hl-nm">' + nm + '</span>';
+        return m;
+      }
+    );
   }
 
-  for (let i = 0; i < phs.length; i++) {
-    h = h.replace('<!--' + i + '-->', phs[i]);
-  }
   return h;
 }
