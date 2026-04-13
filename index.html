@@ -2263,21 +2263,6 @@ footer {
   </div>
 </div>
 
-<!-- ═══ SEO CONTENT ═══ -->
-<section style="position:relative; z-index:1; padding:48px 24px; border-top:1px solid #1c1c26;">
-  <div style="max-width:800px; margin:0 auto;">
-    <h2 style="font-size:20px; font-weight:700; margin-bottom:16px; color:#d4d4d8;">Replace OpenAI Embeddings with Local Models</h2>
-    <article style="font-size:13px; color:#52525b; line-height:1.8;">
-      <p style="margin-bottom:12px;">EmbeddingAdapters is a Python library and REST API that generates <strong style="color:#71717a;">openai/text-embedding-3-large</strong> compatible embeddings without calling OpenAI. Trained neural adapters translate vectors from fast, local models like <strong style="color:#71717a;">Qwen/Qwen3-Embedding-0.6B</strong> and <strong style="color:#71717a;">sentence-transformers/all-MiniLM-L6-v2</strong> into OpenAI's 3072-dimensional vector space.</p>
-      <p style="margin-bottom:12px;">Drop the resulting vectors directly into <strong style="color:#71717a;">Pinecone</strong>, <strong style="color:#71717a;">Weaviate</strong>, <strong style="color:#71717a;">Qdrant</strong>, <strong style="color:#71717a;">pgvector</strong>, <strong style="color:#71717a;">FAISS</strong>, <strong style="color:#71717a;">Milvus</strong>, or <strong style="color:#71717a;">ChromaDB</strong> — they're binary-compatible with existing openai/text-embedding-3-large indexes. No re-indexing, no migration, no downtime.</p>
-      <p style="margin-bottom:12px;">The hosted API costs <strong style="color:#71717a;">$0.040 per 1M tokens</strong> for qwen06b-te3-adapted (69% cheaper than OpenAI's $0.130/1M) and $0.065/1M for minilm-te3-adapted (50% cheaper). The Python SDK runs adapters locally on your GPU for a flat <strong style="color:#71717a;">$10/month</strong> with zero per-token cost.</p>
-      <p style="margin-bottom:12px;">Quality routing lets you control the accuracy-cost tradeoff per query. Set quality=0 for all-local inference (cheapest), quality=50 for balanced hybrid, or quality=100 to route everything through OpenAI. The adapter's built-in quality head scores each text individually.</p>
-      <p style="margin-bottom:12px;">Available adapter pairs include: <strong style="color:#71717a;">Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large</strong>, <strong style="color:#71717a;">sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large</strong>, <strong style="color:#71717a;">openai/text-embedding-3-large → Qwen/Qwen3-Embedding-8B</strong> (reverse adapter for migrating off OpenAI), plus 13 more pairs covering <strong style="color:#71717a;">openai/text-embedding-3-small</strong>, <strong style="color:#71717a;">gemini/text-embedding-004</strong>, <strong style="color:#71717a;">intfloat/e5-base-v2</strong>, and cross-provider translation.</p>
-      <p>Install with <code style="color:#71717a; background:#0d0d12; padding:2px 6px; border-radius:4px;">pip install embedding-adapters</code> or use the REST API at <code style="color:#71717a; background:#0d0d12; padding:2px 6px; border-radius:4px;">POST /v1/embed</code>. Free tier includes 10,000 tokens. <a href="dashboard.html" style="color:#3b82f6;">Sign up →</a></p>
-    </article>
-  </div>
-</section>
-
 <!-- ═══ FOOTER ═══ -->
 <footer>
   <div class="footer-inner">
