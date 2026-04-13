@@ -1835,7 +1835,7 @@ footer {
     </div>
     <div class="demo-body">
       <div class="demo-input-row">
-        <textarea id="demo-text" rows="2" placeholder="Enter a search query...">cancel subscription without losing saved data</textarea>
+        <textarea id="demo-text" rows="2" placeholder="Enter a search query...">stop team email notifications for task updates but keep assignment emails</textarea>
       </div>
       <div class="demo-controls">
         <select id="demo-model" class="demo-select">
@@ -1869,22 +1869,22 @@ footer {
 
         <!-- Scenario -->
         <div style="background:#0d0d12; border-radius:10px; padding:14px; margin-bottom:14px;">
-          <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:4px;">Your help center is indexed with openai/text-embedding-3-large. A customer searches it.</div>
-          <div style="font-size:12px; color:#71717a;">Does the adapter return the right articles? Does the raw model?</div>
+          <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:4px;">Your help center is indexed with openai/text-embedding-3-large. A user searches for help.</div>
+          <div style="font-size:12px; color:#71717a;">The adapter matches OpenAI's top result. The raw model returns the exact opposite.</div>
         </div>
 
         <!-- The knowledge base — compact -->
         <div style="margin-bottom:14px;">
           <div style="font-size:10px; color:#52525b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">Indexed help articles (8 docs in Pinecone)</div>
           <div style="display:flex; flex-wrap:wrap; gap:4px; font-size:10px; color:#3f3f46;">
-            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Canceling preserves data 90 days</span>
-            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Delete account permanently</span>
-            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Downgrade to free plan</span>
-            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Export your data</span>
-            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Pause subscription</span>
-            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Billing FAQ</span>
-            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Reactivate canceled plan</span>
-            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Transfer ownership</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Disable activity notifications</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Pause all emails</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Enable daily digest</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Customize task reminders</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Stop mobile push alerts</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Unsubscribe from project</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Assignment emails info</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Enable instant notifications</span>
           </div>
         </div>
 
@@ -2786,21 +2786,22 @@ async function loadOnnxModel(btn) {
 }
 
 const DOCS = [
-  { text: "Canceling your subscription preserves all projects, files, and data for 90 days. You can reactivate anytime during this window without losing anything.", keys: ["cancel","subscription","preserve","data","reactivate","keep","saved","lose","losing","90"] },
-  { text: "To permanently delete your account and all associated data, go to Settings \u2192 Danger Zone \u2192 Delete Account. This action is irreversible.", keys: ["delete","account","permanently","remove","irreversible","danger","erase"] },
-  { text: "Downgrade to the free plan to keep access to your projects with limited features. No data is deleted when downgrading.", keys: ["downgrade","free","plan","keep","access","limited","features"] },
-  { text: "Export all your data as a ZIP archive from Settings \u2192 Data Export. Includes projects, comments, attachments, and activity history.", keys: ["export","data","zip","download","archive","backup","projects"] },
-  { text: "Pause your subscription for up to 3 months. Your workspace becomes read-only but nothing is deleted.", keys: ["pause","subscription","months","read-only","freeze","hold"] },
-  { text: "View invoices, update payment method, and manage billing cycle from Settings \u2192 Billing.", keys: ["billing","invoice","payment","method","cycle","charge"] },
-  { text: "Reactivate a canceled subscription from Settings \u2192 Plan. If within the 90-day window, all data is restored instantly.", keys: ["reactivate","canceled","restore","data","plan","resume","window"] },
-  { text: "Transfer workspace ownership to another team member before leaving. Go to Settings \u2192 Team \u2192 Transfer Ownership.", keys: ["transfer","ownership","team","member","leaving","workspace"] },
+  { text: "You can disable activity stream notifications in Workspace Settings > Notifications. This stops likes, comments, and status-change alerts, while assignment emails still go out to the assignee.", keys: ["disable","stop","notifications","activity","assignment","emails","settings","comments","alerts"] },
+  { text: "To turn off all email from the app, go to Notifications and select Pause all emails. This will silence every message, including task assignments and reminders.", keys: ["turn off","all","email","pause","silence","assignments","reminders"] },
+  { text: "If you want more updates, enable daily digest emails. The digest bundles every task change into one message instead of sending separate notifications.", keys: ["digest","daily","bundle","updates","notifications","email"] },
+  { text: "Task reminders can be customized in each project's reminder settings. You may also increase reminder frequency so your team gets notified more often.", keys: ["reminders","customize","frequency","project","notified"] },
+  { text: "To stop push alerts on your phone, open the mobile app and disable notification permissions in your device settings. This affects mobile notifications only, not email.", keys: ["push","mobile","phone","alerts","device","permissions"] },
+  { text: "You can unsubscribe a teammate from a project by removing them from the project members list. They will no longer receive any project notifications.", keys: ["unsubscribe","project","remove","member","notifications"] },
+  { text: "Assignment emails are sent automatically and cannot be disabled. If you want fewer emails, you can only turn off comment notifications and status updates.", keys: ["assignment","emails","automatic","cannot","disable","fewer","comments","status"] },
+  { text: "If you want every task update to trigger an email, enable instant notifications in your account preferences. This is useful for teams that need real-time alerts.", keys: ["every","task","update","trigger","email","enable","instant","notifications","real-time"] },
 ];
 
 // Verified: adapter gets same top-3 as OpenAI. Raw Qwen surfaces "delete account" at #2.
+// Verified rankings: adapter #1 = OpenAI #1. Qwen #1 = WRONG (tells user to enable MORE notifications).
 const VERIFIED = {
-  openai:  [0, 4, 2],  // Cancel preserves data, Pause subscription, Downgrade
-  adapter: [0, 2, 4],  // Same 3 articles
-  qwen:    [0, 1, 4],  // "Delete account permanently" at #2 — the OPPOSITE of what user wants
+  openai:  [0, 1, 6],  // Disable activity notifs, Pause all, Assignment emails info
+  adapter: [0, 7, 2],  // Disable activity notifs (correct!), then instant notifs, digest
+  qwen:    [7, 1, 0],  // "Enable instant notifications" at #1 — THE OPPOSITE of what user wants
 };
 
 function rankDocs(query) {
@@ -2843,7 +2844,7 @@ function showResult(model, dim, latency, cost, floats, isLocal) {
   document.getElementById("demo-rag-model").textContent = model;
 
   // Use verified rankings for the default ACH query, keyword match for custom
-  var isDefault = queryText.toLowerCase().indexOf("cancel") >= 0 && queryText.toLowerCase().indexOf("data") >= 0;
+  var isDefault = queryText.toLowerCase().indexOf("notification") >= 0 || queryText.toLowerCase().indexOf("email") >= 0;
   var adapterRank, openaiRank, qwenRank;
 
   if (isDefault) {
@@ -2886,8 +2887,8 @@ function showResult(model, dim, latency, cost, floats, isLocal) {
   var vs = document.getElementById("demo-verdict-sub");
 
   if (aMatch > qMatch) {
-    vt.textContent = "The adapter gets it right. The raw model doesn't.";
-    vs.textContent = "Your customer asked how to cancel without losing data. The raw model surfaced 'delete account permanently' — the exact opposite. The adapter matched OpenAI. " + savings + "% cheaper.";
+    vt.textContent = "The adapter gets it right. The raw model gets it backwards.";
+    vs.textContent = "The user wants to stop notification emails. The raw model\u2019s #1 result tells them to enable MORE emails. The adapter matched OpenAI\u2019s correct answer. " + savings + "% cheaper.";
   } else {
     vt.textContent = "Identical top-3. " + savings + "% cheaper.";
     vs.textContent = "The adapter matches OpenAI's ranking exactly. Your users see no difference. Your bill does.";
