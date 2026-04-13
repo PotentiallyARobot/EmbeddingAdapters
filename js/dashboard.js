@@ -166,52 +166,28 @@ function renderOverview(el) {
   }
 
   el.innerHTML = `
-    <h2 style="font-size:24px; font-weight:800; margin-bottom:6px;">Switch embedding models without re-indexing</h2>
-    <p style="font-size:15px; color:#a1a1aa; line-height:1.7; margin-bottom:24px;">
-      Use one model to search vectors created by another. Generate provider-grade embeddings locally at 18,000 tok/s, or translate between any two embedding spaces in real time.
-    </p>
-
-    <!-- ── Use case cards ── -->
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px;">
-      <div class="card fade-up" style="border-color:#3b82f625;">
-        <div class="card-body" style="padding:20px;">
-          <div style="font-size:13px; font-weight:700; color:#3b82f6; margin-bottom:6px;">Replace OpenAI embeddings</div>
-          <p style="font-size:13px; color:#a1a1aa; line-height:1.5; margin-bottom:8px;">Run a local model that produces vectors compatible with openai/text-embedding-3-large. Drop into your existing Pinecone / Weaviate / pgvector index. Zero provider calls.</p>
-          <div class="mono" style="font-size:11px; color:#71717a;">qwen06b-te3-adapted · $0.040/1M tokens</div>
-        </div>
+    <!-- ── API Key bar ── -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+      <div>
+        <h2 style="font-size:22px; font-weight:800; margin-bottom:2px;">Dashboard</h2>
+        <div style="font-size:12px; color:#52525b;">Balance: <span class="mono" style="color:#3b82f6;">$${d.balance.toFixed(4)}</span> · ${d.total_passages.toLocaleString()} embeddings generated</div>
       </div>
-      <div class="card fade-up delay-1" style="border-color:#10b98125;">
-        <div class="card-body" style="padding:20px;">
-          <div style="font-size:13px; font-weight:700; color:#10b981; margin-bottom:6px;">Migrate off a provider</div>
-          <p style="font-size:13px; color:#a1a1aa; line-height:1.5; margin-bottom:8px;">Already indexed with openai/text-embedding-3-large? Translate those vectors into Qwen3-Embedding-8B space and move to fully open-source — no re-embedding your corpus.</p>
-          <div class="mono" style="font-size:11px; color:#71717a;">te3-qwen3-8b-adapted · reverse adapter</div>
-        </div>
-      </div>
-      <div class="card fade-up delay-1" style="border-color:#f59e0b25;">
-        <div class="card-body" style="padding:20px;">
-          <div style="font-size:13px; font-weight:700; color:#f59e0b; margin-bottom:6px;">Run locally on your GPU</div>
-          <p style="font-size:13px; color:#a1a1aa; line-height:1.5; margin-bottom:8px;">$10/month for unlimited local inference via the Python SDK. Run on your own GPU with no per-token metering and no API calls.</p>
-          <div style="font-size:12px; color:#a1a1aa; line-height:1.6; margin-bottom:8px;">
-            Available adapters:<br>
-            <span class="mono" style="font-size:11px; color:#71717a;">sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large (3072d)</span><br>
-            <span class="mono" style="font-size:11px; color:#71717a;">Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large (3072d)</span>
-          </div>
-          <div class="mono" style="font-size:11px; color:#71717a;">pip install embedding-adapters · <a href="#" onclick="switchTab('models'); return false;" style="color:#3b82f6;">Subscribe →</a></div>
-        </div>
-      </div>
-      <div class="card fade-up delay-2" style="border-color:#8b5cf625;">
-        <div class="card-body" style="padding:20px;">
-          <div style="font-size:13px; font-weight:700; color:#8b5cf6; margin-bottom:6px;">Cross-model search</div>
-          <p style="font-size:13px; color:#a1a1aa; line-height:1.5; margin-bottom:8px;">Query a corpus indexed with one model using a completely different model. Adapters handle the translation — your vector DB doesn't need to change.</p>
-          <div class="mono" style="font-size:11px; color:#71717a;">13 adapter pairs across OpenAI, Gemini, MiniLM, E5, Qwen</div>
-        </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <div class="mono" style="font-size:11px; color:#3f3f46; background:#08080c; border:1px solid #1c1c26; border-radius:8px; padding:8px 12px; cursor:pointer; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" onclick="copyToClipboard('${userData.api_key}', this)" title="Click to copy">${userData.api_key.slice(0, 12)}...${userData.api_key.slice(-4)}</div>
+        <button class="btn-copy" onclick="copyToClipboard('${userData.api_key}', this)">Copy Key</button>
       </div>
     </div>
 
-    <!-- ── Quick start ── -->
-    <div class="card fade-up delay-2" style="margin-bottom:20px; border-color:#3b82f630;">
-      <div class="card-header" style="border-color:#3b82f620;"><h3>Try the API — your key is pre-filled</h3></div>
+    <!-- ── POST /v1/embed ── -->
+    <div class="card fade-up" style="margin-bottom:16px; border-color:#3b82f630;">
+      <div class="card-header" style="border-color:#3b82f620;">
+        <h3 style="color:#3b82f6;">POST /v1/embed</h3>
+        <div style="font-size:12px; color:#71717a;">Generate openai/text-embedding-3-large vectors without OpenAI</div>
+      </div>
       <div class="card-body">
+        <p style="font-size:13px; color:#a1a1aa; line-height:1.6; margin-bottom:14px;">
+          Send texts, get 3072-d embeddings compatible with openai/text-embedding-3-large. Drop directly into Pinecone, Weaviate, Qdrant, or pgvector. Your key is pre-filled — copy and run.
+        </p>
         ${tabbedCodeBlock([
           { lang:"python", label:"Python", code: `import requests, base64, numpy as np
 
@@ -229,94 +205,91 @@ embs = np.frombuffer(
     dtype=np.float32
 ).reshape(data["n"], data["dim"])
 
-print(f"Shape: {embs.shape}")           # (1, 3072)
-print(f"Cost:  \${data['usage']['cost']}")` },
+print(embs.shape)  # (1, 3072)` },
           { lang:"bash", label:"cURL", code: `curl -X POST ${API_BASE}/v1/embed \\
   -H "Authorization: Bearer ${userData.api_key}" \\
   -H "Content-Type: application/json" \\
   -d '{"texts":["How do neural networks learn?"],"model":"qwen06b-te3-adapted","quality":0}'` },
         ])}
-      </div>
-    </div>
-
-    <!-- ── Models ── -->
-    <div class="card fade-up delay-3" style="margin-bottom:20px;">
-      <div class="card-header"><h3>Available Adapters</h3></div>
-      <div class="card-body">
-        <div style="font-size:11px; font-weight:600; color:#3b82f6; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:8px;">API — hosted inference</div>
-        <table class="table mono" style="font-size:11px; margin-bottom:16px;">
-          <thead><tr><th>model</th><th>Translation</th><th>Output</th><th>Cost</th></tr></thead>
-          <tbody>
-            <tr><td class="green">qwen06b-te3-adapted</td><td>Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large</td><td>3072d</td><td>$0.040/1M</td></tr>
-            <tr><td class="green">minilm-te3-adapted</td><td>sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large</td><td>3072d</td><td>$0.065/1M</td></tr>
-            <tr><td class="green">te3-qwen3-8b-adapted</td><td>openai/text-embedding-3-large → Qwen/Qwen3-Embedding-8B</td><td>4096d</td><td>$0.080/1M</td></tr>
-          </tbody>
-        </table>
-        <div style="font-size:11px; font-weight:600; color:#10b981; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:8px;">Python SDK — local inference ($10/month)</div>
-        <table class="table mono" style="font-size:11px; margin-bottom:16px;">
-          <thead><tr><th>Adapter</th><th>Translation</th><th>Output</th></tr></thead>
-          <tbody>
-            <tr><td class="green">v2 (subscription)</td><td>sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large</td><td>3072d</td></tr>
-          </tbody>
-        </table>
-        <div style="font-size:11px; font-weight:600; color:#71717a; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:8px;">Python SDK — free adapters (v1)</div>
-        <table class="table mono" style="font-size:11px;">
-          <thead><tr><th>Source</th><th>Target</th><th>Output</th><th>Flavors</th><th>Access</th></tr></thead>
-          <tbody>
-            <tr><td>sentence-transformers/all-MiniLM-L6-v2</td><td>openai/text-embedding-3-small</td><td>1536d</td><td>medium, large, vlarge, generic</td><td>Free</td></tr>
-            <tr><td>intfloat/e5-base-v2</td><td>openai/text-embedding-3-small</td><td>1536d</td><td>small, linear</td><td>Free</td></tr>
-            <tr><td>sentence-transformers/all-MiniLM-L6-v2</td><td>intfloat/e5-base-v2</td><td>768d</td><td>large</td><td>Free</td></tr>
-          </tbody>
-        </table>
-        <div style="font-size:11px; font-weight:600; color:#8b5cf6; letter-spacing:0.06em; text-transform:uppercase; margin:16px 0 8px;">Python SDK — pro adapters (v1, encrypted)</div>
-        <table class="table mono" style="font-size:11px;">
-          <thead><tr><th>Source</th><th>Target</th><th>Output</th><th>Access</th></tr></thead>
-          <tbody>
-            <tr><td>intfloat/e5-base-v2</td><td>openai/text-embedding-3-small</td><td>1536d</td><td style="color:#8b5cf6;">Pro</td></tr>
-            <tr><td>gemini/text-embedding-004</td><td>openai/text-embedding-3-small</td><td>1536d</td><td style="color:#8b5cf6;">Pro</td></tr>
-            <tr><td>sentence-transformers/all-MiniLM-L6-v2</td><td>gemini/text-embedding-004</td><td>768d</td><td style="color:#8b5cf6;">Pro</td></tr>
-            <tr><td>intfloat/e5-base-v2</td><td>gemini/text-embedding-004</td><td>768d</td><td style="color:#8b5cf6;">Pro</td></tr>
-            <tr><td>openai/text-embedding-3-small</td><td>gemini/text-embedding-004</td><td>768d</td><td style="color:#8b5cf6;">Pro</td></tr>
-            <tr><td>gemini/text-embedding-004</td><td>intfloat/e5-base-v2</td><td>768d</td><td style="color:#8b5cf6;">Pro</td></tr>
-          </tbody>
-        </table>
-        <p style="font-size:12px; color:#52525b; margin-top:8px;"><a href="#" onclick="switchTab('apidocs'); return false;" style="color:#3b82f6;">API Docs →</a> · <a href="#" onclick="switchTab('models'); return false;" style="color:#3b82f6;">Subscribe to local models →</a></p>
-      </div>
-    </div>
-
-    <!-- ── API key + stats ── -->
-    <div class="card fade-up delay-3" style="margin-bottom:20px; border-color:#3b82f630;">
-      <div class="card-header" style="border-color:#3b82f620;">
-        <h3 style="color:#3b82f6;">Your API Key</h3>
-        <div class="flex gap-8">
-          <button class="btn-copy" onclick="toggleKey()">${keyVisible ? "Hide" : "Reveal"}</button>
-          <button class="btn-copy" onclick="copyToClipboard('${userData.api_key}', this)">Copy</button>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="mono" style="font-size:14px; color:${keyVisible ? "#3b82f6" : "#3f3f46"};
-          word-break:break-all; user-select:${keyVisible ? "all" : "none"};
-          padding:12px 16px; background:#08080c; border-radius:8px; border:1px solid #1c1c26;">
-          ${keyVisible ? escHtml(userData.api_key) : userData.api_key.slice(0, 10) + "•".repeat(24) + userData.api_key.slice(-4)}
+        <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+          <button class="btn-sm btn-secondary" onclick="switchTab('apidocs')">Full API Docs →</button>
+          <button class="btn-sm btn-ghost" onclick="switchTab('billing')">Add Credits</button>
         </div>
       </div>
     </div>
 
-    <div class="grid-3" style="margin-bottom:28px;">
-      <div class="stat fade-up delay-4">
-        <div class="stat-label">Balance</div>
-        <div class="stat-value mono" style="color:#3b82f6;">$${d.balance.toFixed(4)}</div>
-        <div class="stat-sub mono">Available credits</div>
+    <!-- ── API Models ── -->
+    <div class="card fade-up delay-1" style="margin-bottom:16px;">
+      <div class="card-header"><h3>API Models</h3></div>
+      <div class="card-body" style="padding:14px 20px;">
+        <div style="display:grid; grid-template-columns:1fr auto auto; gap:6px 16px; font-size:12px; align-items:center;">
+          <div class="mono green" style="font-weight:700;">qwen06b-te3-adapted</div>
+          <div style="color:#71717a;">Qwen3-0.6B → openai/text-embedding-3-large · 3072d</div>
+          <div class="mono" style="color:#10b981;">$0.040/1M</div>
+
+          <div class="mono green" style="font-weight:700;">minilm-te3-adapted</div>
+          <div style="color:#71717a;">MiniLM-L6-v2 → openai/text-embedding-3-large · 3072d</div>
+          <div class="mono" style="color:#10b981;">$0.065/1M</div>
+
+          <div class="mono green" style="font-weight:700;">te3-qwen3-8b-adapted</div>
+          <div style="color:#71717a;">openai/text-embedding-3-large → Qwen3-8B · 4096d</div>
+          <div class="mono" style="color:#10b981;">$0.080/1M</div>
+        </div>
+        <div style="font-size:11px; color:#52525b; margin-top:10px;">OpenAI text-embedding-3-large costs $0.130/1M tokens. These adapters produce the same vectors for 50-69% less.</div>
       </div>
-      <div class="stat fade-up delay-4">
-        <div class="stat-label">Total Spent</div>
-        <div class="stat-value mono" style="color:#f59e0b;">$${d.total_spent.toFixed(4)}</div>
-        <div class="stat-sub mono">Lifetime usage</div>
+    </div>
+
+    <!-- ── Local SDK ── -->
+    <div class="card fade-up delay-2" style="margin-bottom:16px; border-color:#10b98120;">
+      <div class="card-header" style="border-color:#10b98120;">
+        <h3 style="color:#10b981;">Run Locally — $10/month</h3>
+        <button class="btn-sm btn-primary" onclick="switchTab('models')">Subscribe</button>
       </div>
-      <div class="stat fade-up delay-4">
-        <div class="stat-label">Passages Embedded</div>
-        <div class="stat-value mono" style="color:#6366f1;">${d.total_passages.toLocaleString()}</div>
-        <div class="stat-sub mono">Total API calls</div>
+      <div class="card-body">
+        <p style="font-size:13px; color:#a1a1aa; line-height:1.6; margin-bottom:12px;">
+          Unlimited inference on your own GPU. No per-token cost. No API calls.
+        </p>
+        ${codeBlock("python", `pip install embedding-adapters
+
+from sentence_transformers import SentenceTransformer
+from embedding_adapters import EmbeddingAdapter
+
+src = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+adapter = EmbeddingAdapter.from_registry(
+    source="sentence-transformers/all-MiniLM-L6-v2",
+    target="openai/text-embedding-3-large",
+    flavor="v2", device="cuda",
+)
+
+embs = src.encode(["your text"], normalize_embeddings=True)
+out = adapter.encode_embeddings(embs)
+print(out.shape)  # (1, 3072)`)}
+        <div style="font-size:12px; color:#71717a; margin-top:10px;">
+          Available v2 adapters:<br>
+          <span class="mono" style="font-size:11px;">sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large (3072d)</span><br>
+          <span class="mono" style="font-size:11px;">Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large (3072d)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Migrate off OpenAI ── -->
+    <div class="card fade-up delay-3" style="margin-bottom:16px; border-color:#f59e0b20;">
+      <div class="card-header" style="border-color:#f59e0b20;">
+        <h3 style="color:#f59e0b;">Migrate off OpenAI</h3>
+      </div>
+      <div class="card-body">
+        <p style="font-size:13px; color:#a1a1aa; line-height:1.6; margin-bottom:12px;">
+          Already have an index built with openai/text-embedding-3-large? Translate those vectors into open-source Qwen3-Embedding-8B space — no re-embedding your corpus.
+        </p>
+        ${codeBlock("python", `resp = requests.post("${API_BASE}/v1/embed",
+    headers={"Authorization": "Bearer ${userData.api_key}"},
+    json={
+        "model": "te3-qwen3-8b-adapted",
+        "embeddings_b64": base64.b64encode(your_te3_vectors.tobytes()).decode(),
+        "texts": ["query"],
+        "quality": 0,
+    })
+# Returns 4096-d Qwen3-8B vectors from your existing TE3 embeddings`)}
       </div>
     </div>
   `;
