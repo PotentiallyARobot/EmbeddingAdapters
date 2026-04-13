@@ -1388,11 +1388,22 @@ section {
   background: #0d0d12; border-radius: 10px; padding: 14px; text-align: center;
 }
 @media (max-width: 768px) {
-  .demo-body { padding: 16px; }
+  .demo-body { padding: 14px; }
+  .demo-header { padding: 20px 14px 0; }
+  .demo-header h3 { font-size: 16px; line-height: 1.4; }
+  .demo-header p { font-size: 12px; }
   .demo-input-row { flex-direction: column; }
+  .demo-input-row textarea { font-size: 14px; height: auto; min-height: 44px; }
   .demo-controls { flex-direction: column; align-items: stretch; }
-  .demo-result-grid { grid-template-columns: 1fr 1fr; }
-  .demo-comparison { grid-template-columns: 1fr; }
+  .demo-select { font-size: 11px; padding: 10px 12px; }
+  .demo-btn { font-size: 14px; padding: 12px; }
+  .demo-result-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .demo-ranking-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .demo-cost-grid { grid-template-columns: 1fr !important; }
+  .demo-compare-card { padding: 12px; }
+  .demo-vector { font-size: 10px; padding: 8px 10px; }
+  .demo-stat-val { font-size: 16px; }
+  .demo-stat-label { font-size: 10px; }
 }
 .cta-section {
   text-align: center;
@@ -1978,8 +1989,8 @@ footer {
 <section class="demo-section">
   <div class="demo-card">
     <div class="demo-header">
-      <h3>How adapters improve search ranking</h3>
-      <p>A customer searches your help center. Below, we compare which docs are returned by OpenAI, the adapter, and the raw base model.</p>
+      <h3>Try it — generate openai/text-embedding-3-large from Qwen3-Embedding-0.6B</h3>
+      <p>Same ranking as OpenAI. 69% cheaper. See how the adapter compares to the raw model below.</p>
     </div>
     <div class="demo-body">
       <div class="demo-input-row">
@@ -2048,7 +2059,7 @@ footer {
         </div>
 
         <!-- Ranked results: 3-way comparison -->
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:14px;">
+        <div class="demo-ranking-grid" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:14px;">
           <div>
             <div style="margin-bottom:8px;">
               <div style="font-size:12px; font-weight:700; color:#10b981;">EmbeddingAdapters</div>
@@ -2079,7 +2090,7 @@ footer {
         </div>
 
         <!-- Cost comparison -->
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="demo-cost-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
           <div class="demo-compare-card">
             <div style="font-size:10px; color:#71717a; margin-bottom:6px;">EmbeddingAdapters cost</div>
             <div style="font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:800; color:#10b981;" id="demo-our-cost">—</div>
@@ -2986,23 +2997,24 @@ var DEFAULT_QUERY = "How do I return an item and get my money back?";
 function renderItem(rank, text, marker) {
   var short = text.length > 110 ? text.slice(0, 110) + "..." : text;
   if (marker === "wrong") {
-    return '<div style="padding:10px 12px;background:#ef444412;border-radius:10px;border:1px solid #ef444430;">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-      '<span style="font:800 14px \'JetBrains Mono\',monospace;color:#ef4444;">#' + rank + '</span>' +
-      '<span style="font-size:16px;color:#ef4444;" title="Wrong result">\u2717</span></div>' +
-      '<div style="font-size:11px;color:#fca5a5;line-height:1.5;">' + short + '</div></div>';
+    return '<div style="padding:12px;background:#ef444415;border-radius:10px;border:2px solid #ef4444;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+      '<span style="font:800 15px \'JetBrains Mono\',monospace;color:#ef4444;">#' + rank + '</span>' +
+      '<span style="font-size:11px;font-weight:800;color:#ef4444;background:#ef444425;padding:3px 8px;border-radius:5px;">WRONG</span></div>' +
+      '<div style="font-size:12px;color:#fca5a5;line-height:1.5;">' + short + '</div></div>';
   }
   if (marker === "correct") {
-    return '<div style="padding:10px 12px;background:#08080c;border-radius:10px;border:1px solid #1c1c26;">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-      '<span style="font:800 14px \'JetBrains Mono\',monospace;color:#10b981;">#' + rank + '</span>' +
-      '<span style="font-size:16px;color:#10b981;" title="Matches OpenAI">\u2713</span></div>' +
-      '<div style="font-size:11px;color:#a1a1aa;line-height:1.5;">' + short + '</div></div>';
+    return '<div style="padding:12px;background:#10b98110;border-radius:10px;border:2px solid #10b981;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+      '<span style="font:800 15px \'JetBrains Mono\',monospace;color:#10b981;">#' + rank + '</span>' +
+      '<span style="font-size:11px;font-weight:800;color:#10b981;background:#10b98125;padding:3px 8px;border-radius:5px;">CORRECT</span></div>' +
+      '<div style="font-size:12px;color:#d4d4d8;line-height:1.5;">' + short + '</div></div>';
   }
-  // neutral (OpenAI column)
+  // plain - no marker
+  var color = marker === "openai" ? "#f59e0b" : marker === "adapter" ? "#10b981" : "#ef4444";
   return '<div style="padding:10px 12px;background:#08080c;border-radius:10px;border:1px solid #1c1c26;">' +
-    '<div style="font:800 14px \'JetBrains Mono\',monospace;color:#f59e0b;margin-bottom:4px;">#' + rank + '</div>' +
-    '<div style="font-size:11px;color:#a1a1aa;line-height:1.5;">' + short + '</div></div>';
+    '<div style="font:700 13px \'JetBrains Mono\',monospace;color:' + color + ';margin-bottom:4px;">#' + rank + '</div>' +
+    '<div style="font-size:11px;color:#71717a;line-height:1.5;">' + short + '</div></div>';
 }
 
 function showResults(adapterRank, openaiRank, qwenRank, dim, latency, preview) {
@@ -3019,33 +3031,31 @@ function showResults(adapterRank, openaiRank, qwenRank, dim, latency, preview) {
   var floats = preview.map(function(v) { return v.toFixed(4); }).join(", ");
   document.getElementById("demo-vector").textContent = "[" + floats + ", ... " + (dim - preview.length) + " more]";
   
-  // Store full embedding for copy button (JSON array of preview floats)
+  // Store full embedding for copy button
   demoFullEmbeddingB64 = "[" + preview.map(function(v) { return v.toFixed(6); }).join(", ") + "]";
   document.getElementById("demo-copy-emb").style.display = "block";
 
-  // OpenAI set for checking
-  var oSet = {};
-  for (var x = 0; x < openaiRank.length; x++) oSet[openaiRank[x]] = true;
-
-  // Adapter column
+  // Adapter column: only #1 gets a marker
   var aH = "";
-  for (var i = 0; i < 3; i++) {
-    aH += renderItem(i + 1, DOCS[adapterRank[i]], oSet[adapterRank[i]] ? "correct" : "wrong");
-  }
+  var a1correct = adapterRank[0] === openaiRank[0];
+  aH += renderItem(1, DOCS[adapterRank[0]], a1correct ? "correct" : "wrong");
+  aH += renderItem(2, DOCS[adapterRank[1]], "adapter");
+  aH += renderItem(3, DOCS[adapterRank[2]], "adapter");
   document.getElementById("demo-rank-ours").innerHTML = aH;
 
-  // OpenAI column
+  // OpenAI column: all plain
   var oH = "";
-  for (var j = 0; j < 3; j++) {
-    oH += renderItem(j + 1, DOCS[openaiRank[j]], "neutral");
-  }
+  oH += renderItem(1, DOCS[openaiRank[0]], "openai");
+  oH += renderItem(2, DOCS[openaiRank[1]], "openai");
+  oH += renderItem(3, DOCS[openaiRank[2]], "openai");
   document.getElementById("demo-rank-openai").innerHTML = oH;
 
-  // Qwen column
+  // Qwen column: only #1 gets a marker
   var qH = "";
-  for (var k = 0; k < 3; k++) {
-    qH += renderItem(k + 1, DOCS[qwenRank[k]], oSet[qwenRank[k]] ? "correct" : "wrong");
-  }
+  var q1correct = qwenRank[0] === openaiRank[0];
+  qH += renderItem(1, DOCS[qwenRank[0]], q1correct ? "correct" : "wrong");
+  qH += renderItem(2, DOCS[qwenRank[1]], "qwen");
+  qH += renderItem(3, DOCS[qwenRank[2]], "qwen");
   document.getElementById("demo-rank-qwen").innerHTML = qH;
 
   // Verdict
