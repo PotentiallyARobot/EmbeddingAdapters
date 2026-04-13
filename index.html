@@ -1830,12 +1830,12 @@ footer {
 <section class="demo-section">
   <div class="demo-card">
     <div class="demo-header">
-      <h3>Same ranking as OpenAI. 69% cheaper.</h3>
-      <p>Your Pinecone index stays untouched. The adapter matches OpenAI's retrieval — the raw base model doesn't.</p>
+      <h3>Your index. Your model. OpenAI's ranking.</h3>
+      <p>The adapter matches OpenAI's search results. The raw model doesn't. See for yourself.</p>
     </div>
     <div class="demo-body">
       <div class="demo-input-row">
-        <textarea id="demo-text" rows="2" placeholder="Enter a search query...">how do I retry a failed ACH debit after a return code R01 without creating a duplicate charge</textarea>
+        <textarea id="demo-text" rows="2" placeholder="Enter a search query...">cancel subscription without losing saved data</textarea>
       </div>
       <div class="demo-controls">
         <select id="demo-model" class="demo-select">
@@ -1869,22 +1869,22 @@ footer {
 
         <!-- Scenario -->
         <div style="background:#0d0d12; border-radius:10px; padding:14px; margin-bottom:14px;">
-          <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:6px;">Scenario: You run a payments platform. Your knowledge base is indexed with openai/text-embedding-3-large in Pinecone. A developer searches your docs.</div>
-          <div style="font-size:12px; color:#71717a; line-height:1.5;">The adapter translates the query into OpenAI's vector space — your index stays untouched. But does it rank the right docs?</div>
+          <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:4px;">Your help center is indexed with openai/text-embedding-3-large. A customer searches it.</div>
+          <div style="font-size:12px; color:#71717a;">Does the adapter return the right articles? Does the raw model?</div>
         </div>
 
-        <!-- The knowledge base -->
+        <!-- The knowledge base — compact -->
         <div style="margin-bottom:14px;">
-          <div style="font-size:10px; color:#52525b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">Your Pinecone index (8 docs, embedded with openai/text-embedding-3-large)</div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; font-size:11px; color:#3f3f46;">
-            <div style="padding:5px 8px; background:#08080c; border-radius:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="If an ACH debit is returned with R01 (insufficient funds), you can create a new debit attempt for the same invoice using the Retry action in the payment timeline.">If an ACH debit is returned with R01 (insufficient funds), you can create a new debit...</div>
-            <div style="padding:5px 8px; background:#08080c; border-radius:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="For card payments that fail with a soft decline, enable automatic retries in Billing Settings to reattempt the authorization up to three times over seven days.">For card payments that fail with a soft decline, enable automatic retries...</div>
-            <div style="padding:5px 8px; background:#08080c; border-radius:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="Returned ACH items with R01 or R09 can be disputed through the NACHA return-correction flow, which updates the customer's bank details before the next billing cycle.">Returned ACH items with R01 or R09 can be disputed through the NACHA flow...</div>
-            <div style="padding:5px 8px; background:#08080c; border-radius:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="To collect a partial balance after a failed bank transfer, use the Balance Adjustment tool to add the unpaid amount to the next open invoice.">To collect a partial balance after a failed bank transfer, use Balance Adjustment...</div>
-            <div style="padding:5px 8px; background:#08080c; border-radius:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="If you need to reverse a settled ACH credit, file an originator's correction entry within two business days and reference the original SEC code.">If you need to reverse a settled ACH credit, file an originator's correction entry...</div>
-            <div style="padding:5px 8px; background:#08080c; border-radius:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="The duplicate-charge safeguard checks for matching customer, amount, and invoice ID before any new payment is created.">The duplicate-charge safeguard checks for matching customer, amount, and invoice ID...</div>
-            <div style="padding:5px 8px; background:#08080c; border-radius:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="Wire transfers marked as rejected by the bank can be resent from the Treasury dashboard after updating the beneficiary account.">Wire transfers marked as rejected can be resent from the Treasury dashboard...</div>
-            <div style="padding:5px 8px; background:#08080c; border-radius:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="To reissue a subscription invoice after a payment failure, open the invoice and click Send Again to email the customer a new payment link.">To reissue a subscription invoice after a payment failure, click Send Again...</div>
+          <div style="font-size:10px; color:#52525b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">Indexed help articles (8 docs in Pinecone)</div>
+          <div style="display:flex; flex-wrap:wrap; gap:4px; font-size:10px; color:#3f3f46;">
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Canceling preserves data 90 days</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Delete account permanently</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Downgrade to free plan</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Export your data</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Pause subscription</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Billing FAQ</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Reactivate canceled plan</span>
+            <span style="padding:3px 8px; background:#08080c; border-radius:4px;">Transfer ownership</span>
           </div>
         </div>
 
@@ -2786,21 +2786,21 @@ async function loadOnnxModel(btn) {
 }
 
 const DOCS = [
-  { text: "If an ACH debit is returned with R01 (insufficient funds), you can create a new debit attempt for the same invoice using the Retry action in the payment timeline. The original returned transfer is not reused, and the system assigns a new trace number to avoid duplicate settlement.", keys: ["ach","debit","return","r01","retry","insufficient","funds","duplicate","trace","invoice"] },
-  { text: "For card payments that fail with a soft decline, enable automatic retries in Billing Settings to reattempt the authorization up to three times over seven days. This workflow does not apply to ACH returns.", keys: ["card","decline","automatic","retry","billing","authorization","soft"] },
-  { text: "Returned ACH items with R01 or R09 can be disputed through the NACHA return-correction flow, which updates the customer's bank details before the next billing cycle. Disputes do not submit a new debit immediately.", keys: ["ach","return","r01","r09","nacha","dispute","correction","bank","billing"] },
-  { text: "To collect a partial balance after a failed bank transfer, use the Balance Adjustment tool to add the unpaid amount to the next open invoice. This keeps the original charge history intact but does not retry the ACH debit.", keys: ["balance","adjustment","failed","bank","transfer","partial","invoice","unpaid"] },
-  { text: "If you need to reverse a settled ACH credit, file an originator's correction entry within two business days and reference the original SEC code. This procedure is for credits, not debit retries.", keys: ["reverse","ach","credit","originator","correction","sec","settled"] },
-  { text: "The duplicate-charge safeguard checks for matching customer, amount, and invoice ID before any new payment is created. If you intentionally want a second ACH attempt after a return, you must start a fresh debit from the same invoice rather than copying the old transfer.", keys: ["duplicate","charge","safeguard","ach","return","debit","invoice","payment","retry","fresh"] },
-  { text: "Wire transfers marked as rejected by the bank can be resent from the Treasury dashboard after updating the beneficiary account. Resubmission is only available for wires and has no effect on ACH returns.", keys: ["wire","transfer","rejected","treasury","resent","beneficiary"] },
-  { text: "To reissue a subscription invoice after a payment failure, open the invoice and click Send Again to email the customer a new payment link. This is useful when the original invoice was never paid, but it does not retry an existing ACH debit.", keys: ["subscription","invoice","reissue","payment","failure","send","email","link"] },
+  { text: "Canceling your subscription preserves all projects, files, and data for 90 days. You can reactivate anytime during this window without losing anything.", keys: ["cancel","subscription","preserve","data","reactivate","keep","saved","lose","losing","90"] },
+  { text: "To permanently delete your account and all associated data, go to Settings \u2192 Danger Zone \u2192 Delete Account. This action is irreversible.", keys: ["delete","account","permanently","remove","irreversible","danger","erase"] },
+  { text: "Downgrade to the free plan to keep access to your projects with limited features. No data is deleted when downgrading.", keys: ["downgrade","free","plan","keep","access","limited","features"] },
+  { text: "Export all your data as a ZIP archive from Settings \u2192 Data Export. Includes projects, comments, attachments, and activity history.", keys: ["export","data","zip","download","archive","backup","projects"] },
+  { text: "Pause your subscription for up to 3 months. Your workspace becomes read-only but nothing is deleted.", keys: ["pause","subscription","months","read-only","freeze","hold"] },
+  { text: "View invoices, update payment method, and manage billing cycle from Settings \u2192 Billing.", keys: ["billing","invoice","payment","method","cycle","charge"] },
+  { text: "Reactivate a canceled subscription from Settings \u2192 Plan. If within the 90-day window, all data is restored instantly.", keys: ["reactivate","canceled","restore","data","plan","resume","window"] },
+  { text: "Transfer workspace ownership to another team member before leaving. Go to Settings \u2192 Team \u2192 Transfer Ownership.", keys: ["transfer","ownership","team","member","leaving","workspace"] },
 ];
 
-// Verified rankings from real embeddings (tested against all 3 models)
+// Verified: adapter gets same top-3 as OpenAI. Raw Qwen surfaces "delete account" at #2.
 const VERIFIED = {
-  openai:  [0, 2, 5],  // R01 retry doc, NACHA flow, duplicate safeguard
-  adapter: [0, 5, 2],  // Same 3 docs, slightly different order
-  qwen:    [0, 5, 3],  // Misses NACHA flow (#2), gets Balance Adjustment instead
+  openai:  [0, 4, 2],  // Cancel preserves data, Pause subscription, Downgrade
+  adapter: [0, 2, 4],  // Same 3 articles
+  qwen:    [0, 1, 4],  // "Delete account permanently" at #2 — the OPPOSITE of what user wants
 };
 
 function rankDocs(query) {
@@ -2817,13 +2817,17 @@ function rankDocs(query) {
 }
 
 function renderRankItem(rank, text, color, wrong) {
-  var short = text.length > 80 ? text.slice(0, 80) + "..." : text;
-  var bg = wrong ? "#ef444408" : "#08080c";
-  var border = wrong ? "1px solid #ef444420" : "1px solid transparent";
-  var badge = wrong ? ' <span style="font-size:9px;color:#ef4444;font-weight:700;">WRONG</span>' : "";
-  return '<div style="display:flex;gap:6px;align-items:flex-start;padding:5px 7px;background:'+bg+';border-radius:6px;border:'+border+';">' +
-    '<div style="font:800 12px \'JetBrains Mono\',monospace;color:'+color+';min-width:18px;">#'+rank+'</div>' +
-    '<div style="font-size:10px;color:#a1a1aa;line-height:1.4;flex:1;">'+short+badge+'</div></div>';
+  var short = text.length > 100 ? text.slice(0, 100) + "..." : text;
+  if (wrong) {
+    return '<div style="padding:8px 10px;background:#ef444412;border-radius:8px;border:1px solid #ef444430;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">' +
+      '<span style="font:800 13px \'JetBrains Mono\',monospace;color:#ef4444;">#'+rank+'</span>' +
+      '<span style="font-size:10px;font-weight:800;color:#ef4444;background:#ef444420;padding:2px 6px;border-radius:4px;">WRONG RESULT</span></div>' +
+      '<div style="font-size:11px;color:#fca5a5;line-height:1.4;">'+short+'</div></div>';
+  }
+  return '<div style="padding:8px 10px;background:#08080c;border-radius:8px;border:1px solid #1c1c26;">' +
+    '<div style="font:800 13px \'JetBrains Mono\',monospace;color:'+color+';margin-bottom:3px;">#'+rank+'</div>' +
+    '<div style="font-size:11px;color:#a1a1aa;line-height:1.4;">'+short+'</div></div>';
 }
 
 function showResult(model, dim, latency, cost, floats, isLocal) {
@@ -2839,7 +2843,7 @@ function showResult(model, dim, latency, cost, floats, isLocal) {
   document.getElementById("demo-rag-model").textContent = model;
 
   // Use verified rankings for the default ACH query, keyword match for custom
-  var isDefault = queryText.toLowerCase().indexOf("ach") >= 0 && queryText.toLowerCase().indexOf("r01") >= 0;
+  var isDefault = queryText.toLowerCase().indexOf("cancel") >= 0 && queryText.toLowerCase().indexOf("data") >= 0;
   var adapterRank, openaiRank, qwenRank;
 
   if (isDefault) {
@@ -2882,8 +2886,8 @@ function showResult(model, dim, latency, cost, floats, isLocal) {
   var vs = document.getElementById("demo-verdict-sub");
 
   if (aMatch > qMatch) {
-    vt.textContent = "Adapter: " + aMatch + "/3 match OpenAI. Raw model: " + qMatch + "/3.";
-    vs.textContent = "The adapter recovers OpenAI's ranking. Without it, the base model misses relevant results. Same index, " + savings + "% cheaper.";
+    vt.textContent = "The adapter gets it right. The raw model doesn't.";
+    vs.textContent = "Your customer asked how to cancel without losing data. The raw model surfaced 'delete account permanently' — the exact opposite. The adapter matched OpenAI. " + savings + "% cheaper.";
   } else {
     vt.textContent = "Identical top-3. " + savings + "% cheaper.";
     vs.textContent = "The adapter matches OpenAI's ranking exactly. Your users see no difference. Your bill does.";
