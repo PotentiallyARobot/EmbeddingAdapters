@@ -1836,6 +1836,7 @@ footer {
     <div class="demo-body">
       <div class="demo-input-row">
         <textarea id="demo-text" rows="2" placeholder="Enter a search query...">stop team email notifications for task updates but keep assignment emails</textarea>
+        <div id="demo-custom-hint" style="display:none; font-size:11px; color:#52525b; text-align:right; margin-top:4px;">Custom query — will call the API. <span style="color:#3b82f6;">Cached queries are instant.</span></div>
       </div>
       <div class="demo-controls">
         <select id="demo-model" class="demo-select">
@@ -2774,6 +2775,17 @@ fetch(DEMO_CACHE_URL).then(r => r.json()).then(data => {
   demoCache = data;
   console.log("[Demo] Cache loaded:", data.adapter_dim + "d,", "rankings:", data.rankings);
 }).catch(e => console.warn("[Demo] Cache fetch failed, using fallback:", e));
+
+// Show hint when user types a custom query
+var demoDefaultQuery = "stop team email notifications for task updates but keep assignment emails";
+var demoTextEl = document.getElementById("demo-text");
+var demoHint = document.getElementById("demo-custom-hint");
+if (demoTextEl && demoHint) {
+  demoTextEl.addEventListener("input", function() {
+    var isCustom = demoTextEl.value.trim().toLowerCase() !== demoDefaultQuery.toLowerCase();
+    demoHint.style.display = isCustom ? "block" : "none";
+  });
+}
 
 const DOCS = [
   "You can disable activity stream notifications in Workspace Settings > Notifications. This stops likes, comments, and status-change alerts, while assignment emails still go out to the assignee.",
