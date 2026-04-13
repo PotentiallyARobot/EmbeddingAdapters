@@ -1337,12 +1337,12 @@ section {
 .demo-header p { font-size: 14px; color: var(--text-muted); }
 .demo-body { padding: 24px 32px 28px; }
 .demo-input-row {
-  display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-end;
+  margin-bottom: 12px;
 }
 .demo-input-row textarea {
-  flex: 1; background: #08080c; border: 1px solid var(--border); border-radius: 10px;
+  width: 100%; background: #08080c; border: 1px solid var(--border); border-radius: 10px;
   color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px;
-  padding: 14px 16px; resize: none; line-height: 1.5; height: 52px; overflow: hidden;
+  padding: 14px 16px; resize: none; line-height: 1.5; min-height: 52px; overflow: hidden;
   scrollbar-width: none; -ms-overflow-style: none;
 }
 .demo-input-row textarea::-webkit-scrollbar { display: none; }
@@ -1390,10 +1390,9 @@ section {
 @media (max-width: 768px) {
   .demo-body { padding: 14px; }
   .demo-header { padding: 20px 14px 0; }
-  .demo-header h3 { font-size: 16px; line-height: 1.4; }
+  .demo-header h3 { font-size: 15px; line-height: 1.4; }
   .demo-header p { font-size: 12px; }
-  .demo-input-row { flex-direction: column; }
-  .demo-input-row textarea { font-size: 14px; height: auto; min-height: 44px; }
+  .demo-input-row textarea { font-size: 14px; }
   .demo-controls { flex-direction: column; align-items: stretch; }
   .demo-select { font-size: 11px; padding: 10px 12px; }
   .demo-btn { font-size: 14px; padding: 12px; }
@@ -1995,8 +1994,8 @@ footer {
     <div class="demo-body">
       <div class="demo-input-row">
         <textarea id="demo-text" rows="2" placeholder="Enter a search query...">How do I return an item and get my money back?</textarea>
-        <div id="demo-custom-hint" style="display:none; font-size:11px; color:#52525b; text-align:right; margin-top:4px;">Results for custom queries are generated live via the API · on-device runs at ~1-5ms</div>
       </div>
+      <div id="demo-custom-hint" style="display:none; font-size:11px; color:#52525b; text-align:right; margin-bottom:12px;">Results for custom queries are generated live via the API · on-device runs at ~1-5ms</div>
       <div class="demo-controls">
         <select id="demo-model" class="demo-select">
           <option value="qwen06b-te3-adapted">Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large (3072d)</option>
