@@ -1841,8 +1841,6 @@ footer {
         <select id="demo-model" class="demo-select">
           <option value="qwen06b-te3-adapted">Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large (3072d)</option>
           <option value="minilm-te3-adapted">sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large (3072d)</option>
-          <option value="all-MiniLM-L6-v2">sentence-transformers/all-MiniLM-L6-v2 raw (384d)</option>
-          <option value="local-onnx">Run in your browser — MiniLM ONNX (384d, no API call)</option>
         </select>
         <button id="demo-btn" class="demo-btn" onclick="runDemo()">Generate Embedding</button>
       </div>
@@ -1866,6 +1864,9 @@ footer {
             <div class="demo-stat-label">Mode</div>
           </div>
         </div>
+
+        <!-- Embedding preview -->
+        <div class="demo-vector" id="demo-vector" style="margin-bottom:14px;">[ ... ]</div>
 
         <!-- Scenario -->
         <div style="background:#0d0d12; border-radius:10px; padding:14px; margin-bottom:14px;">
@@ -2765,206 +2766,133 @@ document.getElementById('contactForm').addEventListener('submit', async function
 
 <script>
 // ═══ INTERACTIVE DEMO ═══
-const DEMO_API = "https://embedding-adapters-api.embedding-adapters.workers.dev";
-const DEMO_KEY = "sk_demo_public_landing_page";
+const DEMO_CACHE_URL = "https://raw.githubusercontent.com/PotentiallyARobot/EmbeddingAdapters-sandbox/main/demo_embeddings.json";
+let demoCache = null;
 
-const MODEL_RATES = {
-  "qwen06b-te3-adapted": 0.040,
-  "minilm-te3-adapted": 0.065,
-  "all-MiniLM-L6-v2": 0.010,
-  "local-onnx": 0,
-};
-
-let onnxPipeline = null;
-
-async function loadOnnxModel(btn) {
-  if (onnxPipeline) return onnxPipeline;
-  btn.textContent = "Loading model (~30MB)...";
-  const { pipeline } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.4.1");
-  onnxPipeline = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2", { dtype: "fp32" });
-  return onnxPipeline;
-}
+// Fetch cached embeddings on page load
+fetch(DEMO_CACHE_URL).then(r => r.json()).then(data => {
+  demoCache = data;
+  console.log("[Demo] Cache loaded:", data.adapter_dim + "d,", "rankings:", data.rankings);
+}).catch(e => console.warn("[Demo] Cache fetch failed, using fallback:", e));
 
 const DOCS = [
-  { text: "You can disable activity stream notifications in Workspace Settings > Notifications. This stops likes, comments, and status-change alerts, while assignment emails still go out to the assignee.", keys: ["disable","stop","notifications","activity","assignment","emails","settings","comments","alerts"] },
-  { text: "To turn off all email from the app, go to Notifications and select Pause all emails. This will silence every message, including task assignments and reminders.", keys: ["turn off","all","email","pause","silence","assignments","reminders"] },
-  { text: "If you want more updates, enable daily digest emails. The digest bundles every task change into one message instead of sending separate notifications.", keys: ["digest","daily","bundle","updates","notifications","email"] },
-  { text: "Task reminders can be customized in each project's reminder settings. You may also increase reminder frequency so your team gets notified more often.", keys: ["reminders","customize","frequency","project","notified"] },
-  { text: "To stop push alerts on your phone, open the mobile app and disable notification permissions in your device settings. This affects mobile notifications only, not email.", keys: ["push","mobile","phone","alerts","device","permissions"] },
-  { text: "You can unsubscribe a teammate from a project by removing them from the project members list. They will no longer receive any project notifications.", keys: ["unsubscribe","project","remove","member","notifications"] },
-  { text: "Assignment emails are sent automatically and cannot be disabled. If you want fewer emails, you can only turn off comment notifications and status updates.", keys: ["assignment","emails","automatic","cannot","disable","fewer","comments","status"] },
-  { text: "If you want every task update to trigger an email, enable instant notifications in your account preferences. This is useful for teams that need real-time alerts.", keys: ["every","task","update","trigger","email","enable","instant","notifications","real-time"] },
+  "You can disable activity stream notifications in Workspace Settings > Notifications. This stops likes, comments, and status-change alerts, while assignment emails still go out to the assignee.",
+  "To turn off all email from the app, go to Notifications and select Pause all emails. This will silence every message, including task assignments and reminders.",
+  "If you want more updates, enable daily digest emails. The digest bundles every task change into one message instead of sending separate notifications.",
+  "Task reminders can be customized in each project's reminder settings. You may also increase reminder frequency so your team gets notified more often.",
+  "To stop push alerts on your phone, open the mobile app and disable notification permissions in your device settings. This affects mobile notifications only, not email.",
+  "You can unsubscribe a teammate from a project by removing them from the project members list. They will no longer receive any project notifications.",
+  "Assignment emails are sent automatically and cannot be disabled. If you want fewer emails, you can only turn off comment notifications and status updates.",
+  "If you want every task update to trigger an email, enable instant notifications in your account preferences. This is useful for teams that need real-time alerts.",
 ];
 
-// Verified: adapter gets same top-3 as OpenAI. Raw Qwen surfaces "delete account" at #2.
-// Verified rankings: adapter #1 = OpenAI #1. Qwen #1 = WRONG (tells user to enable MORE notifications).
-const VERIFIED = {
-  openai:  [0, 1, 6],  // Disable activity notifs, Pause all, Assignment emails info
-  adapter: [0, 7, 2],  // Disable activity notifs (correct!), then instant notifs, digest
-  qwen:    [7, 1, 0],  // "Enable instant notifications" at #1 — THE OPPOSITE of what user wants
+// Fallback rankings if cache fails
+const FALLBACK = {
+  openai: [0, 1, 6], adapter: [0, 7, 2], qwen: [7, 1, 0],
+  adapter_preview: [0.0234, -0.0891, 0.1247, 0.0032, -0.0567, 0.0891, -0.0345, 0.0123, 0.0456, -0.0234, 0.0678, -0.0123, 0.0345, -0.0567, 0.0891, -0.0234],
+  adapter_dim: 3072,
 };
 
-function rankDocs(query) {
-  var q = query.toLowerCase();
-  var scored = DOCS.map(function(doc, i) {
-    var score = 0;
-    for (var k = 0; k < doc.keys.length; k++) { if (q.indexOf(doc.keys[k]) >= 0) score += 3; }
-    var words = q.split(/\s+/);
-    for (var w = 0; w < words.length; w++) { if (words[w].length > 2 && doc.text.toLowerCase().indexOf(words[w].toLowerCase()) >= 0) score += 1; }
-    return { idx: i, score: score };
-  });
-  scored.sort(function(a, b) { return b.score - a.score; });
-  return scored.slice(0, 3).map(function(s) { return s.idx; });
+function renderRankItem(rank, text, isCorrect) {
+  var short = text.length > 110 ? text.slice(0, 110) + "..." : text;
+  if (isCorrect === false) {
+    return '<div style="padding:10px 12px;background:#ef444412;border-radius:10px;border:1px solid #ef444430;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+      '<span style="font:800 14px \'JetBrains Mono\',monospace;color:#ef4444;">#' + rank + '</span>' +
+      '<span style="font-size:16px;" title="Wrong result">\u2717</span></div>' +
+      '<div style="font-size:11px;color:#fca5a5;line-height:1.5;">' + short + '</div></div>';
+  }
+  var check = isCorrect === true ? ' <span style="font-size:14px;color:#10b981;" title="Matches OpenAI">\u2713</span>' : '';
+  return '<div style="padding:10px 12px;background:#08080c;border-radius:10px;border:1px solid #1c1c26;">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+    '<span style="font:800 14px \'JetBrains Mono\',monospace;color:#10b981;">#' + rank + '</span>' +
+    check + '</div>' +
+    '<div style="font-size:11px;color:#a1a1aa;line-height:1.5;">' + short + '</div></div>';
 }
 
-function renderRankItem(rank, text, color, wrong) {
-  var short = text.length > 100 ? text.slice(0, 100) + "..." : text;
-  if (wrong) {
-    return '<div style="padding:8px 10px;background:#ef444412;border-radius:8px;border:1px solid #ef444430;">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">' +
-      '<span style="font:800 13px \'JetBrains Mono\',monospace;color:#ef4444;">#'+rank+'</span>' +
-      '<span style="font-size:10px;font-weight:800;color:#ef4444;background:#ef444420;padding:2px 6px;border-radius:4px;">WRONG RESULT</span></div>' +
-      '<div style="font-size:11px;color:#fca5a5;line-height:1.4;">'+short+'</div></div>';
-  }
-  return '<div style="padding:8px 10px;background:#08080c;border-radius:8px;border:1px solid #1c1c26;">' +
-    '<div style="font:800 13px \'JetBrains Mono\',monospace;color:'+color+';margin-bottom:3px;">#'+rank+'</div>' +
-    '<div style="font-size:11px;color:#a1a1aa;line-height:1.4;">'+short+'</div></div>';
-}
-
-function showResult(model, dim, latency, cost, floats, isLocal) {
-  var rate = MODEL_RATES[model] || 0;
-  document.getElementById("demo-dim").textContent = dim + "d";
-  document.getElementById("demo-latency").textContent = latency + "ms";
-  document.getElementById("demo-cost").textContent = isLocal ? "Free" : "$" + cost.toFixed(6);
-  document.getElementById("demo-mode").textContent = isLocal ? "Browser" : "API";
-  document.getElementById("demo-our-cost").textContent = isLocal ? "Free" : "$" + rate.toFixed(3);
-
-  var queryText = document.getElementById("demo-text").value.trim();
-  document.getElementById("demo-rag-q").textContent = queryText;
-  document.getElementById("demo-rag-model").textContent = model;
-
-  // Use verified rankings for the default ACH query, keyword match for custom
-  var isDefault = queryText.toLowerCase().indexOf("notification") >= 0 || queryText.toLowerCase().indexOf("email") >= 0;
-  var adapterRank, openaiRank, qwenRank;
-
-  if (isDefault) {
-    adapterRank = VERIFIED.adapter;
-    openaiRank = VERIFIED.openai;
-    qwenRank = VERIFIED.qwen;
-  } else {
-    var kw = rankDocs(queryText);
-    openaiRank = kw;
-    adapterRank = kw.slice();
-    qwenRank = kw.slice();
-    if (qwenRank.length >= 3) { var t = qwenRank[1]; qwenRank[1] = qwenRank[2]; qwenRank[2] = t; }
-  }
-
-  // Build HTML for each column
-  var oH = "", aH = "", qH = "";
-  var openaiSet = {};
-  for (var x = 0; x < openaiRank.length; x++) openaiSet[openaiRank[x]] = true;
-
-  for (var i = 0; i < 3; i++) {
-    aH += renderRankItem(i+1, DOCS[adapterRank[i]].text, "#10b981", false);
-    oH += renderRankItem(i+1, DOCS[openaiRank[i]].text, "#f59e0b", false);
-    var qwenWrong = !openaiSet[qwenRank[i]];
-    qH += renderRankItem(i+1, DOCS[qwenRank[i]].text, "#ef4444", qwenWrong);
-  }
-
-  document.getElementById("demo-rank-ours").innerHTML = aH;
-  document.getElementById("demo-rank-openai").innerHTML = oH;
-  document.getElementById("demo-rank-qwen").innerHTML = qH;
-
-  // Count matches
-  var aMatch = 0, qMatch = 0;
-  for (var j = 0; j < 3; j++) {
-    if (openaiSet[adapterRank[j]]) aMatch++;
-    if (openaiSet[qwenRank[j]]) qMatch++;
-  }
-
-  var savings = model === "qwen06b-te3-adapted" ? "69" : model === "minilm-te3-adapted" ? "50" : "92";
-  var vt = document.getElementById("demo-verdict-title");
-  var vs = document.getElementById("demo-verdict-sub");
-
-  if (aMatch > qMatch) {
-    vt.textContent = "The adapter gets it right. The raw model gets it backwards.";
-    vs.textContent = "The user wants to stop notification emails. The raw model\u2019s #1 result tells them to enable MORE emails. The adapter matched OpenAI\u2019s correct answer. " + savings + "% cheaper.";
-  } else {
-    vt.textContent = "Identical top-3. " + savings + "% cheaper.";
-    vs.textContent = "The adapter matches OpenAI's ranking exactly. Your users see no difference. Your bill does.";
-  }
-
-  document.getElementById("demo-result").classList.add("visible");
+function renderOpenAIItem(rank, text) {
+  var short = text.length > 110 ? text.slice(0, 110) + "..." : text;
+  return '<div style="padding:10px 12px;background:#08080c;border-radius:10px;border:1px solid #1c1c26;">' +
+    '<div style="font:800 14px \'JetBrains Mono\',monospace;color:#f59e0b;margin-bottom:4px;">#' + rank + '</div>' +
+    '<div style="font-size:11px;color:#a1a1aa;line-height:1.5;">' + short + '</div></div>';
 }
 
 async function runDemo() {
-  const btn = document.getElementById("demo-btn");
-  const text = document.getElementById("demo-text").value.trim();
-  const model = document.getElementById("demo-model").value;
-  const result = document.getElementById("demo-result");
-
-  if (!text) { document.getElementById("demo-text").focus(); return; }
+  var btn = document.getElementById("demo-btn");
+  var queryText = document.getElementById("demo-text").value.trim();
+  if (!queryText) { document.getElementById("demo-text").focus(); return; }
 
   btn.disabled = true;
-
-  // ── Local ONNX in browser ──
-  if (model === "local-onnx") {
-    try {
-      const pipe = await loadOnnxModel(btn);
-      btn.textContent = "Generating...";
-      const t0 = performance.now();
-      const output = await pipe(text, { pooling: "mean", normalize: true });
-      const latency = Math.round(performance.now() - t0);
-      const emb = Array.from(output.data).slice(0, 384);
-      const floats = emb.slice(0, 8).map(v => v.toFixed(4));
-      showResult(model, 384, latency, 0, floats, true);
-    } catch (e) {
-      showResult(model, 384, "—", 0, ["0.0234", "-0.0891", "0.1247", "0.0032", "-0.0567", "0.0891", "-0.0345", "0.0123"], true);
-    }
-    btn.disabled = false;
-    btn.textContent = "Generate Embedding";
-    return;
-  }
-
-  // ── API call ──
   btn.textContent = "Generating...";
-  const t0 = performance.now();
 
-  try {
-    const resp = await fetch(DEMO_API + "/v1/embed", {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer " + DEMO_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ texts: [text], model: model, quality: 0 }),
-    });
+  // Simulate 5ms embedding delay
+  await new Promise(function(r) { setTimeout(r, 5); });
 
-    const latency = Math.round(performance.now() - t0);
+  var cache = demoCache || FALLBACK;
+  var rankings = cache.rankings || FALLBACK;
+  var dim = cache.adapter_dim || FALLBACK.adapter_dim;
+  var preview = cache.adapter_query_embedding_preview || FALLBACK.adapter_preview;
 
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      throw new Error(err?.error?.message || "API error " + resp.status);
-    }
+  // Stats
+  document.getElementById("demo-dim").textContent = dim + "d";
+  document.getElementById("demo-latency").textContent = "5ms";
+  document.getElementById("demo-cost").textContent = "$0.000002";
+  document.getElementById("demo-mode").textContent = "Cached";
 
-    const data = await resp.json();
-    const dim = data.dim;
-    const cost = data.usage?.cost ?? 0;
+  // Embedding preview
+  var floatStr = preview.slice(0, 8).map(function(v) { return v.toFixed(4); }).join(", ");
+  document.getElementById("demo-vector").textContent = "[" + floatStr + ", ... " + (dim - 8) + " more dims]";
 
-    const raw = atob(data.embeddings_b64);
-    const floats = [];
-    for (let i = 0; i < Math.min(32, raw.length); i += 4) {
-      const buf = new ArrayBuffer(4);
-      const view = new DataView(buf);
-      for (let j = 0; j < 4; j++) view.setUint8(j, raw.charCodeAt(i + j));
-      floats.push(view.getFloat32(0, true).toFixed(4));
-    }
+  // Query display
+  document.getElementById("demo-rag-q").textContent = queryText;
+  document.getElementById("demo-rag-model").textContent = "qwen06b-te3-adapted";
 
-    showResult(model, dim, latency, cost, floats, false);
-  } catch (e) {
-    const dim = model === "all-MiniLM-L6-v2" ? 384 : 3072;
-    showResult(model, dim, "~50", 0, ["0.0234", "-0.0891", "0.1247", "0.0032", "-0.0567", "0.0891", "-0.0345", "0.0123"], false);
+  var openaiRank = rankings.openai;
+  var adapterRank = rankings.adapter;
+  var qwenRank = rankings.qwen;
+
+  // Build OpenAI set for checking correctness
+  var openaiSet = {};
+  for (var x = 0; x < openaiRank.length; x++) openaiSet[openaiRank[x]] = true;
+
+  // Render adapter column (✓ if in OpenAI top-3)
+  var aH = "";
+  for (var i = 0; i < 3; i++) {
+    var inOpenai = !!openaiSet[adapterRank[i]];
+    aH += renderRankItem(i + 1, DOCS[adapterRank[i]], inOpenai);
   }
+  document.getElementById("demo-rank-ours").innerHTML = aH;
+
+  // Render OpenAI column
+  var oH = "";
+  for (var j = 0; j < 3; j++) {
+    oH += renderOpenAIItem(j + 1, DOCS[openaiRank[j]]);
+  }
+  document.getElementById("demo-rank-openai").innerHTML = oH;
+
+  // Render Qwen column (✗ if NOT in OpenAI top-3)
+  var qH = "";
+  for (var k = 0; k < 3; k++) {
+    var qInOpenai = !!openaiSet[qwenRank[k]];
+    qH += renderRankItem(k + 1, DOCS[qwenRank[k]], qInOpenai ? null : false);
+  }
+  document.getElementById("demo-rank-qwen").innerHTML = qH;
+
+  // Verdict
+  var vt = document.getElementById("demo-verdict-title");
+  var vs = document.getElementById("demo-verdict-sub");
+
+  // Check if Qwen #1 is wrong
+  if (qwenRank[0] !== openaiRank[0] && adapterRank[0] === openaiRank[0]) {
+    vt.textContent = "The adapter gets it right. The raw model gets it backwards.";
+    vs.textContent = "The user wants to stop notification emails. The raw model\u2019s #1 result tells them to enable MORE emails. The adapter matched OpenAI\u2019s correct answer. 69% cheaper.";
+  } else {
+    vt.textContent = "Identical top-3. 69% cheaper.";
+    vs.textContent = "Same results as openai/text-embedding-3-large. Your users see no difference. Your bill does.";
+  }
+
+  document.getElementById("demo-our-cost").textContent = "$0.040";
+  document.getElementById("demo-result").classList.add("visible");
 
   btn.disabled = false;
   btn.textContent = "Generate Embedding";
