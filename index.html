@@ -2015,7 +2015,10 @@ footer {
         </div>
 
         <!-- Embedding preview -->
-        <div class="demo-vector" id="demo-vector" style="margin-bottom:14px;">[ ... ]</div>
+        <div style="position:relative; margin-bottom:14px;">
+          <div class="demo-vector" id="demo-vector">[ ... ]</div>
+          <button id="demo-copy-emb" onclick="copyEmbedding(this)" style="display:none; position:absolute; top:8px; right:8px; padding:4px 10px; border-radius:6px; font-size:10px; font-weight:600; border:1px solid #1c1c26; background:#0d0d12; color:#52525b; cursor:pointer; font-family:'DM Sans',sans-serif;">Copy</button>
+        </div>
 
         <!-- Scenario -->
         <div style="background:#0d0d12; border-radius:10px; padding:14px; margin-bottom:14px;">
@@ -2933,6 +2936,17 @@ document.getElementById('contactForm').addEventListener('submit', async function
 
 <script>
 // ═══ INTERACTIVE DEMO ═══
+var demoFullEmbeddingB64 = null;
+
+function copyEmbedding(btn) {
+  if (!demoFullEmbeddingB64) return;
+  navigator.clipboard.writeText(demoFullEmbeddingB64).then(function() {
+    btn.textContent = "Copied!";
+    btn.style.color = "#10b981";
+    btn.style.borderColor = "#10b981";
+    setTimeout(function() { btn.textContent = "Copy"; btn.style.color = "#52525b"; btn.style.borderColor = "#1c1c26"; }, 2000);
+  });
+}
 const DEMO_API = "https://embedding-adapters-api.embedding-adapters.workers.dev";
 const DEMO_KEY = "sk_demo_public_landing_page";
 
@@ -2996,6 +3010,7 @@ function showResults(adapterRank, openaiRank, qwenRank, dim, latency, preview) {
   document.getElementById("demo-latency").textContent = latency + "ms";
   document.getElementById("demo-cost").textContent = "$0.000002";
   document.getElementById("demo-mode").textContent = "API";
+  document.getElementById("demo-mode").style.fontSize = "";
   document.getElementById("demo-our-cost").textContent = "$0.040";
   document.getElementById("demo-rag-q").textContent = document.getElementById("demo-text").value.trim();
   document.getElementById("demo-rag-model").textContent = "qwen06b-te3-adapted";
@@ -3003,6 +3018,10 @@ function showResults(adapterRank, openaiRank, qwenRank, dim, latency, preview) {
   // Embedding preview
   var floats = preview.map(function(v) { return v.toFixed(4); }).join(", ");
   document.getElementById("demo-vector").textContent = "[" + floats + ", ... " + (dim - preview.length) + " more]";
+  
+  // Store full embedding for copy button (JSON array of preview floats)
+  demoFullEmbeddingB64 = "[" + preview.map(function(v) { return v.toFixed(6); }).join(", ") + "]";
+  document.getElementById("demo-copy-emb").style.display = "block";
 
   // OpenAI set for checking
   var oSet = {};
@@ -3057,6 +3076,8 @@ async function runDemo() {
     // Use verified hardcoded rankings — instant
     await new Promise(function(r) { setTimeout(r, 5); });
     showResults(VERIFIED.adapter, VERIFIED.openai, VERIFIED.qwen, VERIFIED.dim, 5, VERIFIED.preview);
+    document.getElementById("demo-mode").textContent = "On-device (simulated)";
+    document.getElementById("demo-mode").style.fontSize = "13px";
     btn.disabled = false;
     btn.textContent = "Generate Embedding";
     return;
@@ -3086,6 +3107,7 @@ async function runDemo() {
     }
 
     // For custom queries, use same rankings as default (we can't rank live)
+    demoFullEmbeddingB64 = data.embeddings_b64;
     showResults(VERIFIED.adapter, VERIFIED.openai, VERIFIED.qwen, data.dim, latency, floats);
   } catch (e) {
     // Fallback to hardcoded
