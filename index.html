@@ -3,24 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EmbeddingAdapters — Run Any Embedding Provider Locally. 18K tok/s. Smart Routing.</title>
-<meta name="description" content="Local embedding adapters that match provider quality at 18,000 tok/s. Smart quality routing sends only hard queries to the cloud. OpenAI, Cohere, Voyage. 99% cost reduction.">
-<meta name="keywords" content="embedding adapters, embedding translation, vector space translation, cross-model embeddings, embedding interoperability, openai embeddings local, minilm to openai, bge embeddings, e5 embeddings, embedding migration, vector database migration, RAG embeddings, semantic search, embedding model switch, python embedding library, pip install embedding-adapters, sentence-transformers adapter, embedding space mapping, convert embeddings between models">
+<title>EmbeddingAdapters — Replace OpenAI Embeddings with Local Models | 69% Cheaper, Same Ranking</title>
+<meta name="description" content="Generate openai/text-embedding-3-large compatible embeddings without OpenAI. Drop-in replacement for Pinecone, Weaviate, pgvector. API at $0.04/1M tokens or run locally for $10/mo. Python SDK.">
+<meta name="keywords" content="embedding adapters, openai text-embedding-3-large alternative, openai embeddings cheaper, local embeddings, vector space translation, cross-model embeddings, embedding interoperability, replace openai embeddings, openai alternative embeddings, minilm to openai, qwen embeddings, embedding migration, vector database migration, RAG embeddings, semantic search, embedding model switch, python embedding library, pip install embedding-adapters, sentence-transformers adapter, embedding space mapping, convert embeddings between models, pinecone embeddings, weaviate embeddings, pgvector embeddings, qdrant embeddings, faiss embeddings, embedding cost reduction, cheap embeddings api, local embedding model, embedding translation, cross-encoder, bi-encoder, vector search, hybrid search embeddings, embedding quality routing, text-embedding-3-small alternative, text-embedding-3-large local, gemini text-embedding-004, e5 embeddings, bge embeddings, multilingual embeddings, embedding fine-tuning, embedding adapter training, neural embedding translation">
 <meta name="author" content="EmbeddingAdapters">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-<link rel="canonical" href="https://embeddingadapters.com/">
+<link rel="canonical" href="https://embedding-adapters.com/">
+<link rel="alternate" href="https://embedding-adapters.com/" hreflang="en">
+<meta name="theme-color" content="#08080c">
+<meta name="application-name" content="EmbeddingAdapters">
 
-<!-- Open Graph / Facebook -->
+<!-- Open Graph / Social -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://embeddingadapters.com/">
-<meta property="og:title" content="EmbeddingAdapters — Run Any Embedding Provider on Your Own Hardware">
-<meta property="og:description" content="Local embedding adapters that match provider quality at 18,000 tok/s. Smart quality routing sends only hard queries to the cloud. OpenAI, Cohere, Voyage support. 99% cost reduction.">
+<meta property="og:url" content="https://embedding-adapters.com/">
+<meta property="og:title" content="EmbeddingAdapters — Replace OpenAI Embeddings | 69% Cheaper, Same Ranking">
+<meta property="og:description" content="Generate openai/text-embedding-3-large vectors without calling OpenAI. Drop into your existing Pinecone index. API from $0.04/1M tokens or $10/mo unlimited local.">
 <meta property="og:site_name" content="EmbeddingAdapters">
+<meta property="og:locale" content="en_US">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="EmbeddingAdapters — Run Any Embedding Provider on Your Own Hardware">
-<meta name="twitter:description" content="Local embedding adapters that match provider quality at 18,000 tok/s. Smart quality routing sends only hard queries to the cloud. OpenAI, Cohere, Voyage support. 99% cost reduction.">
+<meta name="twitter:title" content="EmbeddingAdapters — Replace OpenAI Embeddings Locally">
+<meta name="twitter:description" content="Same ranking as openai/text-embedding-3-large at 69% lower cost. Drop-in replacement. Python SDK + REST API.">
 
 <!-- Structured Data: SoftwareApplication -->
 <script type="application/ld+json">
@@ -29,24 +33,58 @@
   "@type": "SoftwareApplication",
   "name": "EmbeddingAdapters",
   "applicationCategory": "DeveloperApplication",
+  "applicationSubCategory": "Machine Learning",
   "operatingSystem": "Cross-platform",
-  "description": "Run any embedding provider locally at 18,000 tok/s. Trained neural adapters with smart quality routing — easy queries stay local, hard ones route to the cloud. OpenAI, Cohere, Voyage support. 99% cost reduction.",
-  "url": "https://embeddingadapters.com",
+  "description": "Neural adapters that translate between embedding vector spaces. Generate openai/text-embedding-3-large compatible embeddings using local models at 69% lower cost. Drop-in replacement for any vector database.",
+  "url": "https://embedding-adapters.com",
   "downloadUrl": "https://pypi.org/project/embedding-adapters/",
-  "softwareVersion": "latest",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  },
+  "installUrl": "https://pypi.org/project/embedding-adapters/",
+  "softwareVersion": "0.0.5",
+  "releaseNotes": "v2 adapters with built-in quality head, SELU activation, skip connections",
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Free Tier",
+      "price": "0",
+      "priceCurrency": "USD",
+      "description": "10,000 free API tokens + free v1 SDK adapters"
+    },
+    {
+      "@type": "Offer",
+      "name": "API Credits",
+      "price": "0.04",
+      "priceCurrency": "USD",
+      "description": "Per 1M tokens via hosted API (qwen06b-te3-adapted)",
+      "unitCode": "per 1M tokens"
+    },
+    {
+      "@type": "Offer",
+      "name": "Local SDK",
+      "price": "10",
+      "priceCurrency": "USD",
+      "billingIncrement": "P1M",
+      "description": "Unlimited local inference on your GPU. $10/month."
+    }
+  ],
   "author": {
     "@type": "Organization",
     "name": "EmbeddingAdapters",
     "url": "https://github.com/PotentiallyARobot/EmbeddingAdapters"
   },
-  "programmingLanguage": "Python",
+  "programmingLanguage": ["Python"],
   "codeRepository": "https://github.com/PotentiallyARobot/EmbeddingAdapters",
-  "license": "https://opensource.org/licenses/MIT"
+  "featureList": [
+    "openai/text-embedding-3-large compatible output (3072d)",
+    "openai/text-embedding-3-small compatible output (1536d)",
+    "Qwen/Qwen3-Embedding-0.6B to OpenAI translation",
+    "sentence-transformers/all-MiniLM-L6-v2 to OpenAI translation",
+    "openai/text-embedding-3-large to Qwen3-Embedding-8B reverse adapter",
+    "Built-in quality routing (0-100 threshold)",
+    "v2 architecture with quality head",
+    "License-gated local inference ($10/mo)",
+    "REST API with base64 float32 encoding",
+    "Drop-in Pinecone, Weaviate, Qdrant, pgvector compatibility"
+  ]
 }
 </script>
 
@@ -56,8 +94,8 @@
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "EmbeddingAdapters",
-  "url": "https://embeddingadapters.com",
-  "logo": "https://embeddingadapters.com/logo.png",
+  "url": "https://embedding-adapters.com",
+  "logo": "https://embedding-adapters.com/logo.png",
   "sameAs": [
     "https://github.com/PotentiallyARobot/EmbeddingAdapters",
     "https://pypi.org/project/embedding-adapters/"
@@ -70,7 +108,23 @@
 }
 </script>
 
-<!-- Structured Data: FAQPage for search snippets -->
+<!-- Structured Data: WebAPI -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebAPI",
+  "name": "EmbeddingAdapters REST API",
+  "description": "POST /v1/embed — Generate openai/text-embedding-3-large compatible embeddings via REST API. Base64 float32 response. Quality routing from 0-100.",
+  "url": "https://embedding-adapters-api.embedding-adapters.workers.dev",
+  "documentation": "https://embedding-adapters.com/docs.html",
+  "provider": {
+    "@type": "Organization",
+    "name": "EmbeddingAdapters"
+  }
+}
+</script>
+
+<!-- Structured Data: FAQPage -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -78,37 +132,125 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "How do I query my OpenAI TE3 index without calling OpenAI?",
+      "name": "How do I replace OpenAI embeddings with a cheaper alternative?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Use the EmbeddingAdapters API or library. Send texts to our endpoint with model=qwen06b-te3-adapted or minilm-te3-adapted. You get back 3072d TE3-compatible embeddings at 99% lower cost. Works with any TE3-indexed vector database — Pinecone, Weaviate, Qdrant, pgvector, FAISS."
+        "text": "Use EmbeddingAdapters. Send your texts to the API with model=qwen06b-te3-adapted and get back 3072-d vectors compatible with openai/text-embedding-3-large at $0.04/1M tokens (69% cheaper). Works with Pinecone, Weaviate, Qdrant, pgvector — no re-indexing needed."
       }
     },
     {
       "@type": "Question",
-      "name": "How accurate are embedding adapters vs OpenAI TE3?",
+      "name": "Can I search a Pinecone index built with OpenAI using a different model?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "On Natural Questions, Qwen3-0.6B→TE3 achieves MRR@10 of 0.934 at quality=0 (zero OpenAI calls) vs OpenAI's 0.960. At quality=40, it matches TE3 exactly while keeping 62% of queries local. MiniLM→TE3 achieves 0.926 MRR@10 at quality=0."
+        "text": "Yes. EmbeddingAdapters translates embeddings from models like Qwen3-0.6B or MiniLM into openai/text-embedding-3-large vector space. Your Pinecone index stays untouched. The adapter translates the query at search time."
       }
     },
     {
       "@type": "Question",
-      "name": "How fast are embedding adapters?",
+      "name": "How accurate are embedding adapters compared to OpenAI?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "MiniLM→TE3 processes 18,000 tokens per second on a laptop GPU. API latency is 50ms for 10 texts, 450ms for 500 texts. Qwen3-0.6B→TE3 runs at 1,200 tok/s with higher accuracy. Adapters handle concurrent users on a single GPU."
+        "text": "In benchmarks, the adapter produces the same top-3 ranked results as openai/text-embedding-3-large on retrieval tasks. MRR@10 of 0.934 (vs OpenAI's 0.960) at quality=0 with zero API calls. Quality routing can match OpenAI exactly."
       }
     },
     {
       "@type": "Question",
-      "name": "How much does EmbeddingAdapters save vs OpenAI?",
+      "name": "How do I run embedding adapters locally?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "At quality=0 (all local), costs are 99.5-99.7% lower than OpenAI TE3. At quality=50 (hybrid routing), costs are still 99%+ lower. Even at quality=100 (all OpenAI), our per-token rate is cheaper than calling OpenAI directly. At 10B tokens per month, you save over $1,294."
+        "text": "pip install embedding-adapters, then use EmbeddingAdapter.from_registry() to load a v2 adapter. Runs on your GPU at 18,000 tok/s. $10/month subscription for v2 adapters targeting openai/text-embedding-3-large."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the EmbeddingAdapters API pricing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "qwen06b-te3-adapted: $0.04/1M tokens (69% cheaper than OpenAI). minilm-te3-adapted: $0.065/1M tokens (50% cheaper). OpenAI text-embedding-3-large costs $0.130/1M tokens. Free tier includes 10,000 tokens."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I migrate from OpenAI embeddings to open source?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use the te3-qwen3-8b-adapted reverse adapter. Send your existing openai/text-embedding-3-large vectors and get back Qwen3-Embedding-8B compatible vectors. Migrate your entire index to open source without re-embedding."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which embedding models does EmbeddingAdapters support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Source models: Qwen/Qwen3-Embedding-0.6B, sentence-transformers/all-MiniLM-L6-v2, intfloat/e5-base-v2, gemini/text-embedding-004, openai/text-embedding-3-small. Target models: openai/text-embedding-3-large (3072d), openai/text-embedding-3-small (1536d), Qwen/Qwen3-Embedding-8B (4096d), intfloat/e5-base-v2 (768d), gemini/text-embedding-004 (768d). 16 adapter pairs total."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is embedding quality routing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Quality routing scores each query's translation confidence. Low-confidence queries get routed to the provider for a native embedding. Set quality=0 for all-local (cheapest), quality=50 for balanced, or quality=100 for all-provider. The adapter's built-in quality head makes this decision per-text."
       }
     }
   ]
+}
+</script>
+
+<!-- Structured Data: HowTo -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to replace OpenAI embeddings with EmbeddingAdapters",
+  "description": "Generate openai/text-embedding-3-large compatible embeddings at 69% lower cost using the EmbeddingAdapters API.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Sign up and get an API key",
+      "text": "Create a free account at embedding-adapters.com/dashboard.html and generate an API key. You get 10,000 free tokens.",
+      "url": "https://embedding-adapters.com/dashboard.html"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Send texts to the API",
+      "text": "POST to /v1/embed with your texts, model=qwen06b-te3-adapted, and quality=0. Include your API key in the Authorization header."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Decode the response",
+      "text": "The API returns base64-encoded float32 vectors. Decode with numpy: np.frombuffer(base64.b64decode(data['embeddings_b64']), dtype=np.float32).reshape(n, 3072)"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Use with your vector database",
+      "text": "Insert the 3072-d vectors into Pinecone, Weaviate, Qdrant, or pgvector. They're compatible with existing openai/text-embedding-3-large indexes."
+    }
+  ]
+}
+</script>
+
+<!-- Structured Data: Product -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "EmbeddingAdapters API",
+  "description": "REST API for generating openai/text-embedding-3-large compatible embeddings at 69% lower cost",
+  "url": "https://embedding-adapters.com",
+  "brand": {
+    "@type": "Brand",
+    "name": "EmbeddingAdapters"
+  },
+  "offers": {
+    "@type": "AggregateOffer",
+    "lowPrice": "0",
+    "highPrice": "10",
+    "priceCurrency": "USD",
+    "offerCount": "3"
+  },
+  "category": "Machine Learning API"
 }
 </script>
 
@@ -1752,6 +1894,12 @@ footer {
 </style>
 </head>
 <body>
+<noscript>
+  <h2>EmbeddingAdapters — Replace OpenAI Embeddings with Local Models</h2>
+  <p>Generate openai/text-embedding-3-large compatible 3072-dimensional embeddings without calling OpenAI. Drop-in replacement for Pinecone, Weaviate, Qdrant, pgvector. API from $0.04/1M tokens (69% cheaper than OpenAI's $0.130/1M). Python SDK at $10/month for unlimited local GPU inference.</p>
+  <p>Available adapters: Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large, sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large, openai/text-embedding-3-large → Qwen/Qwen3-Embedding-8B, plus 13 more pairs.</p>
+  <p>Install: pip install embedding-adapters | API: POST /v1/embed | Dashboard: <a href="https://embedding-adapters.com/dashboard.html">embedding-adapters.com/dashboard.html</a></p>
+</noscript>
 
 <div class="grid-bg"></div>
 
@@ -1788,7 +1936,7 @@ footer {
   </div>
   <!-- Text overlay -->
   <div class="hero-badge">~98–99% lower embedding cost &middot; Provider-grade retrieval &middot; Local-first</div>
-  <h1>Provider-grade embeddings, locally</h1>
+  <h1>OpenAI-compatible embeddings, 69% cheaper</h1>
   <div class="hero-gradient-line" style="font-family:var(--font-display); font-size:clamp(28px, 3.2vw, 40px); font-weight:700; line-height:1.10; letter-spacing:-0.03em; color:#3b82f6; margin-bottom:14px; position:relative; z-index:3; animation:fadeInUp 0.8s ease 0.12s both;">200× faster. 70× cheaper.</div>
   <p style="font-size:14px; color:var(--text-primary); margin-bottom:14px; position:relative; z-index:3; animation:fadeInUp 0.8s ease 0.15s both;">Query across embedding spaces</p>
   <div id="heroRotateWrap" style="position:relative; height:24px; margin-bottom:14px; z-index:3; width:100%; overflow:hidden;">
@@ -1830,8 +1978,8 @@ footer {
 <section class="demo-section">
   <div class="demo-card">
     <div class="demo-header">
-      <h3>Your index. Your model. OpenAI's ranking.</h3>
-      <p>The adapter matches OpenAI's search results. The raw model doesn't. See for yourself.</p>
+      <h3>How adapters improve search ranking</h3>
+      <p>A customer searches your help center. Below, we compare which docs are returned by OpenAI, the adapter, and the raw base model.</p>
     </div>
     <div class="demo-body">
       <div class="demo-input-row">
@@ -2102,6 +2250,21 @@ footer {
   </div>
 </div>
 
+<!-- ═══ SEO CONTENT ═══ -->
+<section style="position:relative; z-index:1; padding:48px 24px; border-top:1px solid #1c1c26;">
+  <div style="max-width:800px; margin:0 auto;">
+    <h2 style="font-size:20px; font-weight:700; margin-bottom:16px; color:#d4d4d8;">Replace OpenAI Embeddings with Local Models</h2>
+    <article style="font-size:13px; color:#52525b; line-height:1.8;">
+      <p style="margin-bottom:12px;">EmbeddingAdapters is a Python library and REST API that generates <strong style="color:#71717a;">openai/text-embedding-3-large</strong> compatible embeddings without calling OpenAI. Trained neural adapters translate vectors from fast, local models like <strong style="color:#71717a;">Qwen/Qwen3-Embedding-0.6B</strong> and <strong style="color:#71717a;">sentence-transformers/all-MiniLM-L6-v2</strong> into OpenAI's 3072-dimensional vector space.</p>
+      <p style="margin-bottom:12px;">Drop the resulting vectors directly into <strong style="color:#71717a;">Pinecone</strong>, <strong style="color:#71717a;">Weaviate</strong>, <strong style="color:#71717a;">Qdrant</strong>, <strong style="color:#71717a;">pgvector</strong>, <strong style="color:#71717a;">FAISS</strong>, <strong style="color:#71717a;">Milvus</strong>, or <strong style="color:#71717a;">ChromaDB</strong> — they're binary-compatible with existing openai/text-embedding-3-large indexes. No re-indexing, no migration, no downtime.</p>
+      <p style="margin-bottom:12px;">The hosted API costs <strong style="color:#71717a;">$0.040 per 1M tokens</strong> for qwen06b-te3-adapted (69% cheaper than OpenAI's $0.130/1M) and $0.065/1M for minilm-te3-adapted (50% cheaper). The Python SDK runs adapters locally on your GPU for a flat <strong style="color:#71717a;">$10/month</strong> with zero per-token cost.</p>
+      <p style="margin-bottom:12px;">Quality routing lets you control the accuracy-cost tradeoff per query. Set quality=0 for all-local inference (cheapest), quality=50 for balanced hybrid, or quality=100 to route everything through OpenAI. The adapter's built-in quality head scores each text individually.</p>
+      <p style="margin-bottom:12px;">Available adapter pairs include: <strong style="color:#71717a;">Qwen/Qwen3-Embedding-0.6B → openai/text-embedding-3-large</strong>, <strong style="color:#71717a;">sentence-transformers/all-MiniLM-L6-v2 → openai/text-embedding-3-large</strong>, <strong style="color:#71717a;">openai/text-embedding-3-large → Qwen/Qwen3-Embedding-8B</strong> (reverse adapter for migrating off OpenAI), plus 13 more pairs covering <strong style="color:#71717a;">openai/text-embedding-3-small</strong>, <strong style="color:#71717a;">gemini/text-embedding-004</strong>, <strong style="color:#71717a;">intfloat/e5-base-v2</strong>, and cross-provider translation.</p>
+      <p>Install with <code style="color:#71717a; background:#0d0d12; padding:2px 6px; border-radius:4px;">pip install embedding-adapters</code> or use the REST API at <code style="color:#71717a; background:#0d0d12; padding:2px 6px; border-radius:4px;">POST /v1/embed</code>. Free tier includes 10,000 tokens. <a href="dashboard.html" style="color:#3b82f6;">Sign up →</a></p>
+    </article>
+  </div>
+</section>
+
 <!-- ═══ FOOTER ═══ -->
 <footer>
   <div class="footer-inner">
@@ -2109,15 +2272,16 @@ footer {
       <div class="footer-col">
         <h4>Product</h4>
         <a href="usecases.html">Use Cases</a>
-        <a href="how.html">How It Works</a>
         <a href="benchmarks.html">Benchmarks</a>
-        <a href="dashboard.html">API Dashboard</a>
-        <a href="dashboard.html">API Documentation</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="docs.html">Documentation</a>
+        <a href="docs.html#api">API Reference</a>
       </div>
       <div class="footer-col">
         <h4>Resources</h4>
         <a href="https://github.com/PotentiallyARobot/EmbeddingAdapters">GitHub</a>
-        <a href="https://pypi.org/project/embedding-adapters/">PyPI</a>
+        <a href="https://pypi.org/project/embedding-adapters/">PyPI — pip install</a>
+        <a href="https://huggingface.co/TylerF">HuggingFace Models</a>
         <a href="https://www.reddit.com/r/Python/comments/1qlx02c/generate_openai_embeddings_locally_with_minilm/">Reddit Discussion</a>
       </div>
       <div class="footer-col">
@@ -2129,11 +2293,13 @@ footer {
     </div>
     <div class="footer-bottom">
       <div class="footer-tags">
+        <span>openai/text-embedding-3-large compatible</span>
+        <span>69% cheaper</span>
         <span>18K tok/s local</span>
-        <span>Smart routing</span>
-        <span>Any provider</span>
+        <span>$10/mo unlimited</span>
+        <span>Pinecone · Weaviate · pgvector</span>
       </div>
-      <p class="footer-seo-text">EmbeddingAdapters runs embedding providers locally at 18,000 tok/s. Adapters from MiniLM and Qwen3-0.6B to OpenAI text-embedding-3-large, with Cohere and Voyage coming soon. Smart quality routing sends only hard queries to the cloud. 97% retrieval accuracy, 99% cost savings. Works with Pinecone, Weaviate, Qdrant, pgvector, FAISS.</p>
+      <p class="footer-seo-text">EmbeddingAdapters generates openai/text-embedding-3-large compatible embeddings at 69% lower cost. Neural adapters translate Qwen/Qwen3-Embedding-0.6B and sentence-transformers/all-MiniLM-L6-v2 into OpenAI's 3072-d vector space. Drop-in replacement for Pinecone, Weaviate, Qdrant, pgvector, FAISS, Milvus, ChromaDB. REST API from $0.04/1M tokens. Python SDK at $10/month for unlimited local GPU inference. Reverse adapter translates openai/text-embedding-3-large to Qwen/Qwen3-Embedding-8B for open-source migration. Quality routing from 0-100. Built-in quality head on v2 adapters. pip install embedding-adapters.</p>
     </div>
   </div>
 </footer>
